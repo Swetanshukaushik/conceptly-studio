@@ -785,7 +785,17 @@
     }
 
     function openModal(id) { document.getElementById(id).classList.remove("hidden"); lucide.createIcons(); }
-    function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add("hidden");
+      if (id === "gate3Modal") {
+        const player = document.getElementById("g3_video_player");
+        if (player) {
+          player.pause();
+          player.currentTime = 0;
+        }
+      }
+    }
     function openCreateModal() { openModal("createModal"); }
 
     window.onload = init;
