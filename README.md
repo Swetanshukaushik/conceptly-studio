@@ -26,5 +26,6 @@ cp .env.example .env
 python -m src.cli --topic "Newton's Third Law" --class-level 9 --subject "Physics"
 ```
 
-## Architecture
-See [architecture.md](architecture.md) for the complete multi-agent pipeline specification.
+## Architecture & Contracts
+- See [architecture.md](architecture.md) for the complete multi-agent pipeline specification.
+- See [STUDIO_INTEGRATION_CONTRACT.md](STUDIO_INTEGRATION_CONTRACT.md) for the universal domain taxonomy, video specs, and Conceptly API integration schemas.
