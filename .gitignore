@@ -43,6 +43,8 @@ temp/
 *.wav
 *.png
 *.jpg
+*.db
+*.sqlite3
 
 # OS
 .DS_Store

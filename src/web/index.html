@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conceptly Studio — Autonomous Reel Factory</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#090D16',
+              card: '#111827',
+              border: '#1E293B',
+              cobalt: '#2563EB',
+              amber: '#F59E0B',
+              emerald: '#10B981'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #090D16; color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(30, 41, 59, 0.8); }
+    .mobile-frame { width: 340px; height: 604px; border-radius: 40px; border: 8px solid #1E293B; overflow: hidden; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }
+    .safe-overlay-top { position: absolute; top: 0; left: 0; right: 0; height: 38px; background: rgba(239, 68, 68, 0.25); border-bottom: 2px dashed #EF4444; z-index: 20; pointer-events: none; }
+    .safe-overlay-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: rgba(239, 68, 68, 0.25); border-top: 2px dashed #EF4444; z-index: 20; pointer-events: none; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-brand-border bg-brand-dark/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-cobalt to-brand-amber flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-brand-cobalt/20">
+          🎬
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-lg tracking-tight">Conceptly</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-cobalt/20 text-brand-cobalt font-semibold border border-brand-cobalt/30">STUDIO</span>
+          </div>
+          <p class="text-xs text-slate-400">Autonomous 9:16 Vertical Reel Factory</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <div class="hidden sm:flex items-center space-x-2 text-xs text-slate-300 bg-brand-card px-3 py-1.5 rounded-lg border border-brand-border">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Core API Connected</span>
+        </div>
+        <div id="authSection" class="flex items-center space-x-3">
+          <!-- Auth details populated by JS -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- Top Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass p-6 rounded-2xl">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Micro-Learning Video Factory</h1>
+        <p class="text-sm text-slate-400 mt-1">Autonomous 45-second educational video generation for NCERT, JEE, NEET & UPSC.</p>
+      </div>
+      <button onclick="openCreateModal()" class="flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium px-5 py-2.5 rounded-xl shadow-lg shadow-blue-600/30 transition">
+        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+        <span>Generate New Reel</span>
+      </button>
+    </div>
+
+    <!-- Active Reel Jobs Table -->
+    <div class="glass rounded-2xl overflow-hidden">
+      <div class="p-5 border-b border-brand-border flex items-center justify-between">
+        <h2 class="font-semibold text-lg flex items-center space-x-2">
+          <i data-lucide="film" class="w-5 h-5 text-brand-amber"></i>
+          <span>Reel Generation Queue & Review Gates</span>
+        </h2>
+        <button onclick="fetchJobs()" class="text-xs text-slate-400 hover:text-white flex items-center space-x-1">
+          <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-brand-card/50 text-xs text-slate-400 uppercase tracking-wider border-b border-brand-border">
+            <tr>
+              <th class="py-3.5 px-4">Topic & Curriculum</th>
+              <th class="py-3.5 px-4">Tier</th>
+              <th class="py-3.5 px-4">Status / Review Gate</th>
+              <th class="py-3.5 px-4">Word Count</th>
+              <th class="py-3.5 px-4">Created</th>
+              <th class="py-3.5 px-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="jobsTableBody" class="divide-y divide-brand-border">
+            <tr>
+              <td colspan="6" class="text-center py-12 text-slate-400">Loading production pipeline...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL 1: Create New Reel -->
+  <div id="createModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="glass max-w-lg w-full rounded-2xl overflow-hidden shadow-2xl">
+      <div class="p-5 border-b border-brand-border flex items-center justify-between">
+        <h3 class="font-bold text-lg">Launch New Reel Generator</h3>
+        <button onclick="closeModal('createModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form onsubmit="handleCreateJob(event)" class="p-5 space-y-4">
+        
+        <!-- Dual-Tier Toggle -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Generation Tier</label>
+          <div class="grid grid-cols-2 gap-3 p-1.5 bg-brand-dark rounded-xl border border-brand-border">
+            <label class="flex flex-col items-center p-2 rounded-lg cursor-pointer transition border border-transparent has-[:checked]:bg-brand-card has-[:checked]:border-brand-amber">
+              <input type="radio" name="generation_tier" value="DEFAULT" checked class="hidden">
+              <span class="text-xs font-bold text-brand-amber flex items-center space-x-1"><span>⚡</span> <span>DEFAULT</span></span>
+              <span class="text-[10px] text-slate-400 mt-0.5">Gemini Flash • 12s • Free</span>
+            </label>
+            <label class="flex flex-col items-center p-2 rounded-lg cursor-pointer transition border border-transparent has-[:checked]:bg-brand-card has-[:checked]:border-brand-cobalt">
+              <input type="radio" name="generation_tier" value="PREMIUM" class="hidden">
+              <span class="text-xs font-bold text-blue-400 flex items-center space-x-1"><span>💎</span> <span>PREMIUM</span></span>
+              <span class="text-[10px] text-slate-400 mt-0.5">Claude 3.5 • ElevenLabs</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Exam Track</label>
+            <select id="exam_type" class="w-full bg-brand-card border border-brand-border rounded-lg px-3 py-2 text-sm focus:border-brand-cobalt focus:outline-none">
+              <option value="SCHOOL">NCERT (School)</option>
+              <option value="IIT_JEE">IIT-JEE (Advanced)</option>
+              <option value="NEET">NEET (Medical)</option>
+              <option value="UPSC">UPSC Civil Services</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Class Level</label>
+            <select id="class_level" class="w-full bg-brand-card border border-brand-border rounded-lg px-3 py-2 text-sm focus:border-brand-cobalt focus:outline-none">
+              <option value="9">Class 9</option>
+              <option value="10">Class 10</option>
+              <option value="11">Class 11</option>
+              <option value="12">Class 12</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Subject</label>
+          <input type="text" id="subject" value="Physics" required class="w-full bg-brand-card border border-brand-border rounded-lg px-3 py-2 text-sm focus:border-brand-cobalt focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Topic Title</label>
+          <input type="text" id="topic_title" placeholder="e.g. Newton's Third Law" value="Newton's Third Law" required class="w-full bg-brand-card border border-brand-border rounded-lg px-3 py-2 text-sm focus:border-brand-cobalt focus:outline-none">
+        </div>
+
+        <div class="pt-2 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('createModal')" class="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancel</button>
+          <button type="submit" class="px-5 py-2 text-sm font-medium bg-brand-cobalt hover:bg-blue-600 rounded-lg text-white shadow-lg shadow-brand-cobalt/30 transition">
+            Launch Stage 1
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Gate 1 Script & Storyboard Review -->
+  <div id="gate1Modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 md:p-6">
+    <div class="glass max-w-5xl w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="p-4 md:px-6 md:py-4 border-b border-brand-border flex items-center justify-between bg-brand-card/50">
+        <div class="flex items-center space-x-3">
+          <span class="w-3 h-3 rounded-full bg-brand-amber animate-pulse"></span>
+          <div>
+            <h3 class="font-bold text-lg text-white">Gate 1: Creative Blueprint & Storyboard Review</h3>
+            <p id="g1_subtitle" class="text-xs text-slate-400">Review visual scenes, spoken dialogue, and camera motion before rendering</p>
+          </div>
+        </div>
+        <button onclick="closeModal('gate1Modal')" class="text-slate-400 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="flex border-b border-brand-border bg-brand-dark/60 px-6 space-x-4">
+        <button id="g1_tab_sb_btn" onclick="switchGate1Tab('storyboard')" class="px-4 py-2.5 text-xs font-bold text-white border-b-2 border-brand-amber flex items-center space-x-1.5 transition">
+          <i data-lucide="clapperboard" class="w-3.5 h-3.5 text-brand-amber"></i>
+          <span>Visual Storyboard (<span id="g1_scenes_count_tab">0</span> Scenes)</span>
+        </button>
+        <button id="g1_tab_sc_btn" onclick="switchGate1Tab('script')" class="px-4 py-2.5 text-xs font-medium text-slate-400 hover:text-white border-b-2 border-transparent flex items-center space-x-1.5 transition">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+          <span>Screenplay Blueprint (4 Acts)</span>
+        </button>
+      </div>
+
+      <!-- Scrollable Content Area -->
+      <div class="p-4 md:p-6 overflow-y-auto space-y-5 flex-1">
+        <!-- Hook & Takeaway Summary Banner -->
+        <div class="bg-brand-card/70 p-4 rounded-xl border border-brand-border flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="text-[10px] text-brand-amber font-mono font-bold tracking-wider uppercase flex items-center space-x-1">
+              <i data-lucide="sparkles" class="w-3 h-3"></i>
+              <span>Hook Paradox</span>
+            </div>
+            <div id="g1_hook" class="text-sm md:text-base font-bold text-white"></div>
+            <div class="text-xs text-slate-400">Core Takeaway: <span id="g1_takeaway" class="text-slate-200 font-medium"></span></div>
+          </div>
+          <div class="flex items-center space-x-3 shrink-0">
+            <div class="text-right">
+              <div class="text-[10px] uppercase text-slate-400 font-mono">Pacing Check</div>
+              <div id="g1_word_count" class="text-xs font-bold text-emerald-400">115w (~45s)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 1: Visual Storyboard Gallery -->
+        <div id="g1_storyboard_view" class="space-y-4">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Visual Scene Beats (Synchronized sentence-by-sentence with audio)</span>
+            <span class="text-[11px] text-slate-400">💡 Edit prompts or camera motion, then click Re-roll to preview new visuals</span>
+          </div>
+
+          <div id="g1_storyboard_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Dynamically populated with scene cards -->
+          </div>
+        </div>
+
+        <!-- VIEW 2: Screenplay Dialogue Acts -->
+        <div id="g1_script_view" class="hidden space-y-4">
+          <div class="text-xs text-slate-400">Vertical Retention 4-Act Screenplay Structure:</div>
+          <div id="g1_acts_container" class="space-y-3">
+            <!-- Dynamically populated with act cards -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 px-6 border-t border-brand-border bg-brand-card/90 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center space-x-2 text-xs text-slate-400">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+          <span>Fact-checked & Safe-Zone compliant</span>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button onclick="closeModal('gate1Modal')" class="px-4 py-2 text-sm text-slate-400 hover:text-white transition">Cancel</button>
+          <button onclick="submitGate1Approval()" class="px-6 py-2.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center space-x-2">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span>Approve Blueprint & Generate Quiz</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Gate 2 Quiz Review -->
+  <div id="gate2Modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="glass max-w-2xl w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="p-5 border-b border-brand-border flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+          <h3 class="font-bold text-lg">Gate 2: Checkpoint Quiz Review</h3>
+        </div>
+        <button onclick="closeModal('gate2Modal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div id="g2_questions_container" class="p-5 overflow-y-auto space-y-4 flex-1">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="p-4 border-t border-brand-border bg-brand-card flex items-center justify-between">
+        <button onclick="closeModal('gate2Modal')" class="px-4 py-2 text-sm text-slate-400 hover:text-white">Close</button>
+        <button onclick="submitGate2Approval()" class="px-6 py-2.5 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center space-x-2">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>Approve Quiz & Render Video</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Gate 3 Final Reel Simulator -->
+  <div id="gate3Modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="glass max-w-4xl w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[92vh]">
+      
+      <!-- Mobile Mockup Simulator -->
+      <div class="p-6 flex flex-col items-center justify-center bg-black/40 border-r border-brand-border">
+        <div class="text-xs text-slate-400 mb-2 flex items-center space-x-2">
+          <i data-lucide="smartphone" class="w-4 h-4"></i>
+          <span>Conceptly Mobile Player Simulator (9:16)</span>
+        </div>
+
+        <div class="mobile-frame bg-slate-900 relative">
+          <!-- Simulated native app overlays -->
+          <div id="safeOverlayTop" class="safe-overlay-top flex items-center px-4 text-[9px] text-red-200 font-mono">
+            ⚠️ TOP DANGER ZONE (0 - 120px)
+          </div>
+          
+          <video id="g3_video_player" controls autoplay loop class="w-full h-full object-cover"></video>
+
+          <div id="safeOverlayBottom" class="safe-overlay-bottom flex flex-col justify-end p-2 text-[9px] text-red-200 font-mono">
+            ⚠️ BOTTOM DANGER ZONE (1600 - 1920px: Native Quiz CTA)
+          </div>
+        </div>
+
+        <!-- Safe Zone Toggle Switch -->
+        <div class="mt-4 flex items-center space-x-2 text-xs">
+          <input type="checkbox" id="toggleSafeZones" checked onchange="toggleOverlays()" class="rounded border-brand-border">
+          <label for="toggleSafeZones" class="cursor-pointer text-slate-300">Highlight App UI Safe Zones</label>
+        </div>
+      </div>
+
+      <!-- Decision Panel -->
+      <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex items-center space-x-2 text-xs font-semibold text-brand-emerald">
+            <span class="w-2 h-2 rounded-full bg-brand-emerald"></span>
+            <span>GATE 3: READY FOR DECISION</span>
+          </div>
+          <h2 id="g3_title" class="text-xl font-bold mt-1 text-white"></h2>
+          <p id="g3_takeaway" class="text-xs text-slate-400 mt-1"></p>
+
+          <div class="mt-4 space-y-2 text-xs text-slate-300 bg-brand-card p-4 rounded-xl border border-brand-border">
+            <div class="font-semibold text-white">Specifications Verified:</div>
+            <div>• Aspect Ratio: <span class="text-brand-amber font-mono">9:16 (1080x1920)</span></div>
+            <div>• Subtitles: <span class="text-brand-amber font-mono">Burned-in Kinetic (.ass)</span></div>
+            <div>• Audio Loudness: <span class="text-brand-amber font-mono">-14 LUFS Voice / -22 dB BGM</span></div>
+            <div>• Quiz Count: <span class="text-brand-amber font-mono">2 Verified MCQs</span></div>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-4 border-t border-brand-border">
+          <button onclick="publishToConceptlyLive()" class="w-full py-3 text-sm font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center space-x-2">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Publish to Conceptly Live (POST /reels & /quizzes)</span>
+          </button>
+          
+          <div class="flex space-x-2">
+            <a id="g3_download_btn" download href="#" class="flex-1 py-2 text-xs text-center font-medium bg-brand-card border border-brand-border hover:bg-slate-800 rounded-lg text-slate-300 transition">
+              Download MP4
+            </a>
+            <button onclick="closeModal('gate3Modal')" class="px-4 py-2 text-xs text-slate-400 hover:text-white">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentToken = localStorage.getItem("token") || "";
+    let activeJob = null;
+
+    async function init() {
+      lucide.createIcons();
+      if (!currentToken) {
+        await loginDefaultAdmin();
+      } else {
+        renderAuth();
+      }
+      fetchJobs();
+      setInterval(fetchJobs, 4000);
+    }
+
+    async function loginDefaultAdmin() {
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: "admin@conceptly.app", password: "admin123456" })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          currentToken = data.access_token;
+          localStorage.setItem("token", currentToken);
+          renderAuth();
+        }
+      } catch (e) {
+        console.error("Auto login error:", e);
+      }
+    }
+
+    function renderAuth() {
+      const container = document.getElementById("authSection");
+      container.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-200">A</div>
+          <span class="text-xs text-slate-300 hidden sm:inline">admin@conceptly.app</span>
+        </div>
+      `;
+    }
+
+    async function fetchJobs() {
+      try {
+        const res = await fetch("/api/reels", {
+          headers: { "Authorization": `Bearer ${currentToken}` }
+        });
+        if (res.ok) {
+          const jobs = await res.json();
+          renderJobsTable(jobs);
+        }
+      } catch (e) {
+        console.error("Fetch jobs error:", e);
+      }
+    }
+
+    function renderJobsTable(jobs) {
+      const tbody = document.getElementById("jobsTableBody");
+      if (!jobs || jobs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-slate-500">No reels created yet. Click "Generate New Reel" to start.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = jobs.map(j => {
+        let statusBadge = `<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-slate-800 text-slate-300">${j.status}</span>`;
+        let actionBtn = "";
+
+        if (j.status === "GATE_1_READY") {
+          statusBadge = `<span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse">GATE 1: Review Script</span>`;
+          actionBtn = `<button onclick="openGate1Modal('${j.id}')" class="px-3 py-1 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg transition">Review Script</button>`;
+        } else if (j.status === "GATE_2_READY") {
+          statusBadge = `<span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse">GATE 2: Review Quiz</span>`;
+          actionBtn = `<button onclick="openGate2Modal('${j.id}')" class="px-3 py-1 text-xs font-semibold bg-blue-500 hover:bg-blue-400 text-white rounded-lg transition">Review Quiz</button>`;
+        } else if (j.status === "GATE_3_READY") {
+          statusBadge = `<span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse">GATE 3: Final Reel Ready</span>`;
+          actionBtn = `<button onclick="openGate3Modal('${j.id}')" class="px-3 py-1 text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg transition">Inspect & Publish</button>`;
+        } else if (j.status === "PUBLISHED") {
+          statusBadge = `<span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LIVE ON CONCEPTLY</span>`;
+          actionBtn = `<button onclick="openGate3Modal('${j.id}')" class="px-3 py-1 text-xs font-medium bg-brand-card hover:bg-slate-800 text-slate-300 rounded-lg border border-brand-border transition">View Reel</button>`;
+        } else if (j.status === "PROCESSING") {
+          statusBadge = `<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-indigo-500/20 text-indigo-400 animate-pulse">Rendering Video...</span>`;
+        }
+
+        const tierBadge = j.generation_tier === "PREMIUM" 
+          ? `<span class="text-xs font-bold text-blue-400">💎 Premium</span>` 
+          : `<span class="text-xs font-bold text-amber-400">⚡ Default</span>`;
+
+        const words = j.script_data?.total_word_count ? `${j.script_data.total_word_count}w` : "—";
+        const dateStr = new Date(j.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        return `
+          <tr class="hover:bg-brand-card/40 transition">
+            <td class="py-3.5 px-4">
+              <div class="font-semibold text-white">${j.topic_title}</div>
+              <div class="text-xs text-slate-400">${j.exam_type} • Class ${j.class_level || 'Gen'} • ${j.subject}</div>
+            </td>
+            <td class="py-3.5 px-4">${tierBadge}</td>
+            <td class="py-3.5 px-4">${statusBadge}</td>
+            <td class="py-3.5 px-4 font-mono text-xs text-slate-300">${words}</td>
+            <td class="py-3.5 px-4 text-xs text-slate-400">${dateStr}</td>
+            <td class="py-3.5 px-4 text-right">${actionBtn}</td>
+          </tr>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    async function handleCreateJob(e) {
+      e.preventDefault();
+      const tier = document.querySelector('input[name="generation_tier"]:checked').value;
+      const payload = {
+        topic_title: document.getElementById("topic_title").value,
+        exam_type: document.getElementById("exam_type").value,
+        class_level: parseInt(document.getElementById("class_level").value),
+        subject: document.getElementById("subject").value,
+        generation_tier: tier
+      };
+
+      try {
+        const res = await fetch("/api/reels/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${currentToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          closeModal("createModal");
+          fetchJobs();
+        }
+      } catch (err) {
+        alert("Creation failed: " + err);
+      }
+    }
+
+    let currentGate1Tab = 'storyboard';
+
+    function switchGate1Tab(tab) {
+      currentGate1Tab = tab;
+      const sbView = document.getElementById("g1_storyboard_view");
+      const scView = document.getElementById("g1_script_view");
+      const sbBtn = document.getElementById("g1_tab_sb_btn");
+      const scBtn = document.getElementById("g1_tab_sc_btn");
+      
+      if (tab === 'storyboard') {
+        sbView.classList.remove("hidden");
+        scView.classList.add("hidden");
+        sbBtn.className = "px-4 py-2.5 text-xs font-bold text-white border-b-2 border-brand-amber flex items-center space-x-1.5 transition";
+        scBtn.className = "px-4 py-2.5 text-xs font-medium text-slate-400 hover:text-white border-b-2 border-transparent flex items-center space-x-1.5 transition";
+      } else {
+        sbView.classList.add("hidden");
+        scView.classList.remove("hidden");
+        scBtn.className = "px-4 py-2.5 text-xs font-bold text-white border-b-2 border-brand-amber flex items-center space-x-1.5 transition";
+        sbBtn.className = "px-4 py-2.5 text-xs font-medium text-slate-400 hover:text-white border-b-2 border-transparent flex items-center space-x-1.5 transition";
+      }
+    }
+
+    async function openGate1Modal(jobId) {
+      const res = await fetch(`/api/reels/${jobId}`, { headers: { "Authorization": `Bearer ${currentToken}` } });
+      activeJob = await res.json();
+      
+      const s = activeJob.script_data || {};
+      document.getElementById("g1_hook").innerText = s.hook || "No hook paradox found";
+      document.getElementById("g1_takeaway").innerText = s.key_takeaway || "No takeaway defined";
+      document.getElementById("g1_word_count").innerText = `${s.total_word_count || 0}w (Target: 110-130)`;
+      document.getElementById("g1_subtitle").innerText = `${activeJob.topic_title} • ${activeJob.exam_type} Class ${activeJob.class_level || 'All'} • ${activeJob.generation_tier} Tier`;
+
+      // 1. Populate Storyboard Grid
+      const scenes = (s.storyboard && s.storyboard.scenes) ? s.storyboard.scenes : [];
+      document.getElementById("g1_scenes_count_tab").innerText = scenes.length;
+
+      const grid = document.getElementById("g1_storyboard_grid");
+      if (scenes.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full p-8 text-center text-slate-400 bg-brand-card rounded-xl border border-brand-border">
+            No visual storyboard beats generated. Switch to the Screenplay Blueprint tab to review the 4-act text.
+          </div>
+        `;
+      } else {
+        grid.innerHTML = scenes.map(scene => {
+          const motions = ["ZOOM_IN", "PAN_RIGHT", "PAN_LEFT", "PULL_BACK"];
+          const motionOptions = motions.map(m => `
+            <option value="${m}" ${scene.camera_motion === m ? 'selected' : ''}>🎥 ${m}</option>
+          `).join('');
+
+          let modalityBadge = 'text-amber-400 bg-amber-400/10 border-amber-400/20';
+          if (scene.visual_modality === 'GLOWING_VECTOR_DIAGRAM') {
+            modalityBadge = 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20';
+          } else if (scene.visual_modality === 'ANATOMICAL_3D') {
+            modalityBadge = 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+          }
+
+          const imgUrl = scene.image_url || '/placeholder.png';
+
+          return `
+            <div class="bg-brand-card/90 rounded-xl border border-brand-border overflow-hidden flex flex-col p-3.5 space-y-3 shadow-md hover:border-slate-600 transition">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="font-bold text-white bg-slate-800 px-2 py-0.5 rounded">Beat #${scene.scene_number}</span>
+                <span class="font-mono text-slate-400">${scene.start_sec ? scene.start_sec.toFixed(1) : '0.0'}s – ${scene.end_sec ? scene.end_sec.toFixed(1) : '4.0'}s</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono border ${modalityBadge}">${scene.visual_modality || 'CINEMATIC'}</span>
+              </div>
+
+              <div class="relative w-full aspect-[9/16] max-h-[260px] bg-slate-950 rounded-lg overflow-hidden border border-brand-border flex items-center justify-center group">
+                <img id="g1_scene_img_${scene.scene_number}" src="${imgUrl}" alt="Scene ${scene.scene_number}" class="w-full h-full object-cover">
+                <div class="absolute bottom-1 right-1 bg-black/75 px-1.5 py-0.5 rounded text-[9px] font-mono text-slate-300">
+                  ${scene.camera_motion || 'ZOOM_IN'}
+                </div>
+              </div>
+
+              <div class="p-2 bg-brand-dark/70 rounded-lg border border-brand-border/60">
+                <div class="text-[9px] uppercase font-mono text-slate-400 flex items-center space-x-1">
+                  <i data-lucide="mic" class="w-2.5 h-2.5 text-brand-amber"></i>
+                  <span>Spoken Line</span>
+                </div>
+                <div class="text-xs text-amber-200 italic mt-0.5 leading-snug">"${scene.spoken_line}"</div>
+              </div>
+
+              <div class="space-y-1">
+                <div class="text-[10px] uppercase font-mono text-slate-400">Visual Prompt Direction</div>
+                <textarea id="g1_scene_prompt_${scene.scene_number}" rows="3" class="w-full bg-brand-dark border border-brand-border rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-brand-amber leading-tight">${scene.visual_prompt}</textarea>
+              </div>
+
+              <div class="flex items-center space-x-2 pt-1">
+                <select id="g1_scene_motion_${scene.scene_number}" class="bg-brand-dark border border-brand-border rounded-lg px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-brand-amber w-1/2">
+                  ${motionOptions}
+                </select>
+                <button type="button" id="g1_regen_btn_${scene.scene_number}" onclick="regenerateScene(${scene.scene_number})" class="flex-1 py-1.5 px-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-slate-200 flex items-center justify-center space-x-1 transition">
+                  <i data-lucide="refresh-cw" class="w-3 h-3 text-brand-amber"></i>
+                  <span>Re-roll</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 2. Populate Screenplay Acts Container
+      const actsContainer = document.getElementById("g1_acts_container");
+      actsContainer.innerHTML = (s.acts || []).map((act, i) => `
+        <div class="p-3 bg-brand-card rounded-xl border border-brand-border space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-300">ACT ${act.act_number}: ${act.title} (${act.start_sec}s - ${act.end_sec}s)</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">${act.card_type}</span>
+          </div>
+          <textarea id="act_spoken_${i}" class="w-full bg-brand-dark border border-brand-border rounded-lg p-2 text-xs text-white focus:outline-none focus:border-brand-amber" rows="2">${act.spoken_text}</textarea>
+          <div class="text-[11px] text-slate-400">Visual Direction: <span class="italic text-slate-300">${act.visual_direction}</span></div>
+        </div>
+      `).join('');
+
+      // Default to Storyboard tab
+      switchGate1Tab(scenes.length > 0 ? 'storyboard' : 'script');
+      lucide.createIcons();
+      openModal("gate1Modal");
+    }
+
+    async function regenerateScene(sceneNum) {
+      if (!activeJob) return;
+      const btn = document.getElementById(`g1_regen_btn_${sceneNum}`);
+      const promptEl = document.getElementById(`g1_scene_prompt_${sceneNum}`);
+      const motionEl = document.getElementById(`g1_scene_motion_${sceneNum}`);
+      const imgEl = document.getElementById(`g1_scene_img_${sceneNum}`);
+
+      const origHtml = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="animate-spin text-brand-amber">⟳</span><span>Rendering...</span>`;
+      }
+
+      try {
+        const payload = {
+          visual_prompt: promptEl ? promptEl.value : undefined,
+          camera_motion: motionEl ? motionEl.value : undefined
+        };
+        const res = await fetch(`/api/reels/${activeJob.id}/scenes/${sceneNum}/regenerate`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${currentToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          const updatedScene = await res.json();
+          if (imgEl && updatedScene.image_url) {
+            imgEl.src = `${updatedScene.image_url}?t=${Date.now()}`;
+          }
+          if (activeJob.script_data?.storyboard?.scenes) {
+            const idx = activeJob.script_data.storyboard.scenes.findIndex(s => s.scene_number === sceneNum);
+            if (idx !== -1) {
+              activeJob.script_data.storyboard.scenes[idx] = updatedScene;
+            }
+          }
+        } else {
+          const err = await res.json();
+          alert("Visual re-roll failed: " + (err.detail || "Server error"));
+        }
+      } catch (err) {
+        alert("Request failed: " + err);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+          lucide.createIcons();
+        }
+      }
+    }
+
+    async function submitGate1Approval() {
+      if (!activeJob) return;
+      const script = activeJob.script_data;
+      if (script.acts) {
+        script.acts.forEach((act, i) => {
+          const el = document.getElementById(`act_spoken_${i}`);
+          if (el) act.spoken_text = el.value;
+        });
+      }
+      if (script.storyboard?.scenes) {
+        script.storyboard.scenes.forEach(scene => {
+          const pEl = document.getElementById(`g1_scene_prompt_${scene.scene_number}`);
+          if (pEl) scene.visual_prompt = pEl.value;
+          const mEl = document.getElementById(`g1_scene_motion_${scene.scene_number}`);
+          if (mEl) scene.camera_motion = mEl.value;
+        });
+      }
+
+      const res = await fetch(`/api/reels/${activeJob.id}/gate1/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${currentToken}` },
+        body: JSON.stringify({ script_data: script })
+      });
+      if (res.ok) {
+        closeModal("gate1Modal");
+        fetchJobs();
+      } else {
+        const err = await res.json();
+        alert("Gate 1 approval failed: " + (err.detail || "Server error"));
+      }
+    }
+
+    async function openGate2Modal(jobId) {
+      const res = await fetch(`/api/reels/${jobId}`, { headers: { "Authorization": `Bearer ${currentToken}` } });
+      activeJob = await res.json();
+      
+      const qz = activeJob.quiz_data;
+      const container = document.getElementById("g2_questions_container");
+      container.innerHTML = qz.questions.map((q, qIndex) => `
+        <div class="p-4 bg-brand-card rounded-xl border border-brand-border space-y-3">
+          <div class="text-xs font-bold text-blue-400">QUESTION ${qIndex + 1}</div>
+          <input type="text" id="q_text_${qIndex}" value="${q.text}" class="w-full bg-brand-dark border border-brand-border rounded-lg p-2 text-sm text-white font-medium">
+          <div class="space-y-1.5">
+            ${q.options.map(opt => `
+              <div class="flex items-center space-x-2 text-xs">
+                <input type="radio" name="correct_${qIndex}" value="${opt.id}" ${opt.id === q.correctOptionId ? 'checked' : ''} class="text-blue-500">
+                <span class="font-mono text-slate-400 uppercase">${opt.id})</span>
+                <span class="text-slate-200">${opt.text}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="text-xs text-slate-400 bg-brand-dark/50 p-2 rounded-lg">Explanation: <span class="text-slate-300">${q.explanation}</span></div>
+        </div>
+      `).join('');
+
+      openModal("gate2Modal");
+    }
+
+    async function submitGate2Approval() {
+      if (!activeJob) return;
+      const qz = activeJob.quiz_data;
+      qz.questions.forEach((q, i) => {
+        q.text = document.getElementById(`q_text_${i}`).value;
+        const selected = document.querySelector(`input[name="correct_${i}"]:checked`);
+        if (selected) q.correctOptionId = selected.value;
+      });
+
+      const res = await fetch(`/api/reels/${activeJob.id}/gate2/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${currentToken}` },
+        body: JSON.stringify({ quiz_data: qz })
+      });
+      if (res.ok) {
+        closeModal("gate2Modal");
+        fetchJobs();
+      }
+    }
+
+    async function openGate3Modal(jobId) {
+      const res = await fetch(`/api/reels/${jobId}`, { headers: { "Authorization": `Bearer ${currentToken}` } });
+      activeJob = await res.json();
+      
+      document.getElementById("g3_title").innerText = activeJob.topic_title;
+      document.getElementById("g3_takeaway").innerText = activeJob.script_data?.key_takeaway || "";
+      
+      const player = document.getElementById("g3_video_player");
+      player.src = activeJob.video_url;
+      player.load();
+
+      const dl = document.getElementById("g3_download_btn");
+      dl.href = activeJob.video_url;
+
+      openModal("gate3Modal");
+    }
+
+    async function publishToConceptlyLive() {
+      if (!activeJob) return;
+      const res = await fetch(`/api/reels/${activeJob.id}/gate3/publish`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${currentToken}` },
+        body: JSON.stringify({ publish_to_conceptly: true })
+      });
+      if (res.ok) {
+        alert("🎉 Successfully Published Reel & Quizzes to Conceptly Core!");
+        closeModal("gate3Modal");
+        fetchJobs();
+      }
+    }
+
+    function toggleOverlays() {
+      const show = document.getElementById("toggleSafeZones").checked;
+      document.getElementById("safeOverlayTop").style.display = show ? "flex" : "none";
+      document.getElementById("safeOverlayBottom").style.display = show ? "flex" : "none";
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove("hidden"); lucide.createIcons(); }
+    function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+    function openCreateModal() { openModal("createModal"); }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
