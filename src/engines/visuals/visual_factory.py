@@ -63,7 +63,29 @@ class VisualAssetFactory:
         if cls._resolve_archive_visual(scene, output_image_path):
             return output_image_path
 
-        # 3. Clean Procedural Visual Schematic (No debug text boxes)
+        # 3. Dynamic Physics & Science Simulation Keyframe (Exact match to physics sim engine)
+        try:
+            from src.engines.render.physics_sim_engine import PhysicsSimulationEngine
+            if PhysicsSimulationEngine.should_simulate(scene):
+                text_lower = f"{scene.visual_prompt} {scene.spoken_line}".lower()
+                if any(w in text_lower for w in ["rocket", "exhaust", "newton", "thrust", "propulsion"]):
+                    frame_img = PhysicsSimulationEngine._render_frame_rocket_propulsion(
+                        0, 90, 0.25,
+                        {"particles": [], "stars": [{"x": random.randint(0, cls.WIDTH), "y": random.randint(0, cls.HEIGHT), "s": 2} for _ in range(80)]},
+                        scene
+                    )
+                elif any(w in text_lower for w in ["chloroplast", "photosynthesis", "cell", "thylakoid"]):
+                    frame_img = PhysicsSimulationEngine._render_frame_photosynthesis(0, 90, 0.25, {}, scene)
+                elif any(w in text_lower for w in ["orbit", "gravity", "satellite"]):
+                    frame_img = PhysicsSimulationEngine._render_frame_orbit(0, 90, 0.25, {}, scene)
+                else:
+                    frame_img = PhysicsSimulationEngine._render_frame_collision(0, 90, 0.45, {}, scene)
+                frame_img.save(output_image_path, "PNG")
+                return output_image_path
+        except Exception as e:
+            print(f"⚠️ Physics sim preview notice: {e}")
+
+        # 4. Clean Procedural Visual Schematic (No debug text boxes)
         return cls._render_procedural_cinematic(scene, output_image_path)
 
     _ARCHIVE_URL_CACHE: dict = {}
@@ -290,19 +312,7 @@ class VisualAssetFactory:
             draw.line([(cx, cy - 100), (cx, cy + 100)], fill=(255, 255, 255), width=4)
             draw.text((120, 940), "Action-Reaction on Different Bodies", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
 
-        # Burned-in Subtitle Safe Zone Box at Y = 1360px - 1490px
-        sub_box = [(60, 1360), (cls.WIDTH - 60, 1490)]
-        draw.rounded_rectangle(sub_box, radius=20, fill=(15, 23, 42), outline=accent_glow, width=2)
-        font_sub = cls._get_font(34, bold=True)
-        sub_lines = cls._wrap_text(scene.spoken_line, max_chars=42)
-        y_sub = 1380
-        for line in sub_lines[:2]:
-            bbox = draw.textbbox((0, 0), line, font=font_sub)
-            text_w = bbox[2] - bbox[0]
-            x_sub = (cls.WIDTH - text_w) // 2
-            draw.text((x_sub, y_sub), line, fill=(255, 255, 255), font=font_sub)
-            y_sub += 48
-
+        # Subtitles are dynamically burned in by ASS Compositor with word-level chronometry
         img.save(output_path, "PNG")
         return output_path
 

@@ -65,7 +65,24 @@ class VideoClipEngine:
                 clip = cls._generate_kling_clip(scene, base_img_path, output_clip_path, duration)
                 if clip: return clip
 
-        # 4. Tier 1 FREE (or offline fallback): 2.5D Parallax Camera Motion Engine
+        # 4. Tier 1 FREE (or offline fallback): Autonomous 2026 Enhanced Engine
+        # 4A. Dynamic Animated Physics & Science Simulations (Newton, Collisions, Orbit, Photosynthesis)
+        from src.engines.render.physics_sim_engine import PhysicsSimulationEngine
+        if PhysicsSimulationEngine.should_simulate(scene):
+            try:
+                return PhysicsSimulationEngine.render_simulation_clip(scene, output_clip_path, duration)
+            except Exception as e:
+                print(f"⚠️ Physics sim notice: {e}, falling back to character/parallax motion...")
+
+        # 4B. Cinematic Living Character Motion (Breathing, light sweeps, floating embers for historical/human scenes)
+        from src.engines.render.character_motion_engine import CharacterMotionEngine
+        if CharacterMotionEngine.should_animate_character(scene) and base_img_path and os.path.exists(base_img_path):
+            try:
+                return CharacterMotionEngine.render_living_character_clip(base_img_path, output_clip_path, duration, scene)
+            except Exception as e:
+                print(f"⚠️ Character motion notice: {e}, falling back to parallax motion...")
+
+        # 4C. General 2.5D Parallax Camera Motion Engine
         return cls._generate_parallax_clip(base_img_path, output_clip_path, duration, scene.camera_motion)
 
     @classmethod
