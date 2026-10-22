@@ -26,8 +26,93 @@
     }
   </script>
   <style>
-    body { background-color: #090D16; color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(30, 41, 59, 0.8); }
+    /* 3-Theme Spectrum CSS Variables */
+    :root, html.theme-dark {
+      --bg-page: #090D16;
+      --bg-card: #111827;
+      --bg-card-sub: #172136;
+      --border-color: #1E293B;
+      --text-main: #F8FAFC;
+      --text-secondary: #CBD5E1;
+      --text-muted: #94A3B8;
+      --glass-bg: rgba(17, 24, 39, 0.75);
+      --input-bg: #111827;
+      --pill-bg: rgba(30, 41, 59, 0.6);
+    }
+
+    html.theme-gray {
+      --bg-page: #181C24;
+      --bg-card: #232A36;
+      --bg-card-sub: #2C3544;
+      --border-color: #374151;
+      --text-main: #F3F4F6;
+      --text-secondary: #D1D5DB;
+      --text-muted: #9CA3AF;
+      --glass-bg: rgba(35, 42, 54, 0.85);
+      --input-bg: #1E2532;
+      --pill-bg: rgba(55, 65, 81, 0.6);
+    }
+
+    html.theme-light {
+      --bg-page: #F1F5F9;
+      --bg-card: #FFFFFF;
+      --bg-card-sub: #F8FAFC;
+      --border-color: #E2E8F0;
+      --text-main: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --glass-bg: rgba(255, 255, 255, 0.96);
+      --input-bg: #FFFFFF;
+      --pill-bg: rgba(226, 232, 240, 0.7);
+    }
+
+    body {
+      background-color: var(--bg-page) !important;
+      color: var(--text-main) !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .glass {
+      background: var(--glass-bg) !important;
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color) !important;
+    }
+
+    .bg-brand-dark { background-color: var(--bg-page) !important; }
+    .bg-brand-card { background-color: var(--bg-card) !important; }
+    .border-brand-border { border-color: var(--border-color) !important; }
+
+    /* Theme typography & component adaptations */
+    html.theme-light .text-white { color: #0F172A !important; }
+    html.theme-light .text-slate-200 { color: #1E293B !important; }
+    html.theme-light .text-slate-300 { color: #334155 !important; }
+    html.theme-light .text-slate-400 { color: #64748B !important; }
+    html.theme-light select,
+    html.theme-light input,
+    html.theme-light textarea {
+      background-color: #FFFFFF !important;
+      color: #0F172A !important;
+      border-color: #CBD5E1 !important;
+    }
+    html.theme-light .mobile-frame {
+      border-color: #CBD5E1;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+    }
+    html.theme-light .bg-slate-900,
+    html.theme-light .bg-slate-950 {
+      background-color: #F8FAFC !important;
+      color: #0F172A !important;
+    }
+
+    html.theme-gray select,
+    html.theme-gray input,
+    html.theme-gray textarea {
+      background-color: #1E2532 !important;
+      color: #F3F4F6 !important;
+      border-color: #374151 !important;
+    }
+
     .mobile-frame { width: 340px; height: 604px; border-radius: 40px; border: 8px solid #1E293B; overflow: hidden; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }
     .safe-overlay-top { position: absolute; top: 0; left: 0; right: 0; height: 38px; background: rgba(239, 68, 68, 0.25); border-bottom: 2px dashed #EF4444; z-index: 20; pointer-events: none; }
     .safe-overlay-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: rgba(239, 68, 68, 0.25); border-top: 2px dashed #EF4444; z-index: 20; pointer-events: none; }
@@ -51,16 +136,34 @@
         </div>
       </div>
 
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- About Platform Button -->
+        <button onclick="openAboutModal()" class="flex items-center space-x-1.5 text-xs font-semibold text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition shadow-sm">
+          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+          <span>About Platform</span>
+        </button>
+
+        <!-- Pricing Modal Button -->
         <button onclick="openPricingModal()" class="flex items-center space-x-1.5 text-xs font-semibold text-brand-amber bg-brand-amber/10 hover:bg-brand-amber/20 border border-brand-amber/30 px-3 py-1.5 rounded-lg transition shadow-sm">
           <i data-lucide="circle-dollar-sign" class="w-3.5 h-3.5"></i>
-          <span>Tier Pricing & Unit Economics</span>
+          <span class="hidden sm:inline">Tier Pricing</span>
+          <span class="sm:hidden">Pricing</span>
         </button>
-        <div class="hidden sm:flex items-center space-x-2 text-xs text-slate-300 bg-brand-card px-3 py-1.5 rounded-lg border border-brand-border">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Core API Connected</span>
+
+        <!-- 3-Theme Switcher (Dark, Gray, Light) -->
+        <div class="flex items-center p-0.5 bg-brand-card rounded-lg border border-brand-border text-xs">
+          <button id="theme_dark_btn" onclick="setTheme('dark')" class="px-2 py-1 rounded-md text-xs font-medium flex items-center space-x-1 transition" title="Midnight Obsidian Dark">
+            <span>🌙</span> <span class="hidden lg:inline text-[11px]">Dark</span>
+          </button>
+          <button id="theme_gray_btn" onclick="setTheme('gray')" class="px-2 py-1 rounded-md text-xs font-medium flex items-center space-x-1 transition" title="Cool Slate Gray">
+            <span>🌫️</span> <span class="hidden lg:inline text-[11px]">Gray</span>
+          </button>
+          <button id="theme_light_btn" onclick="setTheme('light')" class="px-2 py-1 rounded-md text-xs font-medium flex items-center space-x-1 transition" title="Clean Editorial Light">
+            <span>☀️</span> <span class="hidden lg:inline text-[11px]">Light</span>
+          </button>
         </div>
-        <div id="authSection" class="flex items-center space-x-3">
+
+        <div id="authSection" class="flex items-center space-x-2">
           <!-- Auth details populated by JS -->
         </div>
       </div>
@@ -82,27 +185,102 @@
       </button>
     </div>
 
-    <!-- Active Reel Jobs Table -->
-    <div class="glass rounded-2xl overflow-hidden">
-      <div class="p-5 border-b border-brand-border flex items-center justify-between">
-        <h2 class="font-semibold text-lg flex items-center space-x-2">
-          <i data-lucide="film" class="w-5 h-5 text-brand-amber"></i>
-          <span>Reel Generation Queue & Review Gates</span>
-        </h2>
-        <button onclick="fetchJobs()" class="text-xs text-slate-400 hover:text-white flex items-center space-x-1">
-          <i data-lucide="rotate-cw" class="w-4 h-4"></i>
-          <span>Refresh</span>
+    <!-- Active Reel Jobs & Gates Container -->
+    <div class="glass rounded-2xl overflow-hidden space-y-4 p-5 sm:p-6">
+      <!-- Section Title, Subtitle & View Mode Toggle -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border pb-4">
+        <div>
+          <h2 class="font-semibold text-lg flex items-center space-x-2">
+            <i data-lucide="film" class="w-5 h-5 text-brand-amber"></i>
+            <span>Reel Generation Queue & Review Gates</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Autonomous production line grouped by subject, topic & review gate status.</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <!-- View Mode Toggle -->
+          <div class="flex items-center p-1 bg-brand-card rounded-xl border border-brand-border text-xs">
+            <button id="view_grouped_btn" onclick="setViewMode('grouped')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 bg-blue-600 text-white transition shadow">
+              <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+              <span>Grouped</span>
+            </button>
+            <button id="view_table_btn" onclick="setViewMode('table')" class="px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5 text-slate-400 hover:text-white transition">
+              <i data-lucide="table" class="w-3.5 h-3.5"></i>
+              <span>Table</span>
+            </button>
+          </div>
+          <button onclick="fetchJobs()" class="p-2 text-xs text-slate-400 hover:text-white bg-brand-card hover:bg-slate-800 border border-brand-border rounded-xl flex items-center transition" title="Refresh Queue">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters & Live Search Toolbar -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+        <!-- Search Input -->
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+          <input 
+            type="text" 
+            id="jobSearchInput" 
+            placeholder="Search topic, subject, or hook..." 
+            oninput="handleSearch(this.value)"
+            class="w-full bg-brand-card border border-brand-border rounded-xl pl-9 pr-3 py-2 text-xs focus:border-brand-cobalt focus:outline-none transition"
+          >
+        </div>
+
+        <!-- Subject Filter Dropdown -->
+        <div>
+          <select id="filterSubject" onchange="handleSubjectFilter(this.value)" class="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2 text-xs focus:border-brand-cobalt focus:outline-none transition">
+            <option value="ALL">All Subjects</option>
+          </select>
+        </div>
+
+        <!-- Status Filter Dropdown -->
+        <div>
+          <select id="filterStatus" onchange="handleStatusFilter(this.value)" class="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2 text-xs focus:border-brand-cobalt focus:outline-none transition">
+            <option value="ALL">All Review Gates & Statuses</option>
+            <option value="GATE_1_READY">Gate 1: Review Script</option>
+            <option value="GATE_2_READY">Gate 2: Review Quiz</option>
+            <option value="GATE_3_READY">Gate 3: Final Reel Ready</option>
+            <option value="PUBLISHED">Published (Live)</option>
+            <option value="PROCESSING">Processing / Rendering</option>
+          </select>
+        </div>
+
+        <!-- Tier Filter Dropdown -->
+        <div>
+          <select id="filterTier" onchange="handleTierFilter(this.value)" class="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2 text-xs focus:border-brand-cobalt focus:outline-none transition">
+            <option value="ALL">All Tiers (Free, Premium, Ultra)</option>
+            <option value="FREE">⚡ Free Tier ($0.00)</option>
+            <option value="PREMIUM">💎 Premium Tier (~$0.20)</option>
+            <option value="ULTRA">👑 Ultra Tier (~$0.85)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Active Filters Summary & Count -->
+      <div id="filterSummaryBar" class="flex items-center justify-between text-xs text-slate-400 pt-1 pb-1">
+        <div id="filterCountBadge" class="font-medium">Loading reels...</div>
+        <button id="clearFiltersBtn" onclick="clearFilters()" class="hidden text-brand-cobalt hover:underline text-xs flex items-center space-x-1">
+          <i data-lucide="x" class="w-3 h-3"></i>
+          <span>Clear all filters</span>
         </button>
       </div>
 
-      <div class="overflow-x-auto">
+      <!-- Main Display Area: Grouped View (Default) -->
+      <div id="groupedViewContainer" class="space-y-6 pt-2">
+        <!-- Rendered by renderGroupedView() -->
+      </div>
+
+      <!-- Table View (Hidden by default, toggled via switcher) -->
+      <div id="tableViewContainer" class="hidden overflow-x-auto rounded-xl border border-brand-border">
         <table class="w-full text-left text-sm">
-          <thead class="bg-brand-card/50 text-xs text-slate-400 uppercase tracking-wider border-b border-brand-border">
+          <thead class="bg-brand-card/70 text-xs text-slate-400 uppercase tracking-wider border-b border-brand-border font-mono">
             <tr>
-              <th class="py-3.5 px-4">Topic & Curriculum</th>
+              <th class="py-3.5 px-4">Subject & Topic</th>
               <th class="py-3.5 px-4">Tier</th>
-              <th class="py-3.5 px-4">Status / Review Gate</th>
-              <th class="py-3.5 px-4">Word Count</th>
+              <th class="py-3.5 px-4">Status / Gate</th>
+              <th class="py-3.5 px-4">Duration & Words</th>
               <th class="py-3.5 px-4">Created</th>
               <th class="py-3.5 px-4 text-right">Actions</th>
             </tr>
@@ -589,11 +767,254 @@
     </div>
   </div>
 
+  <!-- MODAL 6: About Platform (Comprehensive Architecture & Vision) -->
+  <div id="aboutModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-6">
+    <div class="glass max-w-4xl w-full max-h-[92vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-indigo-500/30">
+      
+      <!-- Header -->
+      <div class="p-5 px-6 border-b border-brand-border flex items-center justify-between bg-brand-card/90">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-amber-500 flex items-center justify-center text-xl shadow-lg shadow-indigo-600/30">
+            📖
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="font-bold text-lg text-white">About Conceptly Studio</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30">v2.5 ARCHITECTURE</span>
+            </div>
+            <p class="text-xs text-slate-400">Autonomous 9:16 Micro-Learning Vertical Reel Factory for NCERT, IIT-JEE, NEET & UPSC</p>
+          </div>
+        </div>
+        <button onclick="closeModal('aboutModal')" class="text-slate-400 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Scrollable Content Body -->
+      <div class="p-6 overflow-y-auto space-y-6 flex-1 text-slate-300 text-xs sm:text-sm">
+        
+        <!-- Hero Metrics Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-brand-card/80 p-3.5 rounded-xl border border-brand-border text-center">
+            <div class="text-xl sm:text-2xl font-black text-amber-400">45 Sec</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">Optimal Retention Duration</div>
+          </div>
+          <div class="bg-brand-card/80 p-3.5 rounded-xl border border-brand-border text-center">
+            <div class="text-xl sm:text-2xl font-black text-blue-400">3.5 Sec</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">Visual Cut Rhythm Rule</div>
+          </div>
+          <div class="bg-brand-card/80 p-3.5 rounded-xl border border-brand-border text-center">
+            <div class="text-xl sm:text-2xl font-black text-emerald-400">$0.00</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">Local Free Tier Sim</div>
+          </div>
+          <div class="bg-brand-card/80 p-3.5 rounded-xl border border-brand-border text-center">
+            <div class="text-xl sm:text-2xl font-black text-indigo-400">3 Gates</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">Human-in-the-Loop Quality</div>
+          </div>
+        </div>
+
+        <!-- Section 1: The Problem & The Mission -->
+        <div class="bg-brand-card/60 p-5 rounded-2xl border border-brand-border space-y-3">
+          <h4 class="text-sm font-bold text-white flex items-center space-x-2">
+            <i data-lucide="target" class="w-4 h-4 text-brand-amber"></i>
+            <span>1. Pedagogical Mission: Why Micro-Learning Cinema?</span>
+          </h4>
+          <p class="leading-relaxed text-slate-300">
+            Traditional textbooks and 60-minute video lectures cause cognitive overload, passive skimming, and poor retention. 
+            <strong>Conceptly Studio</strong> converts complex academic syllabus topics into <strong>high-impact 45-second micro-learning cinema</strong>. 
+            Every reel pairs kinetic visual mechanisms (animated physics vectors, historical living portraits, cellular simulations) with tight 4-act screenplays and word-level synchronized audio to build permanent conceptual memory.
+          </p>
+        </div>
+
+        <!-- Section 2: Autonomous 6-Agent AI Pipeline Flowchart -->
+        <div class="bg-brand-card/60 p-5 rounded-2xl border border-brand-border space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="text-sm font-bold text-white flex items-center space-x-2">
+              <i data-lucide="git-merge" class="w-4 h-4 text-brand-cobalt"></i>
+              <span>2. The 6-Agent Autonomous Production Pipeline</span>
+            </h4>
+            <span class="text-[11px] font-mono text-slate-400">Automated End-to-End</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <!-- Agent 1 -->
+            <div class="bg-brand-dark/80 p-3.5 rounded-xl border border-brand-border space-y-1.5">
+              <div class="flex items-center space-x-2 text-xs font-bold text-blue-400">
+                <span>01</span>
+                <span>Curriculum Agent</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Ingests NCERT, CBSE, IIT-JEE, NEET & UPSC curricula. Identifies the core paradox, exam level, and key conceptual takeaway.
+              </p>
+            </div>
+
+            <!-- Agent 2 -->
+            <div class="bg-brand-dark/80 p-3.5 rounded-xl border border-brand-border space-y-1.5">
+              <div class="flex items-center space-x-2 text-xs font-bold text-amber-400">
+                <span>02</span>
+                <span>Script & FactCheck Agent</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Writes a 4-Act screenplay (Hook, Analogy, Mechanism, Takeaway) strictly calibrated to 110-130 spoken words to guarantee 45s pacing.
+              </p>
+            </div>
+
+            <!-- Agent 3 -->
+            <div class="bg-brand-dark/80 p-3.5 rounded-xl border border-brand-border space-y-1.5">
+              <div class="flex items-center space-x-2 text-xs font-bold text-purple-400">
+                <span>03</span>
+                <span>Scene Director Agent</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Splits dialogue into 6 to 12 visual beats (3-4s per cut), assigning domain camera motions (push-in, pan, pull-back) and sound FX.
+              </p>
+            </div>
+
+            <!-- Agent 4 -->
+            <div class="bg-brand-dark/80 p-3.5 rounded-xl border border-brand-border space-y-1.5">
+              <div class="flex items-center space-x-2 text-xs font-bold text-emerald-400">
+                <span>04</span>
+                <span>Neural Voice & Chronometry</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Synthesizes human speech via EdgeTTS or ElevenLabs, calculating millisecond word timestamps to burn in kinetic highlighted subtitles.
+              </p>
+            </div>
+
+            <!-- Agent 5 -->
+            <div class="bg-brand-dark/80 p-3.5 rounded-xl border border-brand-border space-y-1.5">
+              <div class="flex items-center space-x-2 text-xs font-bold text-cyan-400">
+                <span>05</span>
+                <span>Multi-Tier Video Clip Engine</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Generates 30fps Full HD MP4 clips using local physics vector simulation, living character parallax, Kling AI, or Runway Gen-3 diffusion.
+              </p>
+            </div>
+
+            <!-- Agent 6 -->
+            <div class="bg-brand-dark/80 p-3.5 rounded-xl border border-brand-border space-y-1.5">
+              <div class="flex items-center space-x-2 text-xs font-bold text-rose-400">
+                <span>06</span>
+                <span>Motion Compositor & Publisher</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                Stitches scene clips, applies audio ducking with lo-fi beats, injects 2 checkpoint MCQs, and publishes directly to Conceptly Core.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: The 3 Human-in-the-Loop Review Gates -->
+        <div class="bg-brand-card/60 p-5 rounded-2xl border border-brand-border space-y-3">
+          <h4 class="text-sm font-bold text-white flex items-center space-x-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+            <span>3. Human-in-the-Loop Quality Gating (3-Gate Protocol)</span>
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1">
+              <span class="text-xs font-bold text-amber-400 flex items-center space-x-1">
+                <span>Gate 1</span> <span>• Script & Storyboard</span>
+              </span>
+              <p class="text-[11px] text-slate-300">Creator validates spoken dialogue, hook paradox, and visual storyboard frames before any video rendering begins.</p>
+            </div>
+            <div class="p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl space-y-1">
+              <span class="text-xs font-bold text-blue-400 flex items-center space-x-1">
+                <span>Gate 2</span> <span>• Checkpoint MCQs</span>
+              </span>
+              <p class="text-[11px] text-slate-300">Creator reviews 2 NCERT/UPSC retrieval quiz questions, distractor explanations, and cognitive difficulty.</p>
+            </div>
+            <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-1">
+              <span class="text-xs font-bold text-emerald-400 flex items-center space-x-1">
+                <span>Gate 3</span> <span>• Video Simulation & Publish</span>
+              </span>
+              <p class="text-[11px] text-slate-300">Creator watches the final synthesized 1080x1920 Full HD reel in the safe-zone simulator before publishing live.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: The 3 Generation Tiers Spectrum -->
+        <div class="bg-brand-card/60 p-5 rounded-2xl border border-brand-border space-y-3">
+          <h4 class="text-sm font-bold text-white flex items-center space-x-2">
+            <i data-lucide="layers" class="w-4 h-4 text-brand-amber"></i>
+            <span>4. The 3 Generation Tiers Spectrum</span>
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="p-3 bg-brand-dark rounded-xl border border-emerald-500/30 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-400">⚡ Tier 1: Free</span>
+                <span class="text-[10px] text-emerald-400 font-mono">$0.00 / reel</span>
+              </div>
+              <p class="text-[11px] text-slate-300">
+                Gemini 1.5 Flash + EdgeTTS + local Python <strong>PhysicsSimulationEngine</strong> (exhaust particles, collisions, orbits) + <strong>CharacterMotionEngine</strong> (breathing, light sweeps, embers). Zero GPU token cost.
+              </p>
+            </div>
+            <div class="p-3 bg-brand-dark rounded-xl border border-blue-500/30 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-blue-400">💎 Tier 2: Premium</span>
+                <span class="text-[10px] text-blue-400 font-mono">~$0.20 / reel</span>
+              </div>
+              <p class="text-[11px] text-slate-300">
+                Kling AI & Hailuo AI diffusion video synthesis via Fal.ai for native camera moves, human walking, realistic physics, and cinematic EdTech storytelling.
+              </p>
+            </div>
+            <div class="p-3 bg-brand-dark rounded-xl border border-amber-500/30 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-400">👑 Tier 3: Ultra</span>
+                <span class="text-[10px] text-amber-400 font-mono">~$0.85 / reel</span>
+              </div>
+              <p class="text-[11px] text-slate-300">
+                Hollywood two-step pipeline: FLUX.1 Pro photorealistic keyframes ➔ Runway Gen-3 Alpha / Luma Ray 2 + ElevenLabs Multilingual v2 with emotional human inflection.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 5: Cognitive Science Principles -->
+        <div class="bg-brand-card/60 p-5 rounded-2xl border border-brand-border space-y-3">
+          <h4 class="text-sm font-bold text-white flex items-center space-x-2">
+            <i data-lucide="brain" class="w-4 h-4 text-purple-400"></i>
+            <span>5. Cognitive Science & Learning Principles</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
+            <div class="p-3 bg-brand-dark rounded-xl border border-brand-border">
+              <div class="font-bold text-white mb-1">Dual-Coding Theory</div>
+              <p class="text-slate-400">Simultaneous verbal explanation and visual vector diagrams stimulate two separate cognitive processing channels, doubling retention.</p>
+            </div>
+            <div class="p-3 bg-brand-dark rounded-xl border border-brand-border">
+              <div class="font-bold text-white mb-1">Temporal Contiguity</div>
+              <p class="text-slate-400">Kinetic highlighted subtitles light up in millisecond sync with spoken phonemes, eliminating split-attention effect.</p>
+            </div>
+            <div class="p-3 bg-brand-dark rounded-xl border border-brand-border">
+              <div class="font-bold text-white mb-1">Spaced Retrieval Practice</div>
+              <p class="text-slate-400">Immediate Gate 2 checkpoint MCQs force active memory recall right after watching, converting short-term attention into permanent recall.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 px-6 border-t border-brand-border bg-brand-card flex items-center justify-between">
+        <span class="text-xs text-slate-400">Built for next-generation visual learning by Conceptly Studio.</span>
+        <button onclick="closeModal('aboutModal')" class="px-5 py-2 text-xs font-semibold bg-brand-dark hover:bg-slate-800 border border-brand-border text-slate-200 rounded-xl transition">
+          Close Overview
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let currentToken = localStorage.getItem("token") || "";
     let activeJob = null;
+    let allJobs = [];
+    let searchQuery = "";
+    let selectedSubject = "ALL";
+    let selectedStatus = "ALL";
+    let selectedTier = "ALL";
+    let currentViewMode = "grouped"; // 'grouped' or 'table'
+    let collapsedSubjects = {};
 
     async function init() {
+      initTheme();
       lucide.createIcons();
       if (!currentToken) {
         await loginDefaultAdmin();
@@ -602,6 +1023,43 @@
       }
       fetchJobs();
       setInterval(fetchJobs, 4000);
+    }
+
+    // ================= Theme Switcher (Dark, Gray, Light) =================
+    function initTheme() {
+      const savedTheme = localStorage.getItem("conceptly_theme") || "dark";
+      setTheme(savedTheme, false);
+    }
+
+    function setTheme(theme, save = true) {
+      if (save) localStorage.setItem("conceptly_theme", theme);
+      document.documentElement.classList.remove("theme-dark", "theme-gray", "theme-light");
+      document.documentElement.classList.add(`theme-${theme}`);
+      
+      const btnDark = document.getElementById("theme_dark_btn");
+      const btnGray = document.getElementById("theme_gray_btn");
+      const btnLight = document.getElementById("theme_light_btn");
+
+      if (btnDark) {
+        btnDark.className = theme === 'dark' 
+          ? "px-2 py-1 rounded-md text-xs font-semibold bg-brand-border text-white shadow-sm flex items-center space-x-1"
+          : "px-2 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white flex items-center space-x-1 transition";
+      }
+      if (btnGray) {
+        btnGray.className = theme === 'gray'
+          ? "px-2 py-1 rounded-md text-xs font-semibold bg-slate-700 text-white shadow-sm flex items-center space-x-1"
+          : "px-2 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white flex items-center space-x-1 transition";
+      }
+      if (btnLight) {
+        btnLight.className = theme === 'light'
+          ? "px-2 py-1 rounded-md text-xs font-semibold bg-slate-200 text-slate-900 shadow-sm flex items-center space-x-1"
+          : "px-2 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white flex items-center space-x-1 transition";
+      }
+    }
+
+    function openAboutModal() {
+      document.getElementById("aboutModal").classList.remove("hidden");
+      lucide.createIcons();
     }
 
     async function loginDefaultAdmin() {
@@ -638,18 +1096,299 @@
           headers: { "Authorization": `Bearer ${currentToken}` }
         });
         if (res.ok) {
-          const jobs = await res.json();
-          renderJobsTable(jobs);
+          allJobs = await res.json();
+          updateSubjectDropdown();
+          renderJobs();
         }
       } catch (e) {
         console.error("Fetch jobs error:", e);
       }
     }
 
-    function renderJobsTable(jobs) {
+    // ================= Search, Filters & Grouping Logic =================
+    function getSubjectIcon(sub) {
+      const s = (sub || '').toLowerCase();
+      if (s.includes('phys')) return '⚛️';
+      if (s.includes('hist') || s.includes('polity') || s.includes('civic') || s.includes('upsc')) return '🏛️';
+      if (s.includes('bio') || s.includes('neet') || s.includes('plant')) return '🧬';
+      if (s.includes('chem')) return '🧪';
+      if (s.includes('math')) return '📐';
+      if (s.includes('econ') || s.includes('fin')) return '📊';
+      return '📚';
+    }
+
+    function handleSearch(val) {
+      searchQuery = val.trim();
+      renderJobs();
+    }
+
+    function handleSubjectFilter(val) {
+      selectedSubject = val;
+      renderJobs();
+    }
+
+    function handleStatusFilter(val) {
+      selectedStatus = val;
+      renderJobs();
+    }
+
+    function handleTierFilter(val) {
+      selectedTier = val;
+      renderJobs();
+    }
+
+    function clearFilters() {
+      searchQuery = "";
+      selectedSubject = "ALL";
+      selectedStatus = "ALL";
+      selectedTier = "ALL";
+      document.getElementById("jobSearchInput").value = "";
+      document.getElementById("filterSubject").value = "ALL";
+      document.getElementById("filterStatus").value = "ALL";
+      document.getElementById("filterTier").value = "ALL";
+      renderJobs();
+    }
+
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      const groupedBtn = document.getElementById("view_grouped_btn");
+      const tableBtn = document.getElementById("view_table_btn");
+      const groupedContainer = document.getElementById("groupedViewContainer");
+      const tableContainer = document.getElementById("tableViewContainer");
+
+      if (mode === "grouped") {
+        groupedBtn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 bg-blue-600 text-white transition shadow";
+        tableBtn.className = "px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5 text-slate-400 hover:text-white transition";
+        groupedContainer.classList.remove("hidden");
+        tableContainer.classList.add("hidden");
+      } else {
+        tableBtn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 bg-blue-600 text-white transition shadow";
+        groupedBtn.className = "px-3 py-1.5 rounded-lg text-xs font-medium flex items-center space-x-1.5 text-slate-400 hover:text-white transition";
+        groupedContainer.classList.add("hidden");
+        tableContainer.classList.remove("hidden");
+      }
+      renderJobs();
+    }
+
+    function toggleSubjectCollapse(subject) {
+      collapsedSubjects[subject] = !collapsedSubjects[subject];
+      renderJobs();
+    }
+
+    function updateSubjectDropdown() {
+      const select = document.getElementById("filterSubject");
+      if (!select) return;
+      const subjects = {};
+      allJobs.forEach(j => {
+        const s = j.subject || "General Studies";
+        subjects[s] = (subjects[s] || 0) + 1;
+      });
+
+      const currentVal = selectedSubject;
+      let html = `<option value="ALL">All Subjects (${allJobs.length})</option>`;
+      for (const [sub, count] of Object.entries(subjects)) {
+        html += `<option value="${sub}">${getSubjectIcon(sub)} ${sub} (${count})</option>`;
+      }
+      select.innerHTML = html;
+      if (subjects[currentVal] || currentVal === "ALL") {
+        select.value = currentVal;
+      }
+    }
+
+    function getFilteredJobs() {
+      return allJobs.filter(j => {
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          const matchTitle = (j.topic_title || "").toLowerCase().includes(q);
+          const matchSubject = (j.subject || "").toLowerCase().includes(q);
+          const matchExam = (j.exam_type || "").toLowerCase().includes(q);
+          const matchHook = (j.script_data?.hook || "").toLowerCase().includes(q);
+          if (!matchTitle && !matchSubject && !matchExam && !matchHook) return false;
+        }
+        if (selectedSubject !== "ALL" && j.subject !== selectedSubject) return false;
+        if (selectedStatus !== "ALL" && j.status !== selectedStatus) return false;
+        if (selectedTier !== "ALL" && j.generation_tier !== selectedTier) return false;
+        return true;
+      });
+    }
+
+    function renderJobs() {
+      const filtered = getFilteredJobs();
+      
+      // Update count & clear button
+      const countBadge = document.getElementById("filterCountBadge");
+      const clearBtn = document.getElementById("clearFiltersBtn");
+      const isFiltered = searchQuery || selectedSubject !== "ALL" || selectedStatus !== "ALL" || selectedTier !== "ALL";
+      
+      if (countBadge) {
+        countBadge.innerText = isFiltered 
+          ? `Showing ${filtered.length} of ${allJobs.length} reels`
+          : `Total ${allJobs.length} active reels in pipeline`;
+      }
+      if (clearBtn) {
+        if (isFiltered) clearBtn.classList.remove("hidden");
+        else clearBtn.classList.add("hidden");
+      }
+
+      if (currentViewMode === "grouped") {
+        renderGroupedView(filtered);
+      } else {
+        renderTableView(filtered);
+      }
+      lucide.createIcons();
+    }
+
+    function renderGroupedView(jobs) {
+      const container = document.getElementById("groupedViewContainer");
+      if (!jobs || jobs.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-16 bg-brand-card/40 rounded-2xl border border-brand-border p-8">
+            <i data-lucide="inbox" class="w-10 h-10 text-slate-500 mx-auto mb-2"></i>
+            <div class="text-sm font-semibold text-slate-300">No reels match your current filters.</div>
+            <p class="text-xs text-slate-500 mt-1">Try clearing your search query or selecting "All Subjects".</p>
+            <button onclick="clearFilters()" class="mt-4 px-4 py-2 text-xs font-semibold bg-brand-cobalt text-white rounded-xl shadow">Clear Filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      // Group jobs by subject
+      const grouped = {};
+      jobs.forEach(j => {
+        const sub = j.subject || "General Studies";
+        if (!grouped[sub]) grouped[sub] = [];
+        grouped[sub].push(j);
+      });
+
+      let html = "";
+      for (const [sub, subJobs] of Object.entries(grouped)) {
+        const isCollapsed = !!collapsedSubjects[sub];
+        const icon = getSubjectIcon(sub);
+
+        html += `
+          <div class="bg-brand-card/50 rounded-2xl border border-brand-border overflow-hidden shadow-sm transition">
+            <!-- Subject Accordion Header -->
+            <div class="p-4 px-5 bg-brand-card/90 border-b border-brand-border/60 flex items-center justify-between cursor-pointer hover:bg-brand-card transition" onclick="toggleSubjectCollapse('${sub}')">
+              <div class="flex items-center space-x-3">
+                <span class="text-2xl">${icon}</span>
+                <div>
+                  <h3 class="font-bold text-base text-white flex items-center space-x-2">
+                    <span>${sub}</span>
+                    <span class="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">${subJobs.length} ${subJobs.length === 1 ? 'Reel' : 'Reels'}</span>
+                  </h3>
+                  <div class="text-[11px] text-slate-400">${subJobs.map(j => j.exam_type).filter((v, i, a) => a.indexOf(v) === i).join(' • ')} Curricula</div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span class="text-xs text-slate-400 hidden sm:inline">${isCollapsed ? 'Expand' : 'Collapse'}</span>
+                <i data-lucide="${isCollapsed ? 'chevron-down' : 'chevron-up'}" class="w-4 h-4 text-slate-400 transition-transform"></i>
+              </div>
+            </div>
+
+            <!-- Subject Reel Cards Grid -->
+            ${!isCollapsed ? `
+              <div class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                ${subJobs.map(j => renderReelCard(j)).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderReelCard(j) {
+      const tierBadge = j.generation_tier === "ULTRA"
+        ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">👑 Ultra</span>`
+        : j.generation_tier === "PREMIUM" 
+        ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20">💎 Premium</span>` 
+        : `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">⚡ Free Sim</span>`;
+
+      let statusBadge = "";
+      let actionBtn = "";
+
+      if (j.status === "GATE_1_READY") {
+        statusBadge = `<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse">GATE 1: Review Script</span>`;
+        actionBtn = `<button onclick="openGate1Modal('${j.id}')" class="w-full py-2 px-3 text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl transition shadow flex items-center justify-center space-x-1.5"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i><span>Review Script & Storyboard</span></button>`;
+      } else if (j.status === "GATE_2_READY") {
+        statusBadge = `<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 animate-pulse">GATE 2: Review Quiz</span>`;
+        actionBtn = `<button onclick="openGate2Modal('${j.id}')" class="w-full py-2 px-3 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition shadow flex items-center justify-center space-x-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i><span>Review Checkpoint Quiz</span></button>`;
+      } else if (j.status === "GATE_3_READY") {
+        statusBadge = `<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse">GATE 3: Reel Synthesized!</span>`;
+        actionBtn = `<button onclick="openGate3Modal('${j.id}')" class="w-full py-2 px-3 text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl transition shadow flex items-center justify-center space-x-1.5"><i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i><span>Watch Reel & Publish</span></button>`;
+      } else if (j.status === "PUBLISHED") {
+        statusBadge = `<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">LIVE ON CONCEPTLY</span>`;
+        actionBtn = `<button onclick="openGate3Modal('${j.id}')" class="w-full py-2 px-3 text-xs font-medium bg-brand-card hover:bg-slate-800 text-slate-200 rounded-xl border border-brand-border transition flex items-center justify-center space-x-1.5"><i data-lucide="play" class="w-3.5 h-3.5"></i><span>Watch Reel</span></button>`;
+      } else if (j.status === "PROCESSING") {
+        statusBadge = `<span class="px-2.5 py-1 text-[11px] font-medium rounded-full bg-indigo-500/20 text-indigo-400 animate-pulse">Rendering 30fps Video...</span>`;
+        actionBtn = `<button disabled class="w-full py-2 px-3 text-xs font-medium bg-slate-800 text-slate-400 rounded-xl cursor-not-allowed">Rendering Engine Busy...</button>`;
+      }
+
+      const hookText = j.script_data?.hook ? `"${j.script_data.hook}"` : "45-second micro-learning conceptual breakdown.";
+      const sceneCount = j.script_data?.storyboard?.scenes?.length || 6;
+      const wordCount = j.script_data?.total_word_count ? `${j.script_data.total_word_count} words` : "125 words";
+      const hasVideo = !!j.video_url;
+
+      return `
+        <div class="bg-brand-dark/80 rounded-2xl border border-brand-border p-4 flex flex-col justify-between hover:border-blue-500/40 transition shadow-lg relative group">
+          <div class="space-y-3">
+            <!-- Header Badges -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-1.5">
+                ${tierBadge}
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-card text-slate-400 border border-brand-border">${j.exam_type} • Class ${j.class_level || 'Gen'}</span>
+              </div>
+              ${statusBadge}
+            </div>
+
+            <!-- Thumbnail / Video Preview Bar -->
+            <div class="relative h-28 w-full rounded-xl overflow-hidden bg-slate-900 border border-brand-border flex items-center justify-center cursor-pointer" onclick="${hasVideo ? `openGate3Modal('${j.id}')` : `openGate1Modal('${j.id}')`}">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent z-10"></div>
+              
+              <div class="z-20 text-center space-y-1 p-3">
+                ${hasVideo ? `
+                  <div class="w-9 h-9 mx-auto rounded-full bg-emerald-500/90 text-slate-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                    <i data-lucide="play" class="w-4 h-4 fill-current ml-0.5"></i>
+                  </div>
+                  <div class="text-[10px] font-bold text-white tracking-wide">1080x1920 Full HD Video Ready</div>
+                ` : `
+                  <div class="w-8 h-8 mx-auto rounded-full bg-brand-card text-slate-300 flex items-center justify-center border border-brand-border">
+                    <i data-lucide="film" class="w-4 h-4 text-brand-amber"></i>
+                  </div>
+                  <div class="text-[10px] text-slate-400">Storyboard Draft • ${sceneCount} Cuts</div>
+                `}
+              </div>
+            </div>
+
+            <!-- Topic Title -->
+            <div>
+              <h4 class="font-bold text-sm text-white line-clamp-2 leading-snug group-hover:text-blue-400 transition">${j.topic_title}</h4>
+              <p class="text-xs text-slate-400 italic line-clamp-2 mt-1 leading-relaxed">${hookText}</p>
+            </div>
+
+            <!-- Specs Bar -->
+            <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-brand-border/60">
+              <span class="flex items-center space-x-1"><i data-lucide="clock" class="w-3 h-3 text-slate-400"></i><span>45s Reel</span></span>
+              <span>•</span>
+              <span class="flex items-center space-x-1"><i data-lucide="film" class="w-3 h-3 text-slate-400"></i><span>${sceneCount} Cuts</span></span>
+              <span>•</span>
+              <span class="flex items-center space-x-1"><i data-lucide="mic" class="w-3 h-3 text-slate-400"></i><span>${wordCount}</span></span>
+            </div>
+          </div>
+
+          <!-- Bottom Action Button -->
+          <div class="pt-4 mt-2">
+            ${actionBtn}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTableView(jobs) {
       const tbody = document.getElementById("jobsTableBody");
       if (!jobs || jobs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-slate-500">No reels created yet. Click "Generate New Reel" to start.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-slate-500">No reels match your current filters.</td></tr>`;
         return;
       }
 
@@ -685,18 +1424,20 @@
         return `
           <tr class="hover:bg-brand-card/40 transition">
             <td class="py-3.5 px-4">
-              <div class="font-semibold text-white">${j.topic_title}</div>
+              <div class="font-semibold text-white flex items-center space-x-1.5">
+                <span>${getSubjectIcon(j.subject)}</span>
+                <span>${j.topic_title}</span>
+              </div>
               <div class="text-xs text-slate-400">${j.exam_type} • Class ${j.class_level || 'Gen'} • ${j.subject}</div>
             </td>
             <td class="py-3.5 px-4">${tierBadge}</td>
             <td class="py-3.5 px-4">${statusBadge}</td>
-            <td class="py-3.5 px-4 font-mono text-xs text-slate-300">${words}</td>
+            <td class="py-3.5 px-4 font-mono text-xs text-slate-300">45s • ${words}</td>
             <td class="py-3.5 px-4 text-xs text-slate-400">${dateStr}</td>
             <td class="py-3.5 px-4 text-right">${actionBtn}</td>
           </tr>
         `;
       }).join('');
-      lucide.createIcons();
     }
 
     async function handleCreateJob(e) {
