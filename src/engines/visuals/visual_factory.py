@@ -133,8 +133,19 @@ class VisualAssetFactory:
         if is_history:
             # Historic Arch & Monument Silhouette
             draw.ellipse([(cls.WIDTH//2 - 220, 340), (cls.WIDTH//2 + 220, 780)], outline=accent_glow, width=3)
-            draw.text((cls.WIDTH//2 - 140, 520), "🏛️ HISTORIC STILL", fill=accent_glow, font=font_hero)
-            draw.text((140, 680), "Lahore Central Assembly • 1929", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
+            
+            scene_titles = {
+                1: ("🏛️ HISTORIC STILL", "Delhi Assembly • April 8, 1929"),
+                2: ("📜 THE PAMPHLETS", "'To Make the Deaf Hear'"),
+                3: ("⚖️ THE COURTROOM", "Colonial Dock as Megaphone"),
+                4: ("📖 JAIL MANUSCRIPTS", "Lahore Central Prison • 1930"),
+                5: ("🕊️ THE MARTYRS", "March 23, 1931 • Shaheed Diwas"),
+                6: ("🇮🇳 INQUILAB ZINDABAD", "Freedom Flame • The Red Fort")
+            }
+            s_tag, s_sub = scene_titles.get(scene.scene_number, ("🏛️ HISTORIC CHRONICLE", "Freedom Struggle 1929-1931"))
+            
+            draw.text((cls.WIDTH//2 - 160, 500), s_tag, fill=accent_glow, font=font_hero)
+            draw.text((120, 680), s_sub, fill=(248, 250, 252), font=cls._get_font(34, bold=True))
         elif is_bio:
             # 3D Cellular Chloroplast / Molecule Rings
             for r in [180, 120, 60]:

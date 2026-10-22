@@ -64,6 +64,15 @@ BUILTIN_CURRICULUM_SEEDS = {
         "classLevel": 12,
         "examType": "NEET",
         "keyTakeaway": "Each newly synthesized DNA molecule contains one original parent strand and one newly assembled daughter strand."
+    },
+    # UPSC / Class 10 History
+    "bhagat singh": {
+        "id": "topic-hist-upsc-bhagat-singh-1929",
+        "title": "Bhagat Singh: 1929 Central Assembly & The Ideology of Revolution",
+        "subject": "History",
+        "classLevel": 10,
+        "examType": "UPSC",
+        "keyTakeaway": "Bhagat Singh used the colonial courtroom as a national megaphone, demonstrating that revolutionary ideas are immune to physical execution."
     }
 }
 

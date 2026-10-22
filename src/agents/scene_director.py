@@ -114,7 +114,7 @@ Create 8 to 12 sequential visual beats. For each beat, provide the spoken line, 
                     spoken_line="He wrote revolutionary essays in prison, proving that ideas are bullets that no empire can ever execute.",
                     visual_modality=VisualModality.CINEMATIC_SCENE,
                     visual_prompt="Atmospheric Lahore Central Jail cell, stone walls, oil lantern casting warm glow on handwritten revolutionary Urdu and English manuscripts on a wooden plank, reading Karl Marx, vertical 9:16",
-                    camera_motion=CameraMotion.SLOW_DRIFT if hasattr(CameraMotion, "SLOW_DRIFT") else CameraMotion.ZOOM_IN,
+                    camera_motion=CameraMotion.PAN_LEFT,
                     sound_effect="WHOOSH"
                 ),
                 SceneBeat(
