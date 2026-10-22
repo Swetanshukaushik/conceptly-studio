@@ -4,8 +4,10 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 class ReelGenerationTier(str, Enum):
-    DEFAULT = "DEFAULT"
-    PREMIUM = "PREMIUM"
+    FREE = "FREE"           # Tier 1 (Cost: ~$0.00 / reel): Gemini Flash + EdgeTTS + 2.5D Parallax Video Clips
+    PREMIUM = "PREMIUM"     # Tier 2 (Cost: ~$0.20 / reel): Kling AI / Hailuo AI Video Clips + Visual Story
+    ULTRA = "ULTRA"         # Tier 3 (Cost: ~$0.85 / reel): FLUX.1 + Runway Gen-3 / Luma Ray 2 + ElevenLabs
+    DEFAULT = "DEFAULT"     # Backward compatibility alias
 
 class JobStatus(str, Enum):
     PENDING = "PENDING"
@@ -64,6 +66,8 @@ class SceneBeat(BaseModel):
     sound_effect: str = "WHOOSH"  # "BASS_BOOM", "WHOOSH", "SPARK_CHIME", "NONE"
     image_path: Optional[str] = None
     image_url: Optional[str] = None
+    video_clip_path: Optional[str] = None
+    video_clip_url: Optional[str] = None
 
 class Storyboard(BaseModel):
     topic_title: str

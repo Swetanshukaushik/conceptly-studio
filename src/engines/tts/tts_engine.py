@@ -221,7 +221,7 @@ class MockTTSEngine(BaseTTSEngine):
 
 class TTSFactory:
     @staticmethod
-    def get_engine(tier: ReelGenerationTier = ReelGenerationTier.DEFAULT) -> BaseTTSEngine:
-        if tier == ReelGenerationTier.PREMIUM and settings.ELEVENLABS_API_KEY:
+    def get_engine(tier: ReelGenerationTier = ReelGenerationTier.FREE) -> BaseTTSEngine:
+        if tier in (ReelGenerationTier.ULTRA, ReelGenerationTier.PREMIUM) and settings.ELEVENLABS_API_KEY:
             return ElevenLabsEngine()
         return EdgeTTSEngine()

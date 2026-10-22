@@ -21,26 +21,10 @@ class LLMFactory:
         system_prompt: str,
         user_prompt: str,
         response_model: Type[T],
-        tier: ReelGenerationTier = ReelGenerationTier.DEFAULT
+        tier: ReelGenerationTier = ReelGenerationTier.FREE
     ) -> T:
-        # 1. Attempt Gemini 1.5 Flash for DEFAULT tier (or if only Gemini key is available)
-        if (tier == ReelGenerationTier.DEFAULT or not settings.ANTHROPIC_API_KEY) and settings.GEMINI_API_KEY:
-            try:
-                import google.generativeai as genai
-                genai.configure(api_key=settings.GEMINI_API_KEY)
-                model = genai.GenerativeModel(
-                    model_name="gemini-1.5-flash",
-                    system_instruction=system_prompt,
-                    generation_config={"response_mime_type": "application/json"}
-                )
-                response = model.generate_content(user_prompt)
-                parsed = json.loads(response.text)
-                return response_model.model_validate(parsed)
-            except Exception as e:
-                print(f"⚠️ Gemini generation failed: {e}. Falling back...")
-
-        # 2. Attempt Claude 3.5 Sonnet for PREMIUM tier
-        if tier == ReelGenerationTier.PREMIUM and settings.ANTHROPIC_API_KEY:
+        # 1. Ultra Tier: Attempt Claude 3.5 Sonnet
+        if tier == ReelGenerationTier.ULTRA and settings.ANTHROPIC_API_KEY:
             try:
                 import anthropic
                 client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
@@ -56,12 +40,29 @@ class LLMFactory:
             except Exception as e:
                 print(f"⚠️ Anthropic generation failed: {e}. Falling back...")
 
+        # 2. Premium / Free Tier: Attempt Gemini 1.5
+        if settings.GEMINI_API_KEY:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=settings.GEMINI_API_KEY)
+                model_name = "gemini-1.5-pro" if tier == ReelGenerationTier.ULTRA else "gemini-1.5-flash"
+                model = genai.GenerativeModel(
+                    model_name=model_name,
+                    system_instruction=system_prompt,
+                    generation_config={"response_mime_type": "application/json"}
+                )
+                response = model.generate_content(user_prompt)
+                parsed = json.loads(response.text)
+                return response_model.model_validate(parsed)
+            except Exception as e:
+                print(f"⚠️ Gemini generation failed: {e}. Falling back...")
+
         # 3. Attempt OpenAI if key is present
         if settings.OPENAI_API_KEY:
             try:
                 from openai import OpenAI
                 client = OpenAI(api_key=settings.OPENAI_API_KEY)
-                model_name = "gpt-4o" if tier == ReelGenerationTier.PREMIUM else "gpt-4o-mini"
+                model_name = "gpt-4o" if tier == ReelGenerationTier.ULTRA else "gpt-4o-mini"
                 completion = client.beta.chat.completions.parse(
                     model=model_name,
                     messages=[

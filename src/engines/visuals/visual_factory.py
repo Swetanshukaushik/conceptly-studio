@@ -66,6 +66,8 @@ class VisualAssetFactory:
         # 3. Clean Procedural Visual Schematic (No debug text boxes)
         return cls._render_procedural_cinematic(scene, output_image_path)
 
+    _ARCHIVE_URL_CACHE: dict = {}
+
     @classmethod
     def _resolve_archive_visual(cls, scene: SceneBeat, output_path: str) -> bool:
         """
@@ -73,39 +75,33 @@ class VisualAssetFactory:
         from Wikimedia Commons / Wikipedia, then composites them into 9:16 vertical cinema stills.
         """
         prompt_lower = scene.visual_prompt.lower()
-        queries = []
+        query = None
 
         if any(w in prompt_lower for w in ["bhagat", "assembly", "lahore", "delhi", "freedom", "martyr", "revolution"]):
             scene_queries = {
-                1: ["Bhagat Singh 1929", "Bhagat Singh portrait felt hat"],
-                2: ["Central Assembly Hall New Delhi", "Central Legislative Assembly Delhi"],
-                3: ["Central Legislative Assembly bombing 1929", "The Tribune 1929 bombing"],
-                4: ["Daily milap poster Lahore conspiracy case 1930", "Lahore conspiracy case poster"],
-                5: ["Statues of Bhagat Singh Hussainiwala", "Bhagat Singh Rajguru Sukhdev Hussainiwala"],
-                6: ["Delhi India Red Fort Facade", "Red Fort New Delhi"]
+                1: "Bhagat Singh 1929",
+                2: "Central Assembly Hall New Delhi",
+                3: "Central Legislative Assembly bombing 1929",
+                4: "Daily milap poster Lahore conspiracy case 1930",
+                5: "Statues of Bhagat Singh Hussainiwala",
+                6: "Delhi India Red Fort Facade"
             }
-            queries.extend(scene_queries.get(scene.scene_number, ["Bhagat Singh 1929"]))
-            queries.append("Bhagat Singh")
+            query = scene_queries.get(scene.scene_number, "Bhagat Singh 1929")
         elif any(w in prompt_lower for w in ["chloroplast", "photosynthesis", "cell", "plant"]):
-            queries.extend(["Chloroplast diagram", "Thylakoid ultrastructure", "Plant cell structure"])
+            query = "Chloroplast diagram"
         elif any(w in prompt_lower for w in ["rocket", "exhaust", "propulsion", "space"]):
-            queries.extend(["Falcon 9 launch exhaust plume", "Rocket engine test combustion plume", "Space Shuttle launch"])
+            query = "Falcon 9 rocket launch"
         else:
-            # Extract meaningful nouns from visual prompt
-            words = [w for w in scene.visual_prompt.split() if len(w) > 3 and w.lower() not in (
-                "dramatic", "cinematic", "photorealistic", "vertical", "composition", "lighting", "shallow", "depth", "field"
-            )]
-            if words:
-                queries.append(" ".join(words[:3]))
+            return False
 
         headers = {'User-Agent': 'ConceptlyStudio/1.0 (contact@conceptly.app)'}
-        img_url = None
+        img_url = cls._ARCHIVE_URL_CACHE.get(query)
 
-        for q in queries:
+        if not img_url:
             try:
-                url = f"https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch={urllib.parse.quote(q)}&gsrnamespace=6&gsrlimit=3&prop=imageinfo&iiprop=url&format=json"
+                url = f"https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch={urllib.parse.quote(query)}&gsrnamespace=6&gsrlimit=2&prop=imageinfo&iiprop=url&format=json"
                 req = urllib.request.Request(url, headers=headers)
-                with urllib.request.urlopen(req, timeout=4.0) as r:
+                with urllib.request.urlopen(req, timeout=2.0) as r:
                     data = json.loads(r.read())
                     pages = data.get("query", {}).get("pages", {})
                     for pid, page in pages.items():
@@ -114,11 +110,10 @@ class VisualAssetFactory:
                             clean_u = infos[0]["url"].split("?")[0]
                             if clean_u.lower().endswith((".jpg", ".jpeg", ".png")):
                                 img_url = clean_u
+                                cls._ARCHIVE_URL_CACHE[query] = img_url
                                 break
-                if img_url:
-                    break
             except Exception:
-                continue
+                return False
 
         if not img_url:
             return False

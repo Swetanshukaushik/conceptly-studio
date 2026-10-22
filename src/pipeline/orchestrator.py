@@ -224,11 +224,12 @@ class PipelineOrchestrator:
             final_mp4_path = os.path.join(job_output_dir, f"reel_{job_id}.mp4")
 
             if script.storyboard and script.storyboard.scenes:
-                cls._update_stage(db, job_id, "VIDEO_COMPOSITING", "IN_PROGRESS", 80, f"Encoding {len(script.storyboard.scenes)} cinematic visual scenes @ 30fps...")
+                cls._update_stage(db, job_id, "VIDEO_COMPOSITING", "IN_PROGRESS", 80, f"Synthesizing {len(script.storyboard.scenes)} moving video clips ({tier.value} tier)...")
                 FFmpegMotionCompositor.composite_storyboard(
                     storyboard=script.storyboard,
                     audio_path=mixed_audio_path,
-                    output_mp4_path=final_mp4_path
+                    output_mp4_path=final_mp4_path,
+                    tier=tier
                 )
             else:
                 # Fallback to procedural card frames
