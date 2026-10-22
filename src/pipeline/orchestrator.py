@@ -215,10 +215,10 @@ class PipelineOrchestrator:
             SubtitleGenerator.generate_ass(word_timestamps, ass_path)
             cls._update_stage(db, job_id, "KINETIC_SUBTITLES", "COMPLETED", 100, "Subtitles anchored at Y=1400px (Amber active word highlight).")
 
-            # 3. Audio Ducking & BGM Mixing
-            cls._update_stage(db, job_id, "VIDEO_COMPOSITING", "IN_PROGRESS", 60, "Mixing speech with -22 dB lofi background music...")
+            # 3. Audio Ducking, BGM & Cinematic Sound FX Mixing
+            cls._update_stage(db, job_id, "VIDEO_COMPOSITING", "IN_PROGRESS", 60, "Mixing speech, ambient BGM, and cinematic sound FX...")
             mixed_audio_path = os.path.join(job_output_dir, "audio_mixed.wav")
-            AudioMixer.mix_speech_and_bgm(raw_audio_path, mixed_audio_path)
+            AudioMixer.mix_speech_and_bgm(raw_audio_path, mixed_audio_path, storyboard=script.storyboard)
 
             # 4. Cinematic Motion Compositing
             final_mp4_path = os.path.join(job_output_dir, f"reel_{job_id}.mp4")

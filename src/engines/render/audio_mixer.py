@@ -3,7 +3,7 @@ import wave
 import math
 import struct
 import shutil
-from typing import Optional
+from typing import Optional, Any
 
 class AudioMixer:
     """
@@ -60,10 +60,11 @@ class AudioMixer:
         cls,
         speech_wav_path: str,
         output_mixed_path: str,
-        bgm_wav_path: Optional[str] = None
+        bgm_wav_path: Optional[str] = None,
+        storyboard: Optional[Any] = None
     ) -> str:
         """
-        Merges speech track and background ambient track.
+        Merges speech track, ambient background music, and synchronized cinematic sound FX.
         Guarantees output_mixed_path is always created on disk.
         """
         os.makedirs(os.path.dirname(os.path.abspath(output_mixed_path)), exist_ok=True)
@@ -94,13 +95,28 @@ class AudioMixer:
             speech_samples = struct.unpack(f"<{len(speech_data)//2}h", speech_data)
             bgm_samples = struct.unpack(f"<{len(b_data)//2}h", b_data)
 
-            mixed_frames = bytearray()
             min_len = min(len(speech_samples), len(bgm_samples))
+            combined_samples = []
             for i in range(min_len):
                 s_val = speech_samples[i]
-                b_val = int(bgm_samples[i] * 0.35)  # Ducked BGM
-                combined = max(-32768, min(32767, s_val + b_val))
-                mixed_frames.extend(struct.pack("<h", combined))
+                b_val = int(bgm_samples[i] * 0.30)  # Ducked ambient BGM
+                combined_samples.append(max(-32768, min(32767, s_val + b_val)))
+
+            # Overlay Synchronized Cinematic Sound FX (Booms, Whooshes, Chimes, Rustles)
+            try:
+                from src.engines.render.sound_fx_engine import SoundFXEngine
+                if storyboard:
+                    combined_samples = SoundFXEngine.overlay_storyboard_sfx(
+                        base_samples=combined_samples,
+                        storyboard=storyboard,
+                        sample_rate=s_rate
+                    )
+            except Exception as sfx_err:
+                print(f"⚠️ SFX mixing note: {sfx_err}")
+
+            mixed_frames = bytearray()
+            for val in combined_samples:
+                mixed_frames.extend(struct.pack("<h", max(-32768, min(32767, val))))
 
             with wave.open(output_mixed_path, "wb") as out_wav:
                 out_wav.setnchannels(s_channels)
@@ -113,4 +129,5 @@ class AudioMixer:
         except Exception as e:
             print(f"⚠️ Audio mixing note: {e}. Using clean speech audio.")
             shutil.copyfile(speech_wav_path, output_mixed_path)
+            return output_mixed_path
             return output_mixed_path
