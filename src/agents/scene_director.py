@@ -71,23 +71,99 @@ Create 8 to 12 sequential visual beats. For each beat, provide the spoken line, 
     @classmethod
     def _generate_heuristic_storyboard(
         cls,
-        script: ReelScript,
-        subject: str,
-        class_level: Optional[int],
-        exam_type: str
+        script: Optional[ReelScript] = None,
+        subject: str = "Physics",
+        class_level: Optional[int] = 9,
+        exam_type: str = "SCHOOL",
+        topic_override: Optional[str] = None
     ) -> Storyboard:
-        topic_lower = script.topic_title.lower()
-        is_history = any(kw in (subject.lower() + " " + topic_lower) for kw in ["history", "bhagat", "freedom", "war", "revolt", "polity", "upsc"])
-        is_bio = any(kw in (subject.lower() + " " + topic_lower) for kw in ["bio", "photosynthesis", "cell", "dna", "heart", "neet"])
+        title = topic_override or (script.topic_title if script else "Core Principle")
+        topic_lower = (subject.lower() + " " + title.lower())
+
+        is_magnetism = any(kw in topic_lower for kw in [
+            "magnet", "lorentz", "f=ilb", "f=i*l*b", "ilb", "fleming", "solenoid",
+            "magnetic force", "magnetic field", "tesla", "flux density", "biot", "ampere"
+        ])
+        is_history = any(kw in topic_lower for kw in ["history", "bhagat", "freedom", "war", "revolt", "polity", "upsc"])
+        is_bio = any(kw in topic_lower for kw in ["bio", "photosynthesis", "cell", "dna", "heart", "neet", "thylakoid"])
+        is_newton_rocket = any(kw in topic_lower for kw in [
+            "newton's third law", "newton 3", "action and reaction", "action-reaction",
+            "rocket propulsion", "rocket exhaust"
+        ])
 
         scenes: List[SceneBeat] = []
 
-        if is_history:
+        if is_magnetism:
+            # Magnetic Force on Conductor (F = I L B) & Lorentz Force Storyboard
+            act1_text = script.acts[0].spoken_text if (script and script.acts) else "Place a copper wire between two powerful magnets and switch on the current. Instantly, the wire kicks violently upward! Why?"
+            act2_text = script.acts[1].spoken_text if (script and len(script.acts) > 1) else "Because whenever electric charges drift through a magnetic field, they experience a sideways Lorentz deflection."
+            act3_text = script.acts[2].spoken_text if (script and len(script.acts) > 2) else "The magnitude is quantified by F equals I times L times B times sine theta, powering 600 km/h Maglev trains."
+            act4_text = script.acts[3].spoken_text if (script and len(script.acts) > 3) else "Remember: magnetic force is always perpendicular to both current and magnetic field! Tap the quiz button below to test your mastery!"
+
+            scenes = [
+                SceneBeat(
+                    scene_number=1, act_number=1, start_sec=0.0, end_sec=4.0,
+                    spoken_line=act1_text,
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM,
+                    visual_prompt="High-contrast macro close-up of a suspended copper rod kicking sideways between glowing red North and blue South magnetic poles, electric sparks, neon lab lighting, vertical 9:16",
+                    camera_motion=CameraMotion.ZOOM_IN,
+                    sound_effect="BASS_BOOM"
+                ),
+                SceneBeat(
+                    scene_number=2, act_number=2, start_sec=4.0, end_sec=11.0,
+                    spoken_line="Because whenever electric charges drift through a magnetic field, they experience a sideways Lorentz deflection.",
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM,
+                    visual_prompt="Neon magnetic flux lines streaming smoothly from red North pole to blue South pole in 3D space, glowing cyan magnetic field vectors B, dark laboratory background, vertical 9:16",
+                    camera_motion=CameraMotion.PAN_RIGHT,
+                    sound_effect="WHOOSH"
+                ),
+                SceneBeat(
+                    scene_number=3, act_number=2, start_sec=11.0, end_sec=18.0,
+                    spoken_line="The drifting electrons collide with the wire's crystal lattice, pushing the entire conductor outward.",
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM,
+                    visual_prompt="Microscopic view inside conducting copper wire showing golden electron particles drifting through metallic lattice under electric current I, vertical 9:16",
+                    camera_motion=CameraMotion.ZOOM_IN,
+                    sound_effect="SPARK_CHIME"
+                ),
+                SceneBeat(
+                    scene_number=4, act_number=2, start_sec=18.0, end_sec=24.0,
+                    spoken_line="Fleming's Left-Hand Rule reveals the direction: Forefinger is Field, Middle is Current, and Thumb gives the Force!",
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM,
+                    visual_prompt="Fleming's Left Hand Rule 3D coordinate system: Thumb showing upward Force F in neon lime, Forefinger showing Field B in cyan, Middle finger showing Current I in gold, vertical 9:16",
+                    camera_motion=CameraMotion.PAN_LEFT,
+                    sound_effect="WHOOSH"
+                ),
+                SceneBeat(
+                    scene_number=5, act_number=3, start_sec=24.0, end_sec=34.0,
+                    spoken_line="The magnitude is quantified by F equals I times L times B times sine theta. Increase current, length, or field, and the force surges!",
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM,
+                    visual_prompt="Dynamic laboratory schematic: Lorentz force F = I L B sin(theta) with digital readouts: I=4.5A, B=1.2T, L=0.65m, force arrow F=3.51N deflecting wire outward, vertical 9:16",
+                    camera_motion=CameraMotion.ZOOM_IN,
+                    sound_effect="SPARK_CHIME"
+                ),
+                SceneBeat(
+                    scene_number=6, act_number=3, start_sec=34.0, end_sec=42.0,
+                    spoken_line="This exact principle propels 600 kilometer-per-hour Maglev trains and powers every electric car motor on Earth.",
+                    visual_modality=VisualModality.CINEMATIC_SCENE,
+                    visual_prompt="Futuristic high-speed Maglev bullet train gliding smoothly over magnetic tracks at 600 km/h, glowing electromagnetic levitation coils, cinematic lighting, vertical 9:16",
+                    camera_motion=CameraMotion.PULL_BACK,
+                    sound_effect="WHOOSH"
+                ),
+                SceneBeat(
+                    scene_number=7, act_number=4, start_sec=42.0, end_sec=48.0,
+                    spoken_line=act4_text,
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM,
+                    visual_prompt="Glowing summary card with illuminated equation F = I · L · B · sin(θ) and interactive neon quiz CTA badge pointing downward, vertical 9:16",
+                    camera_motion=CameraMotion.ZOOM_IN,
+                    sound_effect="BASS_BOOM"
+                )
+            ]
+        elif is_history:
             # Cinematic History Storyboard (Bhagat Singh / Freedom Struggle aesthetic)
             scenes = [
                 SceneBeat(
                     scene_number=1, act_number=1, start_sec=0.0, end_sec=4.0,
-                    spoken_line=script.acts[0].spoken_text if script.acts else "In 1929, two young revolutionaries entered the Central Legislative Assembly.",
+                    spoken_line=script.acts[0].spoken_text if (script and script.acts) else "In 1929, two young revolutionaries entered the Central Legislative Assembly.",
                     visual_modality=VisualModality.CINEMATIC_SCENE,
                     visual_prompt="Dramatic cinematic 35mm film still of 23-year-old Bhagat Singh in 1929 colonial Delhi, intense focused eyes, wearing felt hat and khaki coat, warm atmospheric dust and golden-hour backlighting, shallow depth of field, photorealistic, 8k vertical 9:16",
                     camera_motion=CameraMotion.ZOOM_IN,
@@ -178,7 +254,7 @@ Create 8 to 12 sequential visual beats. For each beat, provide the spoken line, 
                     sound_effect="BASS_BOOM"
                 )
             ]
-        else:
+        elif is_newton_rocket:
             # Physics / Engineering Storyboard (Newton's Third Law / Rocket Principle)
             scenes = [
                 SceneBeat(
@@ -230,6 +306,62 @@ Create 8 to 12 sequential visual beats. For each beat, provide the spoken line, 
                     sound_effect="BASS_BOOM"
                 )
             ]
+        else:
+            # Dynamic Procedural Storyboard for Custom Topics (Derived from script acts)
+            clean_title = title
+            act1_text = script.acts[0].spoken_text if (script and script.acts) else f"Understanding the fundamental mechanism behind {clean_title}."
+            act2_text = script.acts[1].spoken_text if (script and len(script.acts) > 1) else f"The core intuition and mathematical relationships governing {clean_title}."
+            act3_text = script.acts[2].spoken_text if (script and len(script.acts) > 2) else f"Real-world scientific and engineering applications of {clean_title}."
+            act4_text = script.acts[3].spoken_text if (script and len(script.acts) > 3) else f"Test your knowledge of {clean_title} in the checkpoint quiz below!"
+
+            scenes = [
+                SceneBeat(
+                    scene_number=1, act_number=1, start_sec=0.0, end_sec=5.0,
+                    spoken_line=act1_text,
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM if subject.lower() in ["physics", "chemistry", "mathematics"] else VisualModality.CINEMATIC_SCENE,
+                    visual_prompt=f"Striking high-contrast vertical schematic introducing {clean_title}, glowing neon vectors, sleek dark mode background, cinematic 9:16 composition",
+                    camera_motion=CameraMotion.ZOOM_IN,
+                    sound_effect="BASS_BOOM"
+                ),
+                SceneBeat(
+                    scene_number=2, act_number=2, start_sec=5.0, end_sec=15.0,
+                    spoken_line=act2_text,
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM,
+                    visual_prompt=f"Detailed analytical diagram illustrating the primary governing variables and step-by-step mechanism of {clean_title}, neon cyan and amber labels, vertical 9:16",
+                    camera_motion=CameraMotion.PAN_RIGHT,
+                    sound_effect="WHOOSH"
+                ),
+                SceneBeat(
+                    scene_number=3, act_number=2, start_sec=15.0, end_sec=25.0,
+                    spoken_line="Notice how each parameter interacts directly to determine the final system behavior.",
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM,
+                    visual_prompt=f"Microscopic and macro perspective correlation schematic for {clean_title}, glowing data indicators and mathematical overlays, vertical 9:16",
+                    camera_motion=CameraMotion.ZOOM_IN,
+                    sound_effect="SPARK_CHIME"
+                ),
+                SceneBeat(
+                    scene_number=4, act_number=3, start_sec=25.0, end_sec=36.0,
+                    spoken_line=act3_text,
+                    visual_modality=VisualModality.CINEMATIC_SCENE,
+                    visual_prompt=f"Modern high-tech industrial and scientific application relying on {clean_title}, dynamic lighting, cinematic depth of field, 8k vertical 9:16",
+                    camera_motion=CameraMotion.PAN_LEFT,
+                    sound_effect="WHOOSH"
+                ),
+                SceneBeat(
+                    scene_number=5, act_number=4, start_sec=36.0, end_sec=45.0,
+                    spoken_line=act4_text,
+                    visual_modality=VisualModality.SCIENTIFIC_DIAGRAM,
+                    visual_prompt=f"Illuminated summary spotlight highlighting key takeaways and formulas of {clean_title} with glowing interactive quiz CTA arrow, vertical 9:16",
+                    camera_motion=CameraMotion.ZOOM_IN,
+                    sound_effect="BASS_BOOM"
+                )
+            ]
+
+        return Storyboard(
+            topic_title=title,
+            total_scenes=len(scenes),
+            scenes=scenes
+        )
 
         return Storyboard(
             topic_title=script.topic_title,

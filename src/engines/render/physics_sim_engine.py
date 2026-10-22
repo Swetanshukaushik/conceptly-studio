@@ -63,7 +63,8 @@ class PhysicsSimulationEngine:
             "rocket", "newton", "force", "propulsion", "exhaust", "action", "reaction",
             "collision", "momentum", "gravity", "orbit", "satellite", "wave", "refraction",
             "optics", "photosynthesis", "chloroplast", "electron", "proton", "velocity",
-            "acceleration", "energy", "physics", "vector"
+            "acceleration", "energy", "physics", "vector", "magnet", "lorentz", "f=ilb",
+            "f=i*l*b", "fleming", "conductor", "solenoid", "tesla", "flux"
         ]
         return any(kw in text for kw in keywords)
 
@@ -86,7 +87,9 @@ class PhysicsSimulationEngine:
         text = f"{scene.visual_prompt} {scene.spoken_line}".lower()
 
         # Route to appropriate physical model
-        if any(w in text for w in ["rocket", "exhaust", "propulsion", "thrust", "newton"]):
+        if any(w in text for w in ["magnet", "lorentz", "magnetic", "f=ilb", "f=i*l*b", "fleming", "conductor", "tesla"]):
+            sim_func = cls._render_frame_magnetism_force
+        elif any(w in text for w in ["rocket", "exhaust", "propulsion", "thrust", "newton"]):
             sim_func = cls._render_frame_rocket_propulsion
         elif any(w in text for w in ["collision", "momentum", "impact", "elastic"]):
             sim_func = cls._render_frame_collision
@@ -95,7 +98,7 @@ class PhysicsSimulationEngine:
         elif any(w in text for w in ["chloroplast", "photosynthesis", "plant", "cell", "thylakoid"]):
             sim_func = cls._render_frame_photosynthesis
         else:
-            sim_func = cls._render_frame_rocket_propulsion
+            sim_func = cls._render_frame_collision
 
         # FFmpeg rawvideo pipe command
         cmd = [
@@ -529,3 +532,161 @@ class PhysicsSimulationEngine:
         else:
             ly += 25
         draw.text((lx, ly), label, fill=color, font=font)
+
+    # ================= 6. MAGNETIC FORCE ON CONDUCTOR (F = I L B) & LORENTZ FORCE =================
+    @classmethod
+    def _render_frame_magnetism_force(
+        cls,
+        frame_idx: int,
+        total_frames: int,
+        progress: float,
+        state: Dict[str, Any],
+        scene: SceneBeat
+    ) -> Image.Image:
+        img = Image.new("RGB", (cls.WIDTH, cls.HEIGHT), (10, 14, 26))
+        draw = ImageDraw.Draw(img)
+
+        # 1. Subtle Background Grid
+        for y in range(100, cls.HEIGHT - 100, 120):
+            draw.line([(60, y), (cls.WIDTH - 60, y)], fill=(18, 28, 48), width=1)
+        for x in range(60, cls.WIDTH - 60, 120):
+            draw.line([(x, 100), (x, cls.HEIGHT - 100)], fill=(18, 28, 48), width=1)
+
+        # 2. Permanent Magnetic Poles (North - Left / South - Right)
+        pole_y = 820
+        pole_h = 420
+        pole_w = 170
+
+        # North Pole (Left) - Vibrant Crimson Red
+        n_x1, n_y1 = 80, pole_y - pole_h // 2
+        n_x2, n_y2 = 80 + pole_w, pole_y + pole_h // 2
+        # Metallic Bevel
+        draw.rectangle([n_x1 - 6, n_y1 - 6, n_x2 + 6, n_y2 + 6], fill=(40, 15, 20))
+        draw.rectangle([n_x1, n_y1, n_x2, n_y2], fill=(225, 45, 55))
+        # Highlight stripe
+        draw.rectangle([n_x2 - 14, n_y1, n_x2, n_y2], fill=(255, 100, 110))
+        font_pole = cls._get_font(90)
+        draw.text((n_x1 + 45, pole_y - 55), "N", fill=(255, 255, 255), font=font_pole)
+        draw.text((n_x1 + 25, pole_y + 130), "NORTH POLE", fill=(255, 200, 200), font=cls._get_font(18))
+
+        # South Pole (Right) - Deep Electric Blue
+        s_x1, s_y1 = cls.WIDTH - 80 - pole_w, pole_y - pole_h // 2
+        s_x2, s_y2 = cls.WIDTH - 80, pole_y + pole_h // 2
+        draw.rectangle([s_x1 - 6, s_y1 - 6, s_x2 + 6, s_y2 + 6], fill=(15, 25, 50))
+        draw.rectangle([s_x1, s_y1, s_x2, s_y2], fill=(35, 110, 235))
+        draw.rectangle([s_x1, s_y1, s_x1 + 14, s_y2], fill=(90, 160, 255))
+        draw.text((s_x1 + 45, pole_y - 55), "S", fill=(255, 255, 255), font=font_pole)
+        draw.text((s_x1 + 25, pole_y + 130), "SOUTH POLE", fill=(200, 220, 255), font=cls._get_font(18))
+
+        # 3. Magnetic Field Lines (B-Field: North -> South)
+        gap_start_x = n_x2
+        gap_end_x = s_x1
+        gap_width = gap_end_x - gap_start_x
+        
+        for idx, line_y in enumerate(range(pole_y - 160, pole_y + 180, 40)):
+            # Glow halo line
+            draw.line([(gap_start_x, line_y), (gap_end_x, line_y)], fill=(0, 60, 90), width=3)
+            draw.line([(gap_start_x, line_y), (gap_end_x, line_y)], fill=(0, 220, 255), width=2)
+            
+            # Animated moving flux arrows
+            arrow_offset = (frame_idx * 5 + idx * 75) % gap_width
+            ax = gap_start_x + arrow_offset
+            draw.polygon([(ax, line_y - 6), (ax + 12, line_y), (ax, line_y + 6)], fill=(0, 240, 255))
+
+        draw.text((cls.WIDTH // 2 - 120, pole_y - 195), "MAGNETIC FLUX DENSITY  B →", fill=(0, 230, 255), font=cls._get_font(18))
+
+        # 4. Conducting Copper Rod with Dynamic Deflection
+        wire_center_x = cls.WIDTH // 2
+        # Wire oscillates and swings upward/outward under Lorentz force
+        deflection_amp = 85.0 * math.sin(progress * math.pi)
+        deflected_y_offset = -int(deflection_amp)
+
+        wire_top_y = pole_y - 320
+        wire_bot_y = pole_y + 320
+        wire_radius = 24
+
+        # Wire leads / supports
+        draw.line([(wire_center_x, 340), (wire_center_x, wire_top_y + deflected_y_offset)], fill=(120, 130, 150), width=4)
+        draw.line([(wire_center_x, wire_bot_y + deflected_y_offset), (wire_center_x, 1300)], fill=(120, 130, 150), width=4)
+
+        # Wire Rod with metallic gradient
+        wy1 = wire_top_y + deflected_y_offset
+        wy2 = wire_bot_y + deflected_y_offset
+        draw.rectangle([wire_center_x - wire_radius, wy1, wire_center_x + wire_radius, wy2], fill=(210, 120, 50))
+        # Specular copper highlight
+        draw.rectangle([wire_center_x - 6, wy1, wire_center_x + 6, wy2], fill=(255, 195, 130))
+        # End caps
+        draw.ellipse([wire_center_x - wire_radius, wy1 - 10, wire_center_x + wire_radius, wy1 + 10], fill=(240, 150, 70))
+        draw.ellipse([wire_center_x - wire_radius, wy2 - 10, wire_center_x + wire_radius, wy2 + 10], fill=(160, 80, 30))
+
+        # 5. Electron Drift / Electric Current Particles (I)
+        for i in range(16):
+            p_y = wy1 + ((frame_idx * 7 + i * 40) % (wy2 - wy1))
+            draw.ellipse([wire_center_x - 7, p_y - 7, wire_center_x + 7, p_y + 7], fill=(255, 230, 70))
+            draw.line([(wire_center_x, p_y), (wire_center_x, p_y - 18)], fill=(255, 200, 40), width=3)
+
+        # 6. DYNAMIC 3D VECTOR TRIAD (Fleming's Left-Hand Rule)
+        core_node = (wire_center_x, (wy1 + wy2) // 2)
+
+        # Vector 1: Magnetic Field B (Right, Cyan)
+        b_len = 160
+        cls._draw_glowing_vector(
+            draw,
+            start=core_node,
+            end=(core_node[0] + b_len, core_node[1]),
+            color=(0, 240, 255),
+            label="B (1.20 Tesla →)",
+            label_side="top"
+        )
+
+        # Vector 2: Current I (Upward, Gold)
+        i_len = 170
+        cls._draw_glowing_vector(
+            draw,
+            start=core_node,
+            end=(core_node[0], core_node[1] - i_len),
+            color=(255, 215, 0),
+            label="I (4.50 A ↑)",
+            label_side="left"
+        )
+
+        # Vector 3: Lorentz Force F = I L B (Deflecting Outward Resultant, Neon Lime/Green)
+        f_pulse = 1.0 + 0.15 * math.sin(frame_idx * 0.3)
+        f_len = int(220 * (0.6 + 0.4 * math.sin(progress * math.pi)) * f_pulse)
+        cls._draw_glowing_vector(
+            draw,
+            start=core_node,
+            end=(core_node[0] - int(f_len * 0.707), core_node[1] - int(f_len * 0.707)),
+            color=(0, 255, 170),
+            label="F_lorentz = 3.51 N [OUTWARD]",
+            label_side="left"
+        )
+
+        # 7. Real-Time Telemetry & Parameter HUD
+        # Top Header Pill
+        draw.rounded_rectangle([100, 130, cls.WIDTH - 100, 210], radius=16, fill=(16, 24, 40, 230), outline=(0, 240, 255), width=2)
+        font_badge = cls._get_font(24)
+        draw.text((130, 155), "⚡ LORENTZ FORCE ENGINE: F = I · L · B · sin(θ)", fill=(0, 240, 255), font=font_badge)
+
+        # Telemetry Card (Left Upper)
+        draw.rounded_rectangle([80, 235, 430, 385], radius=14, fill=(14, 22, 38, 220), outline=(59, 130, 246), width=1)
+        font_sub = cls._get_font(20)
+        draw.text((105, 252), "CURRENT (I): 4.50 Amperes", fill=(255, 215, 0), font=font_sub)
+        draw.text((105, 282), "FIELD (B): 1.20 Tesla (Uniform)", fill=(0, 230, 255), font=font_sub)
+        draw.text((105, 312), "WIRE LENGTH (L): 0.65 Meters", fill=(240, 240, 250), font=font_sub)
+        draw.text((105, 342), "ANGLE (θ): 90.0° [MAXIMUM FORCE]", fill=(0, 255, 170), font=font_sub)
+
+        # Fleming's Rule Card (Right Upper)
+        draw.rounded_rectangle([cls.WIDTH - 440, 235, cls.WIDTH - 80, 385], radius=14, fill=(14, 22, 38, 220), outline=(16, 185, 129), width=1)
+        draw.text((cls.WIDTH - 420, 252), "FLEMING'S LEFT-HAND RULE", fill=(0, 255, 170), font=cls._get_font(18))
+        draw.text((cls.WIDTH - 420, 282), "• THUMB: Force (F) [Deflection]", fill=(240, 240, 250), font=cls._get_font(16))
+        draw.text((cls.WIDTH - 420, 312), "• FOREFINGER: Field (B) [N → S]", fill=(0, 230, 255), font=cls._get_font(16))
+        draw.text((cls.WIDTH - 420, 342), "• MIDDLE FINGER: Current (I)", fill=(255, 215, 0), font=cls._get_font(16))
+
+        # Bottom Formula Spotlight Card (Above Safe Zone for Subtitles)
+        draw.rounded_rectangle([80, 1340, cls.WIDTH - 80, 1475], radius=18, fill=(15, 23, 42, 240), outline=(234, 179, 8), width=2)
+        font_eq = cls._get_font(30)
+        draw.text((115, 1362), "F = (4.50 A) × (0.65 m) × (1.20 T) × sin(90°) = 3.51 N", fill=(255, 255, 255), font=font_eq)
+        draw.text((115, 1414), "Sideways magnetic deflecting force drives Maglev trains & electric motors.", fill=(156, 163, 175), font=cls._get_font(20))
+
+        return img

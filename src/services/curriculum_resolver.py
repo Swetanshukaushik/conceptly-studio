@@ -5,6 +5,63 @@ from src.core.config import settings
 
 # Built-in curriculum seed database for fast offline development and fallback
 BUILTIN_CURRICULUM_SEEDS = {
+    # NCERT Class 12 & IIT-JEE Physics: Magnetism & Electrodynamics
+    "magnetism": {
+        "id": "topic-phys-12-magnetic-force",
+        "title": "Magnetic Force on a Current-Carrying Conductor: F = I L B",
+        "subject": "Physics",
+        "classLevel": 12,
+        "examType": "IIT_JEE",
+        "keyTakeaway": "A magnetic field exerts a deflecting sideways Lorentz force F = I L B sin(θ) perpendicular to both current and magnetic field."
+    },
+    "magnetic force": {
+        "id": "topic-phys-12-magnetic-force",
+        "title": "Magnetic Force on a Current-Carrying Conductor: F = I L B",
+        "subject": "Physics",
+        "classLevel": 12,
+        "examType": "IIT_JEE",
+        "keyTakeaway": "A magnetic field exerts a deflecting sideways Lorentz force F = I L B sin(θ) perpendicular to both current and magnetic field."
+    },
+    "f=ilb": {
+        "id": "topic-phys-12-magnetic-force",
+        "title": "Magnetic Force on a Current-Carrying Conductor: F = I L B",
+        "subject": "Physics",
+        "classLevel": 12,
+        "examType": "IIT_JEE",
+        "keyTakeaway": "A magnetic field exerts a deflecting sideways Lorentz force F = I L B sin(θ) perpendicular to both current and magnetic field."
+    },
+    "f=i*l*b": {
+        "id": "topic-phys-12-magnetic-force",
+        "title": "Magnetic Force on a Current-Carrying Conductor: F = I L B",
+        "subject": "Physics",
+        "classLevel": 12,
+        "examType": "IIT_JEE",
+        "keyTakeaway": "A magnetic field exerts a deflecting sideways Lorentz force F = I L B sin(θ) perpendicular to both current and magnetic field."
+    },
+    "lorentz force": {
+        "id": "topic-phys-12-lorentz-force",
+        "title": "Lorentz Force & Motion of Charges in Magnetic Fields",
+        "subject": "Physics",
+        "classLevel": 12,
+        "examType": "IIT_JEE",
+        "keyTakeaway": "The Lorentz force F = q(E + v × B) acts perpendicularly to velocity, causing charged particles to curve into helical or circular trajectories without changing their kinetic energy."
+    },
+    "fleming's left hand rule": {
+        "id": "topic-phys-10-flemings-rule",
+        "title": "Fleming's Left-Hand Rule: Direction of Force on a Current Conductor",
+        "subject": "Physics",
+        "classLevel": 10,
+        "examType": "SCHOOL",
+        "keyTakeaway": "Stretch thumb, forefinger, and middle finger mutually perpendicular: forefinger is Magnetic Field, middle finger is Current, and thumb gives the resulting Force direction."
+    },
+    "electromagnetic induction": {
+        "id": "topic-phys-12-faraday-induction",
+        "title": "Faraday's Law of Electromagnetic Induction",
+        "subject": "Physics",
+        "classLevel": 12,
+        "examType": "IIT_JEE",
+        "keyTakeaway": "A changing magnetic flux through a conducting loop induces an electromotive force (EMF) proportional to the rate of change of flux."
+    },
     # NCERT Class 9 Physics
     "newton's third law": {
         "id": "topic-phys-9-newton-3",
@@ -126,14 +183,27 @@ class CurriculumResolver:
 
         # 3. Generate deterministic namespace UUID for custom or newly introduced topics
         namespace_uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"conceptly.{exam_type}.{class_level}.{subject}.{normalized_title}"))
+        
+        # Detect subject if generic
+        detected_subject = subject
+        if subject in ("General", "Default", "Science"):
+            if any(w in normalized_title for w in ["force", "motion", "energy", "wave", "light", "current", "magnet", "gravity", "ohm", "relativity"]):
+                detected_subject = "Physics"
+            elif any(w in normalized_title for w in ["cell", "dna", "plant", "organ", "heart", "protein", "enzyme", "photosynthesis", "ecology"]):
+                detected_subject = "Biology"
+            elif any(w in normalized_title for w in ["acid", "base", "atom", "molecule", "reaction", "bond", "periodic", "molar"]):
+                detected_subject = "Chemistry"
+            elif any(w in normalized_title for w in ["war", "revolt", "freedom", "constitution", "parliament", "dynasty", "treaty"]):
+                detected_subject = "History"
+
         return {
             "topic_id": namespace_uuid,
             "canonical_title": topic_title,
-            "subject": subject,
+            "subject": detected_subject,
             "class_level": class_level,
             "exam_type": exam_type,
             "is_resolved": False,
-            "seed_takeaway": None
+            "seed_takeaway": f"Master the core mechanism, primary governing equations, and real-world implications of {topic_title}."
         }
 
 curriculum_resolver = CurriculumResolver()

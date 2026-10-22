@@ -68,7 +68,13 @@ class VisualAssetFactory:
             from src.engines.render.physics_sim_engine import PhysicsSimulationEngine
             if PhysicsSimulationEngine.should_simulate(scene):
                 text_lower = f"{scene.visual_prompt} {scene.spoken_line}".lower()
-                if any(w in text_lower for w in ["rocket", "exhaust", "newton", "thrust", "propulsion"]):
+                if any(w in text_lower for w in ["magnet", "lorentz", "magnetic", "f=ilb", "f=i*l*b", "fleming", "conductor", "tesla"]):
+                    frame_img = PhysicsSimulationEngine._render_frame_magnetism_force(
+                        0, 90, 0.45,
+                        {"particles": [], "stars": []},
+                        scene
+                    )
+                elif any(w in text_lower for w in ["rocket", "exhaust", "newton", "thrust", "propulsion"]):
                     frame_img = PhysicsSimulationEngine._render_frame_rocket_propulsion(
                         0, 90, 0.25,
                         {"particles": [], "stars": [{"x": random.randint(0, cls.WIDTH), "y": random.randint(0, cls.HEIGHT), "s": 2} for _ in range(80)]},
@@ -111,6 +117,8 @@ class VisualAssetFactory:
             query = scene_queries.get(scene.scene_number, "Bhagat Singh 1929")
         elif any(w in prompt_lower for w in ["chloroplast", "photosynthesis", "cell", "plant"]):
             query = "Chloroplast diagram"
+        elif any(w in prompt_lower for w in ["magnet", "lorentz", "magnetic"]):
+            query = "Lorentz force"
         elif any(w in prompt_lower for w in ["rocket", "exhaust", "propulsion", "space"]):
             query = "Falcon 9 rocket launch"
         else:
