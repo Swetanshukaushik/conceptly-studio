@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: Optional[str] = Field(default=None, env="GEMINI_API_KEY")
     ANTHROPIC_API_KEY: Optional[str] = Field(default=None, env="ANTHROPIC_API_KEY")
     OPENAI_API_KEY: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
+    ALLOW_OFFLINE_DEV_FALLBACK: bool = Field(default=False, env="ALLOW_OFFLINE_DEV_FALLBACK")
     
     # Voice / TTS Providers
     ELEVENLABS_API_KEY: Optional[str] = Field(default=None, env="ELEVENLABS_API_KEY")
@@ -50,6 +51,8 @@ class Settings(BaseSettings):
     KLING_API_KEY: Optional[str] = Field(default=None, env="KLING_API_KEY")
     RUNWAY_API_KEY: Optional[str] = Field(default=None, env="RUNWAY_API_KEY")
     LUMA_API_KEY: Optional[str] = Field(default=None, env="LUMA_API_KEY")
+    POLLEN_KEY: Optional[str] = Field(default=None, env="POLLEN_KEY")
+    HF_TOKEN: Optional[str] = Field(default=None, env="HF_TOKEN")
     
     class Config:
         env_file = ".env"

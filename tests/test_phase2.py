@@ -6,6 +6,8 @@ sys.path.insert(0, os.path.abspath("."))
 
 def test_phase2_intelligence():
     print("🧠 Running Phase 2 Multi-Agent Intelligence & HITL Gating Tests...")
+    from src.core.config import settings
+    settings.ALLOW_OFFLINE_DEV_FALLBACK = True
 
     # 1. Test Curriculum Resolver
     from src.services.curriculum_resolver import curriculum_resolver

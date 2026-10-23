@@ -4,10 +4,17 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 class ReelGenerationTier(str, Enum):
-    FREE = "FREE"           # Tier 1 (Cost: ~$0.00 / reel): Gemini Flash + EdgeTTS + 2.5D Parallax Video Clips
-    PREMIUM = "PREMIUM"     # Tier 2 (Cost: ~$0.20 / reel): Kling AI / Hailuo AI Video Clips + Visual Story
-    ULTRA = "ULTRA"         # Tier 3 (Cost: ~$0.85 / reel): FLUX.1 + Runway Gen-3 / Luma Ray 2 + ElevenLabs
-    DEFAULT = "DEFAULT"     # Backward compatibility alias
+    TIER_1_FLASH = "TIER_1_FLASH"           # Tier 1 ($0.00): 2.5D Ken Burns Photo Slideshow with Audio
+    TIER_2_AVATAR = "TIER_2_AVATAR"         # Tier 2 (~$0.02): Dynamic Lip-Synced Character Teacher Avatar
+    TIER_3_STEM = "TIER_3_STEM"             # Tier 3 ($0.00): 3Blue1Brown Manim Exact Physics & Math Vector Engine
+    TIER_4_CINEMA = "TIER_4_CINEMA"         # Tier 4 (~$0.20): Fal.ai Kling / Runway Generative AI Cinema Video
+    TIER_5_KURZGESAGT = "TIER_5_KURZGESAGT" # Tier 5 (~$0.30): Rigged Vector Character + Embedded Physics Sim + Studio FX
+    
+    # Backward compatibility aliases
+    FREE = "FREE"
+    PREMIUM = "PREMIUM"
+    ULTRA = "ULTRA"
+    DEFAULT = "DEFAULT"
 
 class JobStatus(str, Enum):
     PENDING = "PENDING"

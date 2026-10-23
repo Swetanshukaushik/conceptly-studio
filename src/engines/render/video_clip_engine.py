@@ -3,15 +3,23 @@ import shutil
 import subprocess
 from typing import Optional
 from src.core.config import settings
-from src.models.schemas import SceneBeat, ReelGenerationTier, CameraMotion
+from src.models.schemas import SceneBeat, ReelGenerationTier, CameraMotion, VisualModality
 from src.engines.visuals.visual_factory import VisualAssetFactory
+
+from src.engines.render.tier1_flash.flash_engine import FlashMotionEngine
+from src.engines.render.tier2_avatar.avatar_engine import AvatarMotionEngine
+from src.engines.render.tier3_manim.manim_engine import ManimVectorEngine
+from src.engines.render.tier4_cinema.cinema_engine import CinemaDiffusionEngine
+from src.engines.render.tier5_kurzgesagt.master_engine import KurzgesagtMasterEngine
 
 class VideoClipEngine:
     """
-    Multi-Tier AI Video Generation Engine (2026):
-    - Tier 1 FREE: 2.5D Depth-Parallax & Camera Motion Video Generator (Near $0.00)
-    - Tier 2 PREMIUM: Kling AI / Hailuo Video (Fal.ai / Kling API) (~$0.20)
-    - Tier 3 ULTRA: Hollywood Two-Step Pipeline (FLUX.1 + Runway Gen-3 / Luma Ray 2) (~$0.85)
+    Multi-Tier AI Video Generation Engine (5 Tiers):
+    - TIER 1: FLASH ($0.00): 2.5D Ken Burns Dynamic Camera Motion on High-Res Stills
+    - TIER 2: AVATAR (~$0.02): Dynamic Lip-Synced Character Teacher Avatar
+    - TIER 3: STEM ($0.00 Local): 3Blue1Brown Manim Exact Physics & Math Vector Engine
+    - TIER 4: CINEMA (~$0.20): Fal.ai Kling / Runway Generative AI Cinema Video
+    - TIER 5: KURZGESAGT (~$0.30): Rigged Vector Puppet + Embedded Physics Sim + Studio FX
     """
 
     WIDTH = 1080
@@ -40,66 +48,59 @@ class VideoClipEngine:
         os.makedirs(os.path.dirname(os.path.abspath(output_clip_path)), exist_ok=True)
         duration = max(2.5, scene.end_sec - scene.start_sec)
 
-        # 1. Ensure base frame image exists
+        # ---------------------------------------------------------
+        # TIER 5: KURZGESAGT MASTERPIECE (Flagship Vector & Puppet)
+        # ---------------------------------------------------------
+        if tier in (ReelGenerationTier.TIER_5_KURZGESAGT, ReelGenerationTier.ULTRA):
+            return KurzgesagtMasterEngine.render_master_clip(scene, output_clip_path, duration)
+
+        # ---------------------------------------------------------
+        # TIER 3: STEM RIGOR (3Blue1Brown / Manim Vector Engine)
+        # ---------------------------------------------------------
+        if tier == ReelGenerationTier.TIER_3_STEM:
+            return ManimVectorEngine.render_manim_clip(scene, output_clip_path, duration)
+
+        # Base frame image preparation for Tiers 1, 2, and 4
         base_img_path = scene.image_path
         if not base_img_path or not os.path.exists(base_img_path):
+            base_img_path = output_clip_path.replace(".mp4", "_frame.png")
+            try:
+                VisualAssetFactory.render_scene_image(scene, base_img_path, tier=tier)
+                scene.image_path = base_img_path
+            except Exception as e:
+                # If visual tool unconfigured, Tier 2 & 1 can still render procedurally
+                base_img_path = None
+
+        # ---------------------------------------------------------
+        # TIER 4: CINEMA AI (Generative Video Diffusion)
+        # ---------------------------------------------------------
+        if tier in (ReelGenerationTier.TIER_4_CINEMA, ReelGenerationTier.PREMIUM):
+            if not base_img_path:
+                base_img_path = output_clip_path.replace(".mp4", "_frame.png")
+                VisualAssetFactory.render_scene_image(scene, base_img_path, tier=tier)
+                scene.image_path = base_img_path
+            return CinemaDiffusionEngine.render_cinema_clip(scene, base_img_path, output_clip_path, duration)
+
+        # ---------------------------------------------------------
+        # TIER 2: TALKING AVATAR (Dynamic 2D Character Teacher)
+        # ---------------------------------------------------------
+        if tier == ReelGenerationTier.TIER_2_AVATAR:
+            return AvatarMotionEngine.render_avatar_clip(scene, output_clip_path, duration, background_image_path=base_img_path)
+
+        # ---------------------------------------------------------
+        # TIER 1: FLASH (Photos with Smooth 2.5D Parallax Motion)
+        # ---------------------------------------------------------
+        if not base_img_path:
             base_img_path = output_clip_path.replace(".mp4", "_frame.png")
             VisualAssetFactory.render_scene_image(scene, base_img_path, tier=tier)
             scene.image_path = base_img_path
 
-        # 2. Tier 3 ULTRA: Runway Gen-3 Alpha / Luma Ray 2
-        if tier == ReelGenerationTier.ULTRA:
-            if settings.RUNWAY_API_KEY:
-                clip = cls._generate_runway_clip(scene, base_img_path, output_clip_path, duration)
-                if clip: return clip
-            elif settings.LUMA_API_KEY:
-                clip = cls._generate_luma_clip(scene, base_img_path, output_clip_path, duration)
-                if clip: return clip
-
-        # 3. Tier 2 PREMIUM: Kling AI / Fal.ai Video Diffusion
-        if tier in (ReelGenerationTier.PREMIUM, ReelGenerationTier.ULTRA):
-            if settings.FAL_KEY:
-                clip = cls._generate_fal_clip(scene, base_img_path, output_clip_path, duration)
-                if clip: return clip
-            elif settings.KLING_API_KEY:
-                clip = cls._generate_kling_clip(scene, base_img_path, output_clip_path, duration)
-                if clip: return clip
-
-        # 4. Tier 1 FREE (or offline fallback): Autonomous 2026 Enhanced Engine
-        # 4A. Manim Mathematical & Calculus Physics Engine (Vector strokes, derivatives, harmonic oscillators)
-        from src.engines.render.manim_math_engine import ManimMathPhysicsEngine
-        if ManimMathPhysicsEngine.should_render(scene):
-            try:
-                return ManimMathPhysicsEngine.render_math_clip(scene, output_clip_path, duration)
-            except Exception as e:
-                print(f"⚠️ Manim math engine notice: {e}, falling back to general physics...")
-
-        # 4B. Dynamic Animated Physics & Science Simulations (Newton, Collisions, Orbit, Photosynthesis)
-        from src.engines.render.physics_sim_engine import PhysicsSimulationEngine
-        if PhysicsSimulationEngine.should_simulate(scene):
-            try:
-                return PhysicsSimulationEngine.render_simulation_clip(scene, output_clip_path, duration)
-            except Exception as e:
-                print(f"⚠️ Physics sim notice: {e}, falling back to character/parallax motion...")
-
-        # 4B. Multi-Plane Storytelling Scenes (Assembly Bombing, Fluttering Pamphlets, Courtroom Megaphone, Jail Lamp)
-        from src.engines.render.storytelling_engine import MultiPlaneStorytellingEngine
-        if MultiPlaneStorytellingEngine.should_render(scene):
-            try:
-                return MultiPlaneStorytellingEngine.render_narrative_clip(scene, output_clip_path, duration, base_img_path)
-            except Exception as e:
-                print(f"⚠️ Multi-plane narrative notice: {e}, falling back to character motion...")
-
-        # 4C. Cinematic Living Character Motion (Breathing, light sweeps, floating embers for historical/human scenes)
-        from src.engines.render.character_motion_engine import CharacterMotionEngine
-        if CharacterMotionEngine.should_animate_character(scene) and base_img_path and os.path.exists(base_img_path):
-            try:
-                return CharacterMotionEngine.render_living_character_clip(base_img_path, output_clip_path, duration, scene)
-            except Exception as e:
-                print(f"⚠️ Character motion notice: {e}, falling back to parallax motion...")
-
-        # 4D. General 2.5D Parallax Camera Motion Engine
-        return cls._generate_parallax_clip(base_img_path, output_clip_path, duration, scene.camera_motion)
+        return FlashMotionEngine.render_clip(
+            image_path=base_img_path,
+            output_clip_path=output_clip_path,
+            duration=duration,
+            motion=scene.camera_motion or CameraMotion.ZOOM_IN
+        )
 
     @classmethod
     def _generate_parallax_clip(

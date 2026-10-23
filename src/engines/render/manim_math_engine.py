@@ -53,9 +53,8 @@ class ManimMathPhysicsEngine:
         """Checks if the scene requires Manim-style mathematical calculus or graph animation."""
         text = f"{scene.visual_prompt} {scene.spoken_line}".lower()
         keywords = [
-            "projectile", "trajectory", "parabola", "calculus", "derivative", "tangent",
-            "harmonic", "oscillator", "spring", "wave function", "equation", "graph",
-            "proof", "math", "vector field", "rate of change", "kinetic energy", "potential energy"
+            "projectile", "trajectory", "parabola", "calculus", "derivative", "tangent line",
+            "harmonic oscillator", "spring oscillation"
         ]
         return any(kw in text for kw in keywords)
 

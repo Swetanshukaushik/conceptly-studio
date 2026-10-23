@@ -67,6 +67,19 @@ class PipelineOrchestrator:
 
             tier = ReelGenerationTier(job.generation_tier)
 
+            # Enforce API Key requirement: avoid silent fallback
+            from src.services.llm_factory import LLMFactory
+            if not LLMFactory.is_llm_configured() and not settings.ALLOW_OFFLINE_DEV_FALLBACK:
+                raise RuntimeError("Missing GEMINI_API_KEY: Please configure your Google Gemini API key in .env to dynamically generate blueprints and screenplays without hardcoding.")
+
+            # Tier-aware Visual Requirement:
+            if tier in (ReelGenerationTier.TIER_1_FLASH, ReelGenerationTier.TIER_4_CINEMA, ReelGenerationTier.PREMIUM):
+                if not (settings.FAL_KEY or settings.OPENAI_API_KEY or settings.HF_TOKEN or settings.POLLEN_KEY):
+                    raise RuntimeError(
+                        f"Missing External Visual Generation Tool: Tier '{tier.value}' requires an external visual model. "
+                        "Please configure FAL_KEY (recommended for Fal.ai FLUX & Kling), POLLEN_KEY, HF_TOKEN, or OPENAI_API_KEY in your .env file."
+                    )
+
             # 1. Curriculum Discovery
             cls._update_stage(db, job_id, "CURRICULUM_DISCOVERY", "IN_PROGRESS", 20, "Resolving topic in curriculum hierarchy...")
             resolved = curriculum_resolver.resolve_topic(
@@ -113,7 +126,20 @@ class PipelineOrchestrator:
 
             for scene in storyboard.scenes:
                 img_path = os.path.join(frames_dir, f"scene_{scene.scene_number:02d}.png")
-                VisualAssetFactory.render_scene_image(scene, img_path, tier=tier)
+                if tier == ReelGenerationTier.TIER_3_STEM:
+                    from src.engines.render.tier3_manim.manim_engine import ManimVectorEngine
+                    im = ManimVectorEngine._render_shm(scene, 0.5, 1.0, {"trace": []})
+                    im.save(img_path, "PNG")
+                elif tier in (ReelGenerationTier.TIER_5_KURZGESAGT, ReelGenerationTier.ULTRA):
+                    from src.engines.render.tier5_kurzgesagt.master_engine import KurzgesagtMasterEngine
+                    im = KurzgesagtMasterEngine._render_composite_frame(scene, 1.0, 0.5, 30, "PHYSICS_SHM", [])
+                    im.save(img_path, "PNG")
+                elif tier == ReelGenerationTier.TIER_2_AVATAR:
+                    from src.engines.render.tier2_avatar.avatar_engine import AvatarMotionEngine
+                    im = AvatarMotionEngine._render_avatar_frame(scene, 1.0, 30, 15, None)
+                    im.save(img_path, "PNG")
+                else:
+                    VisualAssetFactory.render_scene_image(scene, img_path, tier=tier)
                 scene.image_path = img_path
                 scene.image_url = f"/media/jobs/{job_id}/storyboard_frames/scene_{scene.scene_number:02d}.png"
 
@@ -222,6 +248,14 @@ class PipelineOrchestrator:
 
             # 4. Cinematic Motion Compositing
             final_mp4_path = os.path.join(job_output_dir, f"reel_{job_id}.mp4")
+
+            # Enforce External Video Tool Requirement: strictly NO fallbacks
+            if tier in (ReelGenerationTier.PREMIUM, ReelGenerationTier.ULTRA):
+                if not (settings.FAL_KEY or settings.KLING_API_KEY or settings.RUNWAY_API_KEY or settings.LUMA_API_KEY):
+                    raise RuntimeError(
+                        f"Missing External Video AI Tool: Tier '{tier.value}' requires an external video diffusion model. "
+                        "Please set FAL_KEY (recommended for Fal.ai Kling / LTX), KLING_API_KEY, or RUNWAY_API_KEY in your .env file."
+                    )
 
             if script.storyboard and script.storyboard.scenes:
                 cls._update_stage(db, job_id, "VIDEO_COMPOSITING", "IN_PROGRESS", 80, f"Synthesizing {len(script.storyboard.scenes)} moving video clips ({tier.value} tier)...")

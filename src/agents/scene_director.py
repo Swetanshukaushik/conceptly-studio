@@ -362,9 +362,3 @@ Create 8 to 12 sequential visual beats. For each beat, provide the spoken line, 
             total_scenes=len(scenes),
             scenes=scenes
         )
-
-        return Storyboard(
-            topic_title=script.topic_title,
-            total_scenes=len(scenes),
-            scenes=scenes
-        )

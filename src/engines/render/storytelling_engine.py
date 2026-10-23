@@ -53,9 +53,8 @@ class MultiPlaneStorytellingEngine:
         """Determines if the scene is an action-driven historical narrative cut."""
         text = f"{scene.visual_prompt} {scene.spoken_line}".lower()
         action_keywords = [
-            "bomb", "leaflet", "pamphlet", "scatter", "smoke", "assembly hall",
-            "trial", "court", "dock", "jail", "prison", "cell", "lamp", "writing",
-            "inquilab", "martyr", "proclamation"
+            "bombing", "leaflet", "pamphlet", "assembly hall", "central assembly",
+            "courtroom dock", "court trial", "jail cell", "prison cell", "inquilab", "martyrdom"
         ]
         return any(kw in text for kw in action_keywords)
 

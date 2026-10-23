@@ -9,6 +9,7 @@ from src.core.config import settings
 
 def test_api_full_flow():
     print("🚀 Testing Complete 3-Gate Pipeline via FastAPI Endpoints...")
+    settings.ALLOW_OFFLINE_DEV_FALLBACK = True
     
     with TestClient(app) as client:
         # 1. Health check

@@ -21,6 +21,7 @@ from src.models.schemas import (
 from src.engines.visuals.visual_factory import VisualAssetFactory
 from src.api.auth import get_current_user
 from src.pipeline.orchestrator import PipelineOrchestrator
+from src.services.llm_factory import LLMFactory
 
 router = APIRouter(prefix="/reels", tags=["reels"])
 
@@ -80,6 +81,82 @@ def format_job_response(job: ReelJob) -> dict:
         ]
     }
 
+@router.get("/system/config-status")
+def get_system_config_status(current_user: User = Depends(get_current_user)):
+    llm_ok = bool(LLMFactory.is_llm_configured() or settings.ALLOW_OFFLINE_DEV_FALLBACK)
+    visual_ok = bool(settings.FAL_KEY or settings.OPENAI_API_KEY or settings.HF_TOKEN or settings.POLLEN_KEY)
+    cinema_ok = bool(settings.FAL_KEY or settings.KLING_API_KEY or settings.RUNWAY_API_KEY or settings.LUMA_API_KEY)
+
+    return {
+        "llm_configured": llm_ok,
+        "visual_configured": visual_ok,
+        "video_configured": cinema_ok,
+        "free_tier_active": True,
+        "gemini_active": bool(settings.GEMINI_API_KEY),
+        "openai_active": bool(settings.OPENAI_API_KEY),
+        "anthropic_active": bool(settings.ANTHROPIC_API_KEY),
+        "fal_active": bool(settings.FAL_KEY),
+        "kling_active": bool(settings.KLING_API_KEY),
+        "runway_active": bool(settings.RUNWAY_API_KEY),
+        "hf_active": bool(settings.HF_TOKEN),
+        "pollen_active": bool(settings.POLLEN_KEY),
+        "tiers": {
+            "TIER_1_FLASH": {
+                "name": "Tier 1: Flash",
+                "cost": "$0.00",
+                "enabled": bool(llm_ok and visual_ok),
+                "required_keys": ["GEMINI_API_KEY", "FAL_KEY | POLLEN_KEY | HF_TOKEN | OPENAI_API_KEY"],
+                "missing_keys": [
+                    *(["GEMINI_API_KEY"] if not llm_ok else []),
+                    *(["FAL_KEY or POLLEN_KEY or HF_TOKEN"] if not visual_ok else [])
+                ],
+                "tooltip": "✓ Ready to Generate (Photos + Audio)" if (llm_ok and visual_ok) else "⚠️ Requires external visual key (FAL_KEY, POLLEN_KEY, or HF_TOKEN) in .env"
+            },
+            "TIER_2_AVATAR": {
+                "name": "Tier 2: Avatar",
+                "cost": "~$0.02",
+                "enabled": bool(llm_ok),
+                "required_keys": ["GEMINI_API_KEY"],
+                "missing_keys": [] if llm_ok else ["GEMINI_API_KEY"],
+                "tooltip": "✓ Ready to Generate (Built-in 2D character engine)" if llm_ok else "⚠️ Requires GEMINI_API_KEY in .env"
+            },
+            "TIER_3_STEM": {
+                "name": "Tier 3: STEM",
+                "cost": "$0.00",
+                "enabled": bool(llm_ok),
+                "required_keys": ["GEMINI_API_KEY"],
+                "missing_keys": [] if llm_ok else ["GEMINI_API_KEY"],
+                "tooltip": "✓ Ready to Generate (100% Free local 3Blue1Brown physics simulation)" if llm_ok else "⚠️ Requires GEMINI_API_KEY in .env"
+            },
+            "TIER_4_CINEMA": {
+                "name": "Tier 4: Cinema",
+                "cost": "~$0.20",
+                "enabled": bool(llm_ok and cinema_ok),
+                "required_keys": ["GEMINI_API_KEY", "FAL_KEY | KLING_API_KEY | RUNWAY_API_KEY"],
+                "missing_keys": [
+                    *(["GEMINI_API_KEY"] if not llm_ok else []),
+                    *(["FAL_KEY or KLING_API_KEY or RUNWAY_API_KEY"] if not cinema_ok else [])
+                ],
+                "tooltip": "✓ Ready to Generate (Kling / Runway video diffusion)" if (llm_ok and cinema_ok) else "⚠️ Requires FAL_KEY, KLING_API_KEY, or RUNWAY_API_KEY in .env"
+            },
+            "TIER_5_KURZGESAGT": {
+                "name": "Tier 5: Kurzgesagt",
+                "cost": "~$0.30",
+                "enabled": bool(llm_ok),
+                "required_keys": ["GEMINI_API_KEY"],
+                "missing_keys": [] if llm_ok else ["GEMINI_API_KEY"],
+                "tooltip": "✓ Ready to Generate (Rigged duck mascot + vector physics sim)" if llm_ok else "⚠️ Requires GEMINI_API_KEY in .env"
+            }
+        },
+        "active_provider": (
+            "Google Gemini 2.5 Flash" if settings.GEMINI_API_KEY
+            else "OpenAI GPT-4o" if settings.OPENAI_API_KEY
+            else "Anthropic Claude 3.5" if settings.ANTHROPIC_API_KEY
+            else "Offline Dev Fallback" if settings.ALLOW_OFFLINE_DEV_FALLBACK
+            else "None (Missing GEMINI_API_KEY)"
+        )
+    }
+
 @router.post("/create", response_model=ReelJobRead)
 def create_reel_job(
     payload: CreateReelRequest,
@@ -87,6 +164,30 @@ def create_reel_job(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # Enforce active LLM configuration: prevent silent hardcoding
+    if not LLMFactory.is_llm_configured() and not settings.ALLOW_OFFLINE_DEV_FALLBACK:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing LLM API Key: GEMINI_API_KEY is not configured in .env. A valid API key is required to dynamically generate blueprints, scripts, and quizzes without hardcoding."
+        )
+
+    # Tier Key Validation
+    if payload.generation_tier in (ReelGenerationTier.TIER_4_CINEMA, ReelGenerationTier.PREMIUM):
+        if not (settings.FAL_KEY or settings.KLING_API_KEY or settings.RUNWAY_API_KEY):
+            raise HTTPException(
+                status_code=400,
+                detail="Tier 4 (CINEMA AI) requires FAL_KEY (recommended for Fal.ai Kling / LTX) or RUNWAY_API_KEY in .env."
+            )
+    elif payload.generation_tier in (ReelGenerationTier.TIER_1_FLASH, ReelGenerationTier.FREE):
+        if not (settings.FAL_KEY or settings.OPENAI_API_KEY or settings.HF_TOKEN or settings.POLLEN_KEY):
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "Tier 1 (FLASH) requires an external visual model. Please configure FAL_KEY, POLLEN_KEY, HF_TOKEN, or OPENAI_API_KEY in .env, "
+                    "or select Tier 3 (STEM RIGOR) or Tier 5 (KURZGESAGT) for 100% animation with zero extra keys."
+                )
+            )
+
     job = ReelJob(
         user_id=current_user.id,
         generation_tier=payload.generation_tier.value,

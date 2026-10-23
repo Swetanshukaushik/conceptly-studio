@@ -20,6 +20,11 @@ class LLMFactory:
     """
 
     @classmethod
+    def is_llm_configured(cls) -> bool:
+        """Returns True if any valid LLM provider API key is configured."""
+        return bool(settings.GEMINI_API_KEY or settings.OPENAI_API_KEY or settings.ANTHROPIC_API_KEY)
+
+    @classmethod
     def generate_json(
         cls,
         system_prompt: str,
@@ -27,6 +32,21 @@ class LLMFactory:
         response_model: Type[T],
         tier: ReelGenerationTier = ReelGenerationTier.FREE
     ) -> T:
+        # If no LLM API key is configured and offline dev fallback is disabled, fail explicitly
+        if not cls.is_llm_configured() and not settings.ALLOW_OFFLINE_DEV_FALLBACK:
+            raise RuntimeError(
+                "Missing LLM API Key: GEMINI_API_KEY is not configured in .env. "
+                "A valid API key is required to dynamically generate blueprints, scripts, quizzes, and visual scenes for any topic without hardcoding."
+            )
+        # Enrich system prompt with JSON schema contract
+        enriched_system_prompt = system_prompt
+        try:
+            if hasattr(response_model, "model_json_schema"):
+                schema_str = json.dumps(response_model.model_json_schema(), indent=2)
+                enriched_system_prompt += f"\n\nYou MUST return strictly valid JSON matching this exact JSON Schema:\n{schema_str}\nOutput ONLY the JSON object. Do not include markdown fences."
+        except Exception:
+            pass
+
         # 1. Ultra Tier: Attempt Claude 3.5 Sonnet
         if tier == ReelGenerationTier.ULTRA and settings.ANTHROPIC_API_KEY:
             try:
@@ -35,7 +55,7 @@ class LLMFactory:
                 message = client.messages.create(
                     model="claude-3-5-sonnet-20241022",
                     max_tokens=2048,
-                    system=system_prompt + "\nOutput ONLY valid JSON matching the requested schema. No markdown backticks.",
+                    system=enriched_system_prompt,
                     messages=[{"role": "user", "content": user_prompt}]
                 )
                 content = message.content[0].text
@@ -44,22 +64,47 @@ class LLMFactory:
             except Exception as e:
                 print(f"⚠️ Anthropic generation failed: {e}. Falling back...")
 
-        # 2. Premium / Free Tier: Attempt Gemini 1.5
+        # 2. Premium / Free Tier: Attempt Gemini
         if settings.GEMINI_API_KEY:
             try:
                 import google.generativeai as genai
                 genai.configure(api_key=settings.GEMINI_API_KEY)
-                model_name = "gemini-1.5-pro" if tier == ReelGenerationTier.ULTRA else "gemini-1.5-flash"
-                model = genai.GenerativeModel(
-                    model_name=model_name,
-                    system_instruction=system_prompt,
-                    generation_config={"response_mime_type": "application/json"}
-                )
-                response = model.generate_content(user_prompt)
-                parsed = json.loads(response.text)
-                return response_model.model_validate(parsed)
+                
+                # Candidate model cascade to support 2026 Gemini APIs with model-family quota fallback
+                candidate_models = [
+                    "gemini-flash-lite-latest",
+                    "gemini-3.1-flash-lite",
+                    "gemini-3.5-flash-lite",
+                    "gemini-flash-latest",
+                    "gemini-3.5-flash",
+                    "gemini-3.8-flash"
+                ]
+                last_gemini_err = None
+                for model_name in candidate_models:
+                    try:
+                        model = genai.GenerativeModel(
+                            model_name=model_name,
+                            system_instruction=enriched_system_prompt,
+                            generation_config={"response_mime_type": "application/json"}
+                        )
+                        response = model.generate_content(user_prompt)
+                        raw_text = response.text.strip()
+                        if raw_text.startswith("```"):
+                            raw_text = re.sub(r"^```(?:json)?\s*", "", raw_text)
+                            raw_text = re.sub(r"\s*```$", "", raw_text)
+                        parsed = json.loads(raw_text)
+                        return response_model.model_validate(parsed)
+                    except Exception as me:
+                        last_gemini_err = me
+                        continue
+                if last_gemini_err:
+                    print(f"⚠️ Gemini generation failed across candidates: {last_gemini_err}")
+                    if not settings.ALLOW_OFFLINE_DEV_FALLBACK:
+                        raise last_gemini_err
             except Exception as e:
-                print(f"⚠️ Gemini generation failed: {e}. Falling back...")
+                print(f"⚠️ Gemini provider notice: {e}")
+                if not settings.ALLOW_OFFLINE_DEV_FALLBACK:
+                    raise e
 
         # 3. Attempt OpenAI if key is present
         if settings.OPENAI_API_KEY:

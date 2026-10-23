@@ -55,18 +55,34 @@ class PhysicsSimulationEngine:
 
     @classmethod
     def should_simulate(cls, scene: SceneBeat) -> bool:
-        """Determines if the scene beat represents a physical or scientific simulation."""
+        """Determines if the scene beat represents a physical or scientific simulation with a dedicated procedural model."""
         text = f"{scene.visual_prompt} {scene.spoken_line}".lower()
-        if scene.visual_modality in (VisualModality.SCIENTIFIC_DIAGRAM, VisualModality.ANATOMICAL_3D):
+        
+        # 1. Optics & Prism Dispersion
+        if any(w in text for w in ["prism", "dispersion", "refraction", "spectrum", "rainbow", "snell", "white light", "optics", "wavelength"]):
             return True
-        keywords = [
-            "rocket", "newton", "force", "propulsion", "exhaust", "action", "reaction",
-            "collision", "momentum", "gravity", "orbit", "satellite", "wave", "refraction",
-            "optics", "photosynthesis", "chloroplast", "electron", "proton", "velocity",
-            "acceleration", "energy", "physics", "vector", "magnet", "lorentz", "f=ilb",
-            "f=i*l*b", "fleming", "conductor", "solenoid", "tesla", "flux"
-        ]
-        return any(kw in text for kw in keywords)
+
+        # 2. Magnetism & Lorentz Force
+        if any(w in text for w in ["magnet", "lorentz", "magnetic", "f=ilb", "f=i*l*b", "fleming", "conductor", "tesla", "solenoid"]):
+            return True
+
+        # 3. Rocket Propulsion & Action-Reaction (Newton's 3rd Law)
+        if any(w in text for w in ["rocket", "exhaust", "propulsion", "thrust", "recoil"]) and not any(w in text for w in ["history", "bio", "cell", "prism", "light"]):
+            return True
+
+        # 4. Elastic & Inelastic Collisions / Momentum
+        if any(w in text for w in ["collision", "momentum", "impact", "elastic impact"]):
+            return True
+
+        # 5. Gravitational Orbital Mechanics
+        if any(w in text for w in ["orbital mechanics", "gravitation", "satellite orbit", "planetary gravity", "centripetal orbit"]):
+            return True
+
+        # 6. Cellular Biology & Photosynthesis
+        if any(w in text for w in ["chloroplast", "photosynthesis", "thylakoid", "calvin cycle"]):
+            return True
+
+        return False
 
     @classmethod
     def render_simulation_clip(
@@ -86,8 +102,10 @@ class PhysicsSimulationEngine:
         total_frames = max(30, int(duration * cls.FPS))
         text = f"{scene.visual_prompt} {scene.spoken_line}".lower()
 
-        # Route to appropriate physical model
-        if any(w in text for w in ["magnet", "lorentz", "magnetic", "f=ilb", "f=i*l*b", "fleming", "conductor", "tesla"]):
+        # Route strictly to appropriate physical model
+        if any(w in text for w in ["prism", "dispersion", "refraction", "spectrum", "rainbow", "snell", "white light", "optics", "wavelength"]):
+            sim_func = cls._render_frame_prism_optics
+        elif any(w in text for w in ["magnet", "lorentz", "magnetic", "f=ilb", "f=i*l*b", "fleming", "conductor", "tesla"]):
             sim_func = cls._render_frame_magnetism_force
         elif any(w in text for w in ["rocket", "exhaust", "propulsion", "thrust", "newton"]):
             sim_func = cls._render_frame_rocket_propulsion
@@ -98,7 +116,7 @@ class PhysicsSimulationEngine:
         elif any(w in text for w in ["chloroplast", "photosynthesis", "plant", "cell", "thylakoid"]):
             sim_func = cls._render_frame_photosynthesis
         else:
-            sim_func = cls._render_frame_collision
+            sim_func = cls._render_frame_generic_schematic
 
         # FFmpeg rawvideo pipe command
         cmd = [
@@ -688,5 +706,189 @@ class PhysicsSimulationEngine:
         font_eq = cls._get_font(30)
         draw.text((115, 1362), "F = (4.50 A) × (0.65 m) × (1.20 T) × sin(90°) = 3.51 N", fill=(255, 255, 255), font=font_eq)
         draw.text((115, 1414), "Sideways magnetic deflecting force drives Maglev trains & electric motors.", fill=(156, 163, 175), font=cls._get_font(20))
+
+        return img
+
+    # ================= 7. OPTICS: TRIANGULAR PRISM DISPERSION & SPECTRUM =================
+    @classmethod
+    def _render_frame_prism_optics(
+        cls,
+        frame_idx: int,
+        total_frames: int,
+        progress: float,
+        state: Dict[str, Any],
+        scene: SceneBeat
+    ) -> Image.Image:
+        img = Image.new("RGB", (cls.WIDTH, cls.HEIGHT), (10, 14, 24))
+        draw = ImageDraw.Draw(img)
+
+        # 1. Optical Bench Dark Gradient Background
+        for y in range(0, cls.HEIGHT, 4):
+            ratio = y / float(cls.HEIGHT)
+            r = int(8 + ratio * 8)
+            g = int(12 + ratio * 10)
+            b = int(22 + ratio * 18)
+            draw.rectangle([(0, y), (cls.WIDTH, y + 4)], fill=(r, g, b))
+
+        # Ambient optical laboratory bench grid (subtle)
+        for gx in range(60, cls.WIDTH, 120):
+            draw.line([(gx, 220), (gx, 1340)], fill=(20, 28, 45), width=1)
+        for gy in range(220, 1340, 120):
+            draw.line([(60, gy), (cls.WIDTH - 60, gy)], fill=(20, 28, 45), width=1)
+
+        # Center of Optics Stage
+        cx, cy = cls.WIDTH // 2, 720
+
+        # 2. Triangular Glass Prism (Apex at top, equilateral geometry)
+        apex = (cx, cy - 240)
+        p_left = (cx - 260, cy + 200)
+        p_right = (cx + 260, cy + 200)
+
+        # Glass Body with Refraction Glow
+        draw.polygon([apex, p_left, p_right], fill=(18, 32, 54, 220), outline=(56, 189, 248), width=4)
+        # Glass Bevel & Internal Refraction Highlights
+        draw.line([(apex[0], apex[1] + 25), (p_left[0] + 35, p_left[1] - 15)], fill=(125, 211, 252), width=2)
+        draw.line([(apex[0], apex[1] + 25), (p_right[0] - 35, p_right[1] - 15)], fill=(56, 189, 248), width=1)
+        draw.text((cx - 65, cy + 120), "GLASS (n ≈ 1.52)", fill=(148, 163, 184), font=cls._get_font(20))
+
+        # 3. Incident White Light Ray (from Left to Left Face of Prism)
+        src_x, src_y = 60, cy - 50
+        hit_x = int(cx - 130)
+        hit_y = int(cy - 20)
+
+        # Draw intense incident white light beam with soft glow
+        draw.line([(src_x, src_y), (hit_x, hit_y)], fill=(120, 180, 255), width=14)
+        draw.line([(src_x, src_y), (hit_x, hit_y)], fill=(220, 240, 255), width=8)
+        draw.line([(src_x, src_y), (hit_x, hit_y)], fill=(255, 255, 255), width=4)
+        draw.text((80, cy - 90), "INCIDENT WHITE LIGHT (Polychromatic)", fill=(255, 255, 255), font=cls._get_font(20))
+
+        # Dynamic photons moving along incident beam
+        pulse_phase = (frame_idx * 0.12) % 1.0
+        for p_offset in [0.1, 0.4, 0.7]:
+            px = int(src_x + (hit_x - src_x) * ((pulse_phase + p_offset) % 1.0))
+            py = int(src_y + (hit_y - src_y) * ((pulse_phase + p_offset) % 1.0))
+            draw.ellipse([(px - 6, py - 6), (px + 6, py + 6)], fill=(255, 255, 255))
+
+        # Interface Normal Line at Incidence
+        draw.line([(hit_x - 35, hit_y - 70), (hit_x + 35, hit_y + 70)], fill=(100, 116, 139), width=2)
+        draw.text((hit_x - 55, hit_y - 95), "Normal", fill=(148, 163, 184), font=cls._get_font(18))
+
+        # 4. Seven Spectral Rainbow Color Bands (Red to Violet)
+        # In real physics: Red (700nm, n=1.513) bends LEAST; Violet (400nm, n=1.532) bends MOST
+        spectrum = [
+            ("Red", "700 nm", (255, 59, 48), -75, 0),
+            ("Orange", "620 nm", (255, 149, 0), -45, 1),
+            ("Yellow", "580 nm", (255, 204, 0), -15, 2),
+            ("Green", "530 nm", (52, 199, 89), 18, 3),
+            ("Blue", "470 nm", (0, 199, 255), 52, 4),
+            ("Indigo", "430 nm", (88, 86, 214), 85, 5),
+            ("Violet", "400 nm", (175, 82, 222), 120, 6)
+        ]
+
+        screen_x = cls.WIDTH - 90
+
+        for col_name, wl, rgb, dev_delta, idx in spectrum:
+            exit_x = cx + 130
+            exit_y = cy - 20 + int(idx * 7)
+
+            # Ray INSIDE the prism (slight fanning inside glass)
+            draw.line([(hit_x, hit_y), (exit_x, exit_y)], fill=rgb, width=3)
+
+            # Emergent ray leaving right face to projection screen (wide fanning)
+            target_y = cy + 20 + dev_delta * 2
+
+            # Outer soft glow ray
+            draw.line([(exit_x, exit_y), (screen_x, target_y)], fill=(rgb[0] // 3, rgb[1] // 3, rgb[2] // 3), width=10)
+            # Core spectral ray
+            draw.line([(exit_x, exit_y), (screen_x, target_y)], fill=rgb, width=4)
+
+            # Photon wave packets traversing emerging ray
+            ray_phase = (frame_idx * 0.15 + idx * 0.1) % 1.0
+            rpx = int(exit_x + (screen_x - exit_x) * ray_phase)
+            rpy = int(exit_y + (target_y - exit_y) * ray_phase)
+            draw.ellipse([(rpx - 4, rpy - 4), (rpx + 4, rpy + 4)], fill=(255, 255, 255))
+
+            # Spectral band on screen
+            draw.line([(screen_x, target_y - 12), (screen_x, target_y + 12)], fill=rgb, width=10)
+
+        # 5. Projection Screen (White frosted glass detector)
+        draw.rounded_rectangle([(screen_x - 6, cy - 160), (screen_x + 18, cy + 300)], radius=8, fill=(240, 245, 255), outline=(148, 163, 184), width=2)
+        draw.text((screen_x - 140, cy - 195), "DETECTOR SCREEN", fill=(203, 213, 225), font=cls._get_font(18))
+
+        # Wavelength label callouts on right
+        draw.text((screen_x - 130, cy - 130), "Red: 700nm (Least bent)", fill=(255, 99, 88), font=cls._get_font(16))
+        draw.text((screen_x - 130, cy + 265), "Violet: 400nm (Most bent)", fill=(195, 122, 242), font=cls._get_font(16))
+
+        # 6. Telemetry & Science HUD
+        # Top Header Pill
+        draw.rounded_rectangle([80, 130, cls.WIDTH - 80, 210], radius=16, fill=(16, 24, 40, 230), outline=(56, 189, 248), width=2)
+        draw.text((110, 155), "🌈 OPTICS: DISPERSION OF WHITE LIGHT THROUGH PRISM", fill=(56, 189, 248), font=cls._get_font(24))
+
+        # Telemetry Card (Left Upper)
+        draw.rounded_rectangle([80, 235, 450, 405], radius=14, fill=(14, 22, 38, 220), outline=(56, 189, 248), width=1)
+        font_sub = cls._get_font(18)
+        draw.text((105, 252), "REFRACTIVE INDEX: n(λ) = A + B/λ²", fill=(255, 215, 0), font=font_sub)
+        draw.text((105, 282), "CAUCHY RELATION: n(violet) > n(red)", fill=(125, 211, 252), font=font_sub)
+        draw.text((105, 312), "SPEED IN GLASS: v = c / n(λ)", fill=(240, 240, 250), font=font_sub)
+        draw.text((105, 342), "ANGLE OF DEVIATION: δ = (n - 1) · A", fill=(52, 199, 89), font=font_sub)
+        draw.text((105, 372), "SPECTRUM: V - I - B - G - Y - O - R", fill=(175, 82, 222), font=font_sub)
+
+        # Bottom Educational Keynote Card
+        draw.rounded_rectangle([80, 1340, cls.WIDTH - 80, 1475], radius=18, fill=(15, 23, 42, 240), outline=(56, 189, 248), width=2)
+        font_eq = cls._get_font(26)
+        draw.text((115, 1362), "White light contains all visible wavelengths.", fill=(255, 255, 255), font=font_eq)
+        draw.text((115, 1412), "Different colors travel at different speeds in glass, causing them to bend at different angles.", fill=(186, 230, 253), font=cls._get_font(18))
+
+        return img
+
+    # ================= 8. DYNAMIC GENERAL CONCEPT SCHEMATIC =================
+    @classmethod
+    def _render_frame_generic_schematic(
+        cls,
+        frame_idx: int,
+        total_frames: int,
+        progress: float,
+        state: Dict[str, Any],
+        scene: SceneBeat
+    ) -> Image.Image:
+        img = Image.new("RGB", (cls.WIDTH, cls.HEIGHT), (12, 18, 30))
+        draw = ImageDraw.Draw(img)
+
+        # Dark sleek background with grid
+        for y in range(0, cls.HEIGHT, 8):
+            r = int(10 + (y / cls.HEIGHT) * 10)
+            g = int(14 + (y / cls.HEIGHT) * 14)
+            b = int(24 + (y / cls.HEIGHT) * 22)
+            draw.rectangle([(0, y), (cls.WIDTH, y + 8)], fill=(r, g, b))
+
+        # Dynamic floating particle field
+        cx, cy = cls.WIDTH // 2, 700
+        for i in range(12):
+            angle = (frame_idx * 0.05 + i * (2 * math.pi / 12)) % (2 * math.pi)
+            rad = 220 + 40 * math.sin(frame_idx * 0.1 + i)
+            px = int(cx + rad * math.cos(angle))
+            py = int(cy + rad * math.sin(angle))
+            draw.ellipse([(px - 8, py - 8), (px + 8, py + 8)], fill=(56, 189, 248))
+            draw.line([(cx, cy), (px, py)], fill=(30, 48, 76), width=1)
+
+        # Center core schematic node
+        draw.ellipse([(cx - 120, cy - 120), (cx + 120, cy + 120)], fill=(20, 32, 54), outline=(56, 189, 248), width=3)
+        draw.ellipse([(cx - 70, cy - 70), (cx + 70, cy + 70)], fill=(30, 48, 80), outline=(125, 211, 252), width=2)
+
+        # Header Badge
+        draw.rounded_rectangle([80, 140, cls.WIDTH - 80, 220], radius=16, fill=(16, 24, 40, 230), outline=(56, 189, 248), width=2)
+        font_badge = cls._get_font(24)
+        draw.text((110, 165), f"🔬 CONCEPT SCHEMATIC • SCENE {scene.scene_number:02d}", fill=(56, 189, 248), font=font_badge)
+
+        # Core summary
+        font_core = cls._get_font(24)
+        words = scene.spoken_line.split()
+        summary_txt = " ".join(words[:9]) + ("..." if len(words) > 9 else "")
+        draw.text((cx - 180, cy + 180), summary_txt, fill=(240, 240, 250), font=font_core)
+
+        # Bottom Safe Zone Card
+        draw.rounded_rectangle([80, 1340, cls.WIDTH - 80, 1475], radius=18, fill=(15, 23, 42, 240), outline=(56, 189, 248), width=2)
+        draw.text((115, 1370), "SCIENTIFIC MECHANISM IN MOTION", fill=(255, 255, 255), font=cls._get_font(26))
+        draw.text((115, 1415), "Observable principles governing matter, energy, and physical transformation.", fill=(186, 230, 253), font=cls._get_font(18))
 
         return img
