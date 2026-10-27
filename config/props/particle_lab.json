@@ -1,5 +1,5 @@
 {
- "about": "Gas-phase chemistry lab: a glass cylinder with a plunger and up to four kinds of coloured particles bouncing inside, plus a pressure gauge. The reaction a A + b B <=> c C + d D shifts according to the equilibrium constant when you change the volume (move the plunger), add or remove a species, or change the temperature, so the particle counts always obey Le Chatelier's principle: the numbers come from a solver, not from the director. Particle counts are shown at the equilibrium for the current volume. Also good for gas laws (Boyle: set one species, no reaction, volume only) and collision/kinetics ideas (speed). Set `vol` for the plunger (1 = full chamber, 0.4 = squeezed): an expression of t like 'mix(1,0.45,smooth(2,4,t))'. Species colours default to N2 blue, H2 white, NH3 red.",
+ "about": "Gas-phase chemistry lab: a glass cylinder with a plunger and up to four kinds of coloured particles bouncing inside, plus a pressure gauge. The reaction a A + b B <=> c C + d D shifts according to the equilibrium constant when you change the volume (move the plunger), add or remove a species, or change the temperature, so the particle counts always obey Le Chatelier's principle: the numbers come from a solver, not from the director. Particle counts are shown at the equilibrium for the current volume. Also good for gas laws (Boyle: set one species, no reaction, volume only) and collision/kinetics ideas (speed). Set `vol` for the plunger (1 = full chamber, 0.4 = squeezed): an expression of t like 'mix(1,0.45,smooth(2,4,t))'. Species colours default to N2 blue, H2 white, NH3 red. The gauge stands left of the cylinder and the colour legend top right, so the lower right stays free for the narrator.",
  "params_doc": {
   "a": "stoichiometric number of A (reactant)",
   "b": "of B (reactant, 0 if absent)",
@@ -27,16 +27,21 @@
   "maxN": "most particles of one kind drawn (default 60)",
   "rc": "cylinder radius",
   "h0": "chamber height at vol 1",
-  "gauge": "1 to show the pressure gauge"
+  "gauge": "1 to show the pressure gauge",
+  "lA": "formula shown in the legend for A, e.g. 'N2' (default is the formula of the default reaction)",
+  "lB": "legend for B",
+  "lC": "legend for C",
+  "lD": "legend for D (empty = hidden)",
+  "legend": "1 to show the colour legend"
  },
  "bounds": {
   "size": [
-   3.6,
-   3.6
+   4.2,
+   3.9
   ],
   "center": [
-   0.3,
-   1.3
+   0.0,
+   1.15
   ]
  },
  "params": {
@@ -57,7 +62,7 @@
   "Kt": "${K}",
   "spd": "t",
   "cA": "#2f6bff",
-  "cB": "#9aa6bd",
+  "cB": "#6f7fa0",
   "cC": "#ff4d4d",
   "cD": "#ffb020",
   "rA": 0.1,
@@ -67,7 +72,12 @@
   "maxN": 60,
   "rc": 1.0,
   "h0": 2.4,
-  "gauge": 1
+  "gauge": 1,
+  "lA": "N\u2082",
+  "lB": "H\u2082",
+  "lC": "NH\u2083",
+  "lD": "",
+  "legend": 1
  },
  "objects": [
   {
@@ -246,7 +256,7 @@
     "roughness": 0.5
    },
    "position": [
-    "${rc}+0.75",
+    "-(${rc}+0.75)",
     1.2,
     0
    ],
@@ -267,7 +277,7 @@
     "roughness": 0.4
    },
    "position": [
-    "${rc}+0.75",
+    "-(${rc}+0.75)",
     "1.15*clamp(((max(0,${nA}+(${dA})+(-${a})*xi)+max(0,${nB}+(${dB})+(-${b})*xi)+max(0,${nC}+(${dC})+(${c})*xi)+max(0,${nD}+(${dD})+(${d})*xi))/(${vol}))/(0.5*(${nA}+${nB}+${nC}+${nD})*2),0,2)/2+0.02",
     0
    ],
@@ -287,11 +297,59 @@
    "size": 0.17,
    "color": "muted",
    "position": [
-    "${rc}+0.75",
+    "-(${rc}+0.75)",
     2.75,
     0
    ],
    "visible": "${gauge}"
+  },
+  {
+   "type": "label",
+   "text": "${lA}",
+   "size": 0.36,
+   "color": "${cA}",
+   "position": [
+    "${rc}+1.1",
+    2.8,
+    0.3
+   ],
+   "visible": "${legend}*min(1,${a})"
+  },
+  {
+   "type": "label",
+   "text": "${lB}",
+   "size": 0.36,
+   "color": "${cB}",
+   "position": [
+    "${rc}+1.1",
+    2.44,
+    0.3
+   ],
+   "visible": "${legend}*min(1,${b})"
+  },
+  {
+   "type": "label",
+   "text": "${lC}",
+   "size": 0.36,
+   "color": "${cC}",
+   "position": [
+    "${rc}+1.1",
+    2.08,
+    0.3
+   ],
+   "visible": "${legend}*min(1,${c})"
+  },
+  {
+   "type": "label",
+   "text": "${lD}",
+   "size": 0.36,
+   "color": "${cD}",
+   "position": [
+    "${rc}+1.1",
+    1.72,
+    0.3
+   ],
+   "visible": "${legend}*min(1,${d})"
   }
  ]
 }

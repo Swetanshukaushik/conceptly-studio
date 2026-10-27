@@ -164,7 +164,7 @@ class Scene3DDirector:
         )
 
     # ---------- validation helpers ----------
-    SOFT_MARKERS = ("the subject fills only", "behind the narrator's portrait", "should be a plain number or expression, not a list", "Unknown material preset", "pop word", "cropped by the edge", "card", "sits on a bright area", "washed out", "overlap each other", "tiny on screen")
+    SOFT_MARKERS = ("the subject fills only", "behind the narrator's portrait", "should be a plain number or expression, not a list", "Unknown material preset", "Unknown pose", "pop word", "cropped by the edge", "card", "sits on a bright area", "washed out", "overlap each other", "tiny on screen")
 
     @staticmethod
     def _norm(msg: str) -> str:
@@ -173,11 +173,11 @@ class Scene3DDirector:
     @classmethod
     def _lint_beats(cls, designs: Dict[int, Dict[str, Any]], beats: List[Dict[str, Any]], look: str, layout: str, header: Optional[List[str]]) -> Dict[int, List[str]]:
         """Runs the real renderer over the designs; returns problems grouped by beat (0 = not attributable)."""
-        t = 0.0; scenes = []
+        t = 0.0; scenes = []; lines = []
         for b in beats:
-            d = dict(designs[b["beat"]]); d.update({"id": f"beat_{b['beat']}", "start": t, "end": t + b["seconds"]}); t += b["seconds"]
+            d = dict(designs[b["beat"]]); d.update({"id": f"beat_{b['beat']}", "start": t, "end": t + b["seconds"]}); lines.append((b.get("text", ""), t, t + b["seconds"])); t += b["seconds"]
             scenes.append(d)
-        spec = {"version": 1, "look": look, "layout": layout, "header": header or [], "duration": t, "scenes": scenes, "captions": []}
+        spec = {"version": 1, "look": look, "layout": layout, "header": header or [], "duration": t, "scenes": scenes, "captions": Studio3DEngine.estimate_captions(lines)}
         out: Dict[int, List[str]] = {}
         try:
             problems = Studio3DEngine.lint(spec)
@@ -190,6 +190,25 @@ class Scene3DDirector:
             if key not in [cls._norm(x) for x in out.get(beat, [])]:
                 out.setdefault(beat, []).append(msg)
         return out
+
+    LAB_FIXED = ("a", "b", "c", "d", "nA", "nB", "nC", "nD", "cA", "cB", "cC", "cD", "lA", "lB", "lC", "lD", "rA", "rB", "rC", "rD", "maxN", "rc", "h0")
+
+    @classmethod
+    def _unify_labs(cls, designs: Dict[int, Dict[str, Any]]) -> None:
+        """The same particle_lab across scenes is one experiment: reaction, reference counts, colours and legend are fixed by
+        its first appearance; scenes may only change what is being done to it (vol, dA..dD, Kt, spd, gauge)."""
+        first: Dict[str, Dict[str, Any]] = {}
+        for beat in sorted(designs):
+            for o in designs[beat].get("objects", []):
+                if o.get("prefab") != "particle_lab":
+                    continue
+                params = o.setdefault("params", {})
+                ref = first.setdefault(o.get("id") or "lab", {k: params[k] for k in cls.LAB_FIXED if k in params})
+                for k in cls.LAB_FIXED:
+                    if k in ref:
+                        params[k] = ref[k]
+                    else:
+                        params.pop(k, None)
 
     @classmethod
     def _is_soft(cls, msg: str) -> bool:
@@ -273,6 +292,7 @@ class Scene3DDirector:
                 qa_pre.append("physics reel without the motion simulator after one repair: " + soft[0][:120])
 
         designs = {s.beat: s.model_dump(exclude_none=True) for s in plan.scenes}
+        cls._unify_labs(designs)
         qa_notes: List[str] = list(qa_pre)
         # Per-beat renderer checks, one auto-retry per failing beat
         report = cls._lint_beats(designs, beats, plan.look, plan.layout, plan.header)
@@ -284,6 +304,7 @@ class Scene3DDirector:
             jobs = [{"beat": next(x for x in beats if x["beat"] == b), "current": designs[b],
                      "instruction": "Fix these problems found by the renderer: " + "; ".join(report[b])} for b in failing]
             designs.update(cls._redesign_beats(script.topic_title, jobs, plan.look, plan.layout, plan.header, tier, provider, route["pack"]))
+            cls._unify_labs(designs)
             report = cls._lint_beats(designs, beats, plan.look, plan.layout, plan.header)
         hard = [m for b, msgs in report.items() for m in msgs if not cls._is_soft(m)]
         if hard:
@@ -365,7 +386,7 @@ class Scene3DDirector:
             try:
                 new = cls._redesign_beats(storyboard.topic_title, jobs, look, layout, header, tier, provider, (storyboard.route or {}).get("pack"))
                 all_designs = {s.scene_number: s.scene3d for s in storyboard.scenes}; all_designs.update(new)
-                lint = cls._lint_beats(all_designs, [{"beat": s.scene_number, "seconds": round(s.end_sec - s.start_sec, 1)} for s in storyboard.scenes], look, layout, header)
+                lint = cls._lint_beats(all_designs, [{"beat": s.scene_number, "text": s.spoken_line, "seconds": round(s.end_sec - s.start_sec, 1)} for s in storyboard.scenes], look, layout, header)
                 changed = []
                 for sc in weak:
                     if any(not cls._is_soft(m) for m in lint.get(sc.scene_number, [])):

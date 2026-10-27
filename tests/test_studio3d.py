@@ -532,3 +532,28 @@ def test_chemistry_prompt_requires_the_lab_and_balanced_ce_equations():
     for needle in ("particle_lab", "eqext", "\\ce{N2(g)", "le_chatelier_temperature_exothermic", "molecule_h2o", "balanced"):
         assert needle in p, needle
     assert "{{" not in p and "le_chatelier_pressure" not in Scene3DDirector._system_prompt("maths")   # the recipes are only in the chemistry pack text
+
+
+def test_lab_is_one_experiment_across_scenes_and_pop_words_are_checked_against_estimated_timings():
+    lab = lambda **p: {"type": "prop", "id": "lab", "prefab": "particle_lab", "params": p}
+    designs = {1: {"objects": [lab(a=2, b=1, c=2, d=0, nA=16, nB=8, nC=12, cA="#111111", lA="NO", vol=1)]},
+               2: {"objects": [lab(a=1, b=3, c=2, d=0, nA=5, vol="mix(1,0.4,t)", dA=3)]}}
+    Scene3DDirector._unify_labs(designs)
+    second = designs[2]["objects"][0]["params"]
+    assert (second["a"], second["b"], second["nA"], second["cA"], second["lA"]) == (2, 1, 16, "#111111", "NO")
+    assert second["vol"] == "mix(1,0.4,t)" and second["dA"] == 3
+    caps = Studio3DEngine.estimate_captions([("Squeeze the gas now", 2.0, 6.0)])
+    assert [c["w"] for c in caps] == ["Squeeze", "the", "gas", "now"] and caps[0]["t0"] == 2.0 and caps[-1]["t1"] == 6.0
+    spec = _lab_spec({})
+    spec["captions"] = caps; spec["scenes"][0].update({"start": 2.0, "end": 6.0})
+    spec["scenes"][0]["overlays"] = [{"kind": "pop", "word": "squeeze"}, {"kind": "pop", "word": "volcano"}]
+    problems = [p for p in Studio3DEngine.lint(spec) if "pop word" in p]
+    assert len(problems) == 1 and "volcano" in problems[0]
+
+
+def test_triatomic_molecule_prefab_and_lab_legend_render_with_true_geometry():
+    spec = _lab_spec({"lA": "NO", "lB": "O₂", "lC": "NO₂", "a": 2, "b": 1, "c": 2, "d": 0})
+    spec["scenes"][0]["objects"].append({"type": "prop", "prefab": "molecule_triatomic", "position": [1.5, 1.0, 0], "params": {"angle": 134}})
+    assert [p for p in Studio3DEngine.lint(spec) if "Unknown" in p or "NaN" in p] == []
+    assert "molecule_triatomic" in json.dumps(load_json("props", "molecule_triatomic.json")["about"] and Scene3DDirector._prop_library())
+    assert load_json("layouts", "explainer_window.json")["header"]["fit"] is True

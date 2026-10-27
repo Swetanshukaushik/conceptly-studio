@@ -1,0 +1,129 @@
+{
+ "about": "Any bent or linear triatomic molecule A-B-A (central atom B, two identical outer atoms): H2O (bent 104.5, centre red, outer white), NO2 (bent 134, centre blue, outer red), SO2 (119), O3 (117), H2S (92), CO2 (linear 180, centre dark grey, outer red). Ball-and-stick with true bond angle; it turns slowly. Set the colours, radii, bond length and angle for the molecule you mean.",
+ "params_doc": {
+  "cc": "colour of the central atom",
+  "co": "colour of the two outer atoms",
+  "rc": "radius of the central atom",
+  "ro": "radius of the outer atoms",
+  "bond": "centre-to-centre bond length (0.4 to 0.7)",
+  "angle": "bond angle in degrees (180 = linear)",
+  "size": "scale",
+  "spin": "degrees per second of slow rotation"
+ },
+ "bounds": {
+  "size": [
+   1.6,
+   1.6
+  ],
+  "center": [
+   0,
+   0
+  ]
+ },
+ "params": {
+  "cc": "#3050f8",
+  "co": "#ff2a2a",
+  "rc": 0.19,
+  "ro": 0.17,
+  "bond": 0.5,
+  "angle": 134,
+  "size": 1,
+  "spin": 25
+ },
+ "objects": [
+  {
+   "type": "group",
+   "scale": "${size}",
+   "rotation": [
+    0,
+    "${spin}*t",
+    0
+   ],
+   "children": [
+    {
+     "type": "sphere",
+     "radius": "${rc}",
+     "material": {
+      "color": "${cc}",
+      "roughness": 0.35
+     },
+     "position": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "type": "sphere",
+     "radius": "${ro}",
+     "material": {
+      "color": "${co}",
+      "roughness": 0.35
+     },
+     "position": [
+      "${bond}*sin(${angle}*0.0087266)",
+      "-${bond}*cos(${angle}*0.0087266)",
+      0
+     ]
+    },
+    {
+     "type": "sphere",
+     "radius": "${ro}",
+     "material": {
+      "color": "${co}",
+      "roughness": 0.35
+     },
+     "position": [
+      "-${bond}*sin(${angle}*0.0087266)",
+      "-${bond}*cos(${angle}*0.0087266)",
+      0
+     ]
+    },
+    {
+     "type": "box",
+     "size": [
+      "${bond}",
+      0.07,
+      0.07
+     ],
+     "material": {
+      "color": "#c9ced8",
+      "roughness": 0.5
+     },
+     "position": [
+      "${bond}*sin(${angle}*0.0087266)/2",
+      "-${bond}*cos(${angle}*0.0087266)/2",
+      0
+     ],
+     "rotation": [
+      0,
+      0,
+      "${angle}/2-90"
+     ]
+    },
+    {
+     "type": "box",
+     "size": [
+      "${bond}",
+      0.07,
+      0.07
+     ],
+     "material": {
+      "color": "#c9ced8",
+      "roughness": 0.5
+     },
+     "position": [
+      "-${bond}*sin(${angle}*0.0087266)/2",
+      "-${bond}*cos(${angle}*0.0087266)/2",
+      0
+     ],
+     "rotation": [
+      0,
+      0,
+      "90-${angle}/2"
+     ]
+    }
+   ]
+  }
+ ]
+}

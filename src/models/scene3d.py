@@ -52,7 +52,7 @@ class SceneDirection(BaseModel):
     beat: int = Field(..., description="Storyboard beat number this scene visualises")
     intent: str = Field(..., description="One sentence: what the viewer should understand from this scene")
     staging: str = Field(..., description="One or two sentences: what is where, what moves, how the camera travels. Write this BEFORE the objects.")
-    params: Dict[str, float] = Field(default_factory=dict)
+    params: Dict[str, Num] = Field(default_factory=dict)
     camera: Camera3D
     objects: List[Object3D]
     overlays: List[Overlay3D] = Field(default_factory=list)

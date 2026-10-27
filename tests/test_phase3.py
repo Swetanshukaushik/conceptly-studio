@@ -133,6 +133,13 @@ def test_phase3_compositor():
         db.add(JobStage(job_id=test_job.id, stage_name=s_name, status="PENDING"))
     
     # Supply validated script data for stage 3
+    from src.models.schemas import SceneBeat, Storyboard
+    from src.services.config_loader import load_json
+    canned = load_json("prompts", "scene3d_example.json")   # the Free tier renders a 3D scene plan; reuse the shipped example
+    dummy_script.storyboard = Storyboard(
+        topic_title="Newton's Third Law", total_scenes=1, style_bible=canned["look"], layout=canned.get("layout", "full"), header=canned.get("header"),
+        scenes=[SceneBeat(scene_number=1, act_number=1, start_sec=0.0, end_sec=4.0, spoken_line=test_text, visual_prompt="wall",
+                          style_bible=canned["look"], scene3d=dict(canned["scenes"][0]))])
     test_job.script_data = json.dumps(dummy_script.dict())
     db.commit()
 

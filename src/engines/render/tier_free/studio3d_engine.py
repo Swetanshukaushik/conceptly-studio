@@ -26,6 +26,16 @@ class Studio3DEngine:
             raise Studio3DError("studio3d dependencies missing. Run: cd studio3d && npm install")
         return node
 
+    @staticmethod
+    def estimate_captions(lines: List[Any]) -> List[Dict[str, Any]]:
+        """lines: (text, start, end) per scene. Evenly timed words, so pop words and captions can be checked before TTS runs."""
+        out: List[Dict[str, Any]] = []
+        for text, t0, t1 in lines:
+            words = str(text or "").split()
+            step = (t1 - t0) / max(1, len(words))
+            out += [{"w": w, "t0": t0 + i * step, "t1": t0 + (i + 1) * step} for i, w in enumerate(words)]
+        return out
+
     @classmethod
     def build_spec(
         cls,
@@ -46,6 +56,8 @@ class Studio3DEngine:
             d.update({"id": f"beat_{sc.scene_number}", "beat": sc.scene_number, "start": float(sc.start_sec), "end": float(sc.end_sec)})
             scenes.append(d)
         captions = [{"w": w.word, "t0": float(w.start_sec), "t1": float(w.end_sec)} for w in (word_timestamps or [])]
+        if not captions:   # before narration exists (storyboard stills, lint): spread each scene's words evenly over its time
+            captions = cls.estimate_captions([(getattr(sc, "spoken_line", ""), float(sc.start_sec), float(sc.end_sec)) for sc in storyboard.scenes])
         spec = {
             "version": 1, "look": look, "fps": fps or cfg["canvas"]["fps"],
             "duration": scenes[-1]["end"], "scenes": scenes, "captions": captions,

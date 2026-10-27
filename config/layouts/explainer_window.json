@@ -14,6 +14,7 @@
     "lineGap": 12,
     "weight": 800,
     "uppercase": true,
+    "fit": true,
     "colors": [
       "#ffffff",
       "accent"
