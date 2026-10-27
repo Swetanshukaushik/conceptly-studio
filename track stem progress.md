@@ -121,3 +121,13 @@ Syllabus board: `config/syllabus/physics_11.json` (14 chapters, 82 topics, ratio
 - config/props/particle_lab.json (glass cylinder, plunger, 4 species, pressure gauge, counts from the solver), molecule_{h2o,nh3,ch4,co2,diatomic}.json (true geometry), config/chem_recipes.json (7 worked setups), chemistry pack prompt rewritten; mhchem \ce{} enabled in formula cards; sticker text contrast auto.
 - Verifier: balanced (equation) and molar_mass claims with config/periodic_table.json.
 - Fixture studio3d/fixtures/chem_lab.json lints clean; recipes lint clean. Not yet run through Gemini; narrator corner and lab placement are prompt guidance only.
+
+## 2026-10-27 - Quality gate, consistency checks, 720p, publishing
+
+- **Quality gate** (`src/services/quality_gate.py`, `config/quality_gate.json`): 11 checks per reel (length, scenes, pacing, hook, header, verified numbers, figures on screen, vision, layout notes, variety, quiz). Stored as `quality_gate` on the job and shown in Gate 1. First run: chemistry passed 11/11, maths passed after tuning two thresholds, physics (Newton's Third Law) blocked: no horse/cart props and several cropped scenes.
+- **Consistency**: numbers drawn on screen must be spoken or verified; the quiz key is checked against the narration and verified claims (one cheap call), regenerated once with the objections, then flagged.
+- **Writer repair**: up to two repairs for unverified maths; the Gemini call re-asks once when JSON is malformed or fails validation (`attempts_per_model`).
+- **720p**: `config/render.json` `output.scale` 0.6667 renders 720x1280 from the 1080x1920 design space; the validator accepts both sizes.
+- **Plain cards** convert LaTeX commands (\neq, \Delta, ...) to symbols.
+- **Conceptly Core publishing**: `GET /api/reels/{id}/publish/preview`; publish checks the contract, a public video URL, the key, the gate; records confirmed results and resumes half-published jobs; poster.jpg uploaded. See `STUDIO_INTEGRATION_CONTRACT.md` section 8.
+- **Premium**: `docs/PREMIUM_ROADMAP.md`.

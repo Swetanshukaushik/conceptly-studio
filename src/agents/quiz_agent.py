@@ -29,7 +29,8 @@ Output strictly structured JSON conforming to the QuizPayload schema."""
         script: ReelScript,
         topic_id: Optional[str] = None,
         tier: ReelGenerationTier = ReelGenerationTier.DEFAULT,
-        domain_dossier: Optional[Dict[str, Any]] = None
+        domain_dossier: Optional[Dict[str, Any]] = None,
+        feedback: Optional[list] = None
     ) -> QuizPayload:
         dossier_cues = ""
         if domain_dossier:
@@ -56,6 +57,8 @@ Summary Points:
 Requirements:
 - Target Topic ID: {topic_id or 'unassigned'}
 - Create 2 high-yield MCQs testing the core intuition."""
+        if feedback:
+            user_prompt += "\n\nA reviewer rejected your previous questions for these reasons; the marked answer must follow from the narration above:\n- " + "\n- ".join(feedback)
 
         quiz_payload = LLMFactory.generate_json(
             system_prompt=cls.SYSTEM_PROMPT,

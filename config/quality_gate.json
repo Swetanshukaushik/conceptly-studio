@@ -1,0 +1,16 @@
+{
+  "min_seconds": 30,
+  "max_seconds": 70,
+  "min_scenes": 5,
+  "max_beat_seconds": 12,
+  "hook": {"max_first_beat_seconds": 9, "markers": ["?", "what if", "why", "how", "imagine", "did you", "ever wonder", "watch", "look", "observe", "stop"]},
+  "max_header_line_chars": 36,
+  "max_qa_notes": 4,
+  "min_vision_score": 5,
+  "max_uncovered_number_notes": 1,
+  "min_distinct_overlay_kinds": 3,
+  "figure_text_kinds": ["stat", "callout", "sticker", "tag", "title", "formula", "derivation"],
+  "figure_ignore_below": 10,
+  "blocking": ["duration", "scenes", "hook", "verified_numbers", "figures", "quiz", "vision"],
+  "quiz_check_prompt": "You check a multiple-choice question against the video narration it came from and the facts already verified by a calculator. For each question decide whether the option marked correct is really correct according to the narration and the verified facts, and whether any other option is also correct or the question is ambiguous. Reply with JSON only: {\"questions\": [{\"id\": \"q1\", \"ok\": true, \"issue\": \"\"}]} with one entry per question; when ok is false, put one short sentence in issue.\n\nNarration:\n{narration}\n\nVerified facts:\n{facts}\n\nQuestions:\n{quiz}"
+}

@@ -2,7 +2,7 @@ import json
 import os
 import re
 from typing import Type, TypeVar, Optional, Dict, Any, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from src.core.config import settings
 from src.models.schemas import (
     ReelGenerationTier, ReelScript, QuizPayload, ActScript,
@@ -152,19 +152,7 @@ class LLMFactory:
                 last_gemini_err = None
                 for model_name in candidate_models:
                     try:
-                        model = genai.GenerativeModel(
-                            model_name=model_name,
-                            system_instruction=enriched_system_prompt,
-                            generation_config={**cls._gemini_profile(profile)["generation"], "response_mime_type": "application/json"}
-                        )
-                        response = model.generate_content(user_prompt, request_options={"timeout": cls._gemini_timeout()})
-                        raw_text = response.text.strip()
-                        if raw_text.startswith("```"):
-                            raw_text = re.sub(r"^```(?:json)?\s*", "", raw_text)
-                            raw_text = re.sub(r"\s*```$", "", raw_text)
-                        parsed = json.loads(raw_text)
-                        print(f"🤖 LLM model used: {model_name} (profile {profile})")
-                        return response_model.model_validate(cls._coerce_payload(parsed, response_model))
+                        return cls._gemini_generate(genai, model_name, enriched_system_prompt, user_prompt, profile, response_model)
                     except Exception as me:
                         last_gemini_err = me
                         continue
@@ -208,19 +196,7 @@ class LLMFactory:
                     last_gemini_err = None
                     for model_name in candidate_models:
                         try:
-                            model = genai.GenerativeModel(
-                                model_name=model_name,
-                                system_instruction=enriched_system_prompt,
-                                generation_config={**cls._gemini_profile(profile)["generation"], "response_mime_type": "application/json"}
-                            )
-                            response = model.generate_content(user_prompt, request_options={"timeout": cls._gemini_timeout()})
-                            raw_text = response.text.strip()
-                            if raw_text.startswith("```"):
-                                raw_text = re.sub(r"^```(?:json)?\s*", "", raw_text)
-                                raw_text = re.sub(r"\s*```$", "", raw_text)
-                            parsed = json.loads(raw_text)
-                            print(f"🤖 LLM model used: {model_name} (profile {profile})")
-                            return response_model.model_validate(cls._coerce_payload(parsed, response_model))
+                            return cls._gemini_generate(genai, model_name, enriched_system_prompt, user_prompt, profile, response_model)
                         except Exception as me:
                             last_gemini_err = me
                             continue
@@ -268,6 +244,33 @@ class LLMFactory:
 
         # 4. Fallback Heuristic Generator (Only for automated test fixtures with ALLOW_OFFLINE_DEV_FALLBACK=True)
         return cls._generate_heuristic_fallback(user_prompt, response_model)
+
+    @classmethod
+    def _gemini_generate(cls, genai, model_name: str, system: str, user: str, profile: str, response_model):
+        """One model, a few tries: malformed JSON or a payload that fails validation is usually a one-off, so it is re-asked before
+        the next model is tried. Quota, timeout and transport errors are not retried here."""
+        from src.services.config_loader import load_json
+        attempts = int(load_json("llm_models.json").get("attempts_per_model", 2))
+        last: Exception = RuntimeError("no attempt")
+        for _ in range(max(1, attempts)):
+            model = genai.GenerativeModel(
+                model_name=model_name, system_instruction=system,
+                generation_config={**cls._gemini_profile(profile)["generation"], "response_mime_type": "application/json"})
+            response = model.generate_content(user, request_options={"timeout": cls._gemini_timeout()})
+            raw_text = response.text.strip()
+            if raw_text.startswith("```"):
+                raw_text = re.sub(r"^```(?:json)?\s*", "", raw_text)
+                raw_text = re.sub(r"\s*```$", "", raw_text)
+            try:
+                parsed = json.loads(raw_text)
+                result = response_model.model_validate(cls._coerce_payload(parsed, response_model))
+            except (json.JSONDecodeError, ValidationError) as e:
+                last = e
+                print(f"⚠️ {model_name} returned an unusable answer ({str(e)[:90]}); asking again")
+                continue
+            print(f"🤖 LLM model used: {model_name} (profile {profile})")
+            return result
+        raise last
 
     @classmethod
     def _extract_prompt_meta(cls, prompt: str) -> Dict[str, str]:

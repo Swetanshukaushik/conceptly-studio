@@ -26,7 +26,7 @@ def test_phase4_publishing():
         topic_title="Newton's Third Law: The Rocket Principle",
         topic_id="topic-phys-9-newton-3",
         status=JobStatus.GATE_3_READY.value,
-        video_url="/media/reels/test_reel.mp4",
+        video_url="https://media.example.com/reels/test_reel.mp4",
         duration_sec=48
     )
     test_job.script_data = json.dumps({
@@ -68,18 +68,17 @@ def test_phase4_publishing():
     db.commit()
 
     # 2. Test Publisher Agent Direct Payload Generation
-    results = publisher_agent.publish_reel(test_job)
-    assert "reel_ingestion" in results
-    assert "quiz_ingestion" in results
-
-    reel_payload = results["reel_ingestion"]["payload"]
+    from src.agents.publisher_agent import preflight
+    check = preflight(test_job)
+    assert "CONCEPTLY_API_KEY is not set" in check["problems"] or check["ready"]   # nothing is faked without a key
+    reel_payload, quiz_payload_ = check["reel"], check["quiz"]
     assert reel_payload["title"] == "Newton's Third Law: The Rocket Principle"
     assert reel_payload["topicId"] == "topic-phys-9-newton-3"
     assert reel_payload["durationSec"] == 48
     assert len(reel_payload["summaryNotes"]) == 3
     print("  [1/3] Reel Ingestion Payload conforming to CONTRACT.md Section 4A verified.")
 
-    quiz_payload = results["quiz_ingestion"]["payload"]
+    quiz_payload = quiz_payload_
     assert quiz_payload["topicId"] == "topic-phys-9-newton-3"
     assert len(quiz_payload["questions"]) == 1
     assert quiz_payload["questions"][0]["correctOptionId"] == "a"
@@ -90,6 +89,10 @@ def test_phase4_publishing():
     from src.main import app
     from src.core.config import settings
 
+    import httpx
+    from src.agents import publisher_agent as pa
+    settings.CONCEPTLY_API_KEY = "test-key"
+    pa.publisher_agent.client = httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(201, json={"id": "srv"})))
     with TestClient(app) as client:
         login_res = client.post("/api/auth/login", json={
             "email": settings.ADMIN_EMAIL,

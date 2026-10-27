@@ -188,3 +188,13 @@ Every educational reel must strictly follow this second-by-second pacing curve:
   ]
 }
 ```
+
+
+---
+
+## 8. Studio deviations and publishing behaviour (maintained by Studio)
+
+* **Resolution:** the Free tier renders at `720 x 1280` (design space is still 1080 x 1920, so safe zones are unchanged). Set `output.scale` to `1` in `config/render.json` for 1080 x 1920.
+* **Duration:** Studio accepts 30 - 70 s (`config/quality_gate.json`); the contract's 35 - 55 s is the target, not a hard limit.
+* **Poster:** Studio uploads `poster.jpg` next to the video (`POSTER_JPG` artifact). The ingestion payload has no poster field, so it is not sent.
+* **Publishing:** `GET /api/reels/{id}/publish/preview` returns the exact payloads and what blocks them. `POST /api/reels/{id}/gate3/publish` sends the reel, then the quiz, and records the confirmed result on the job; it fails (and the job stays unpublished) when the video has no public URL, the API key is missing, the quality gate or quiz check has open objections (override with `force`), or Core replies with an error. A half-published job resumes without posting the reel twice.

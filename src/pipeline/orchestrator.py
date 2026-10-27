@@ -261,6 +261,12 @@ class PipelineOrchestrator:
             if pending_quiz is not None:
                 script_dict["pending_quiz"] = pending_quiz.dict()
                 script_dict["pending_quiz_for"] = cls._script_fingerprint(script)
+            from src.services import quality_gate
+            quiz_issues = quality_gate.quiz_problems(script_dict.get("pending_quiz"), script_dict, tier=tier, provider=script_gen) if pending_quiz is not None else []
+            if quiz_issues:
+                script_dict.pop("pending_quiz", None)   # a quiz that disagrees with the narration is regenerated after Gate 1 instead of shipped
+                script_dict["quiz_check"] = {"dropped_pending_quiz": quiz_issues}
+            script_dict["quality_gate"] = quality_gate.evaluate(script_dict, tier_limits=get_tier(job.generation_tier).get("limits"))
             job.script_data = json.dumps(script_dict)
 
             if auto_advance:
@@ -322,6 +328,14 @@ class PipelineOrchestrator:
                     domain_dossier=script_dict.get("domain_dossier")
                 )
 
+            from src.services import quality_gate
+            issues = quality_gate.quiz_problems(quiz.dict(), script_dict, tier=tier, provider=getattr(job, "script_generator", "AUTO") or "AUTO")
+            if issues:   # one regeneration with the objections, then keep the result and flag it for the creator
+                quiz = QuizAgent.generate_quiz(script=script, topic_id=job.topic_id, tier=tier, domain_dossier=script_dict.get("domain_dossier"), feedback=issues)
+                issues = quality_gate.quiz_problems(quiz.dict(), script_dict, tier=tier, provider=getattr(job, "script_generator", "AUTO") or "AUTO")
+            script_dict["quiz_check"] = {"issues": issues}
+            script_dict["quality_gate"] = quality_gate.evaluate(script_dict, quiz_issues=issues)
+            job.script_data = json.dumps(script_dict)
             job.quiz_data = json.dumps(quiz.dict())
             cls._update_stage(db, job_id, "QUIZ_GENERATION", "COMPLETED", 100, f"Generated {len(quiz.questions)} checkpoint questions.")
 
@@ -549,9 +563,19 @@ class PipelineOrchestrator:
             rel_media_name = f"reels/{job_id}/reel_{job_id}.mp4"
             accessible_video_url = storage.upload_file(final_mp4_path, rel_media_name)
 
+            poster_path, poster_url = os.path.join(job_output_dir, "poster.jpg"), None
+            try:   # contract: a small poster shown while the video buffers (a frame from the first seconds, about 40 KB)
+                import subprocess
+                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "1.0", "-i", final_mp4_path, "-frames:v", "1", "-vf", "scale=540:-2", "-q:v", "6", poster_path], check=True, timeout=60)
+                poster_url = storage.upload_file(poster_path, f"reels/{job_id}/poster.jpg")
+            except Exception as poster_err:
+                print(f"⚠️ Poster skipped: {poster_err}")
+
             job.local_video_path = final_mp4_path
             job.video_url = accessible_video_url
             job.status = JobStatus.GATE_3_READY.value
+            if poster_url:
+                db.add(ReelArtifact(job_id=job.id, artifact_type="POSTER_JPG", file_path=poster_path, cloud_url=poster_url))
             
             # Record Artifacts
             db.add(ReelArtifact(job_id=job.id, artifact_type="VIDEO_MP4", file_path=final_mp4_path, cloud_url=accessible_video_url))

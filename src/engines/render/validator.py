@@ -25,6 +25,13 @@ class VideoQualityValidator:
     EXPECTED_WIDTH = 1080
     EXPECTED_HEIGHT = 1920
     EXPECTED_FPS = 30.0
+
+    @classmethod
+    def allowed_resolutions(cls):
+        """Full HD, plus the size the Free tier renders at (config/render.json output.scale)."""
+        from src.services.config_loader import load_json
+        cfg = load_json("render.json"); scale = (cfg.get("output") or {}).get("scale", 1)
+        return {(cls.EXPECTED_WIDTH, cls.EXPECTED_HEIGHT), (round(cfg["canvas"]["width"] * scale), round(cfg["canvas"]["height"] * scale))}
     FPS_TOLERANCE = 1.5
     AV_SYNC_TOLERANCE_SEC = 0.50
 
@@ -123,8 +130,9 @@ class VideoQualityValidator:
             metrics["height"] = v_height
             metrics["video_codec"] = video_stream.get("codec_name")
 
-            if v_width != cls.EXPECTED_WIDTH or v_height != cls.EXPECTED_HEIGHT:
-                errors.append(f"Invalid resolution: {v_width}x{v_height}. Expected {cls.EXPECTED_WIDTH}x{cls.EXPECTED_HEIGHT} (9:16).")
+            allowed = cls.allowed_resolutions()
+            if (v_width, v_height) not in allowed:
+                errors.append(f"Invalid resolution: {v_width}x{v_height}. Expected {' or '.join(f'{w}x{h}' for w, h in sorted(allowed, reverse=True))} (9:16).")
 
             # Frame rate parsing
             fps_str = video_stream.get("r_frame_rate", "30/1")

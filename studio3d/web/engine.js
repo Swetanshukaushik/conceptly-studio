@@ -66,7 +66,7 @@ export class Engine {
     if (canvas.parentElement && this.layout.background) canvas.parentElement.style.background = this.layout.background;   // the area around the 3D window
     canvas.width = W; canvas.height = H; canvas.style.left = `${win.x}px`; canvas.style.top = `${win.y}px`; canvas.style.width = `${W}px`; canvas.style.height = `${H}px`;
     const r = this.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance', preserveDrawingBuffer: true });
-    r.setPixelRatio(this.cfg.renderer.pixelRatio);
+    r.setPixelRatio(this.cfg.renderer.pixelRatio * ((this.cfg.output && this.cfg.output.scale) || 1));
     r.setSize(W, H, false);
     r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
     r.toneMapping = THREE.ACESFilmicToneMapping;

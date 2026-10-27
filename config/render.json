@@ -4,6 +4,10 @@
     "height": 1920,
     "fps": 30
   },
+  "output": {
+    "scale": 0.6667,
+    "note": "Design space stays 1080x1920; the video is rendered at this fraction (0.6667 = 720x1280, 1 = 1080x1920)."
+  },
   "safeZone": {
     "top": 150,
     "bottom": 360,

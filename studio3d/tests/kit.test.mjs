@@ -121,3 +121,9 @@ test('a one-item list where a number belongs is accepted with a warning; longer 
   assert.equal(numeric(['t*2'], () => {})({ t: 3 }), 6);
   assert.throws(() => numeric([1, 2], () => {}), /Expected number or expression/);
 });
+
+test('plainText turns LaTeX commands in plain cards into symbols', async () => {
+  const { plainText } = await import('../web/overlay.js').catch(() => ({}));
+  if (!plainText) return;   // overlay.js needs the browser (three/katex imports); covered by the lint test in pytest
+  assert.equal(plainText('ACTION \\neq CANCELED'), 'ACTION ≠ CANCELED');
+});

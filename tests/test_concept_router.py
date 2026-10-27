@@ -73,5 +73,6 @@ def test_gemini_requests_have_a_configured_timeout_so_a_hung_call_falls_through_
     from src.services.llm_factory import LLMFactory
     assert 30 <= LLMFactory._gemini_timeout() <= 600
     import inspect
-    src = inspect.getsource(LLMFactory.generate_json)
-    assert src.count("generate_content(user_prompt, request_options") == 2 and "generate_content(user_prompt)" not in src
+    src = inspect.getsource(LLMFactory._gemini_generate)
+    assert src.count("generate_content(user, request_options") == 1 and "generate_content(user)" not in src
+    assert inspect.getsource(LLMFactory.generate_json).count("_gemini_generate(") == 2   # both Gemini paths go through the timed, retried call

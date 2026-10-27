@@ -84,7 +84,8 @@ def test_director_pipeline_with_canned_plan(monkeypatch, tmp_path):
         ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", out],
         capture_output=True, text=True,
     ).stdout.strip()
-    assert probe.strip(",") == "1080,1920"
+    scale = load_json("render.json")["output"]["scale"]
+    assert probe.strip(",") == f"{round(1080 * scale)},{round(1920 * scale)}"
 
 
 def test_director_rejects_plan_that_skips_beats(monkeypatch, tmp_path):
@@ -231,7 +232,8 @@ def test_equilibrium_fixture_lints_clean_and_curves_keep_growing_across_frames(t
     spec = json.load(open(os.path.join(STUDIO_DIR, "fixtures", "equilibrium.json")))
     assert _hard(Studio3DEngine.lint(spec)) == []
     files = Studio3DEngine.render_stills(spec, [1.5, 7.5], str(tmp_path))
-    box = (560, 900, 1060, 1300)   # right-hand graph area inside the 3D window
+    k = load_json("render.json")["output"]["scale"]
+    box = tuple(round(v * k) for v in (560, 900, 1060, 1300))   # right-hand graph area inside the 3D window (design px, scaled to the output)
     def ink(path):
         im = Image.open(path).convert("RGB").crop(box)
         return sum(1 for px in im.getdata() if px[0] > 200 and 120 < px[1] < 190 and px[2] < 120)  # orange curve pixels
@@ -557,3 +559,101 @@ def test_triatomic_molecule_prefab_and_lab_legend_render_with_true_geometry():
     assert [p for p in Studio3DEngine.lint(spec) if "Unknown" in p or "NaN" in p] == []
     assert "molecule_triatomic" in json.dumps(load_json("props", "molecule_triatomic.json")["about"] and Scene3DDirector._prop_library())
     assert load_json("layouts", "explainer_window.json")["header"]["fit"] is True
+
+
+def _gate_script(**over):
+    scenes = [{"scene_number": i + 1, "start_sec": i * 6.0, "end_sec": (i + 1) * 6.0, "spoken_line": line,
+               "scene3d": {"overlays": [{"kind": k}] if k else []}}
+              for i, (line, k) in enumerate([("Why does a wall push back?", "title"), ("It is a pair of forces of ten newtons.", "stat"), ("Each acts on a different body.", "callout"),
+                                              ("So they never cancel.", "sticker"), ("Remember the pair.", "tag"), ("Test yourself.", "formula")])]
+    script = {"storyboard": {"scenes": scenes, "header": ["Newton's Third", "Action & Reaction"], "qa": []}, "math_verification": {"status": "verified", "claims": 1, "notes": []}, "math_claims": []}
+    script.update(over)
+    return script
+
+
+def test_quality_gate_passes_a_good_reel_and_flags_figures_quiz_and_pacing():
+    from src.services import quality_gate
+    good = quality_gate.evaluate(_gate_script())
+    assert good["passed"], [c for c in good["checks"] if not c["ok"]]
+    bad = _gate_script()
+    bad["storyboard"]["scenes"][1]["scene3d"]["overlays"] = [{"kind": "stat", "value": "72", "label": "newtons"}]   # nobody says 72
+    bad["storyboard"]["scenes"][0]["spoken_line"] = "A statement."
+    flagged = quality_gate.evaluate(bad, quiz_issues=["q1: key disagrees"])
+    failed = {c["id"] for c in flagged["checks"] if not c["ok"]}
+    assert {"figures", "hook", "quiz"} <= failed and not flagged["passed"]
+    assert quality_gate.figure_problems(_gate_script()) == []
+
+
+def test_quiz_check_flags_disagreement_and_survives_model_outage(monkeypatch):
+    from src.services import quality_gate
+    quiz = {"questions": [{"id": "q1", "text": "Force pair?", "options": [{"id": "a", "text": "same body"}, {"id": "b", "text": "different bodies"}], "correctOptionId": "a", "explanation": "x"}]}
+    monkeypatch.setattr("src.services.llm_factory.LLMFactory.generate_json",
+                        lambda **kw: quality_gate._QuizVerdict(questions=[quality_gate._QuestionVerdict(id="q1", ok=False, issue="narration says different bodies")]))
+    assert quality_gate.quiz_problems(quiz, _gate_script()) == ["q1: narration says different bodies"]
+    def boom(**kw):
+        raise RuntimeError("429")
+    monkeypatch.setattr("src.services.llm_factory.LLMFactory.generate_json", boom)
+    assert quality_gate.quiz_problems(quiz, _gate_script()) == []
+
+
+def test_output_is_rendered_at_the_configured_scale(tmp_path):
+    cfg = load_json("render.json")
+    spec = json.load(open(os.path.join(STUDIO_DIR, "fixtures", "chem_lab.json"))); spec["duration"] = 0.5
+    out = str(tmp_path / "r.mp4")
+    Studio3DEngine.render_reel(spec, out, assets_dir=str(tmp_path))
+    dims = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", out], capture_output=True, text=True).stdout.strip()
+    s = cfg["output"]["scale"]
+    assert dims == f"{round(cfg['canvas']['width'] * s)},{round(cfg['canvas']['height'] * s)}"
+
+
+def _publish_job(video_url="https://media.example.com/reels/x.mp4", gate_ok=True):
+    from types import SimpleNamespace
+    script = {"title": "Newton", "key_takeaway": "Pairs act on different bodies.", "summary_notes": ["a", "b"], "estimated_duration_sec": 41,
+              "quality_gate": {"passed": gate_ok, "checks": [{"id": "quiz", "label": "Quiz agrees", "ok": gate_ok, "blocking": True}]}}
+    quiz = {"questions": [{"id": "q1", "text": "Which?", "options": [{"id": i, "text": i} for i in "abcd"], "correctOptionId": "b", "explanation": "because"}]}
+    return SimpleNamespace(id="j1", topic_id="phys:n3", topic_title="Newton", video_url=video_url, duration_sec=41.4, script_data=json.dumps(script), quiz_data=json.dumps(quiz))
+
+
+def test_publisher_follows_the_contract_and_never_fakes_success(monkeypatch):
+    import httpx
+    from src.agents import publisher_agent as pa
+    monkeypatch.setattr(pa.settings, "CONCEPTLY_API_KEY", "k")
+    calls = []
+
+    def handler(req):
+        calls.append((req.url.path, req.headers["authorization"]))
+        return httpx.Response(201, json={"id": "srv-1"})
+    agent = pa.PublisherAgent(base_url="https://core.example.com/v1", api_key="k", client=httpx.Client(transport=httpx.MockTransport(handler)))
+    job = _publish_job()
+    rec = agent.publish_reel(job)
+    assert [c[0] for c in calls] == ["/v1/curriculum/reels", "/v1/quizzes"] and calls[0][1] == "Bearer k"
+    assert rec["reel"]["ok"] and rec["quiz"]["ok"] and "published_utc" in rec
+    pre = pa.preflight(job)
+    assert pre["reel"]["durationSec"] == 41 and pre["quiz"]["questions"][0]["correctOptionId"] == "b"
+    # local video, failing quality gate and a missing key all block; force only waives the soft ones
+    assert any("public URL" in p for p in pa.preflight(_publish_job(video_url="/media/jobs/x.mp4"))["problems"])
+    assert any("quality gate" in p for p in pa.preflight(_publish_job(gate_ok=False))["problems"])
+    assert pa.preflight(_publish_job(gate_ok=False), force=True)["ready"]
+    monkeypatch.setattr(pa.settings, "CONCEPTLY_API_KEY", None)
+    assert any("CONCEPTLY_API_KEY" in p for p in pa.preflight(job)["problems"])
+
+
+def test_publisher_resumes_a_half_published_reel_and_reports_failures(monkeypatch):
+    import httpx
+    from src.agents import publisher_agent as pa
+    monkeypatch.setattr(pa.settings, "CONCEPTLY_API_KEY", "k")
+    seen = []
+
+    def handler(req):
+        seen.append(req.url.path)
+        return httpx.Response(500) if req.url.path.endswith("quizzes") else httpx.Response(201, json={})
+    agent = pa.PublisherAgent(base_url="https://core.example.com/v1", api_key="k", client=httpx.Client(transport=httpx.MockTransport(handler)))
+    job = _publish_job()
+    with pytest.raises(pa.PublishError) as e:
+        agent.publish_reel(job)
+    assert e.value.result["reel"]["ok"] and not e.value.result["quiz"]["ok"] and seen.count("/v1/quizzes") == 2   # one retry on 5xx
+    script = json.loads(job.script_data); script["publish"] = e.value.result; job.script_data = json.dumps(script)
+    seen.clear()
+    monkeypatch.setattr(agent, "client", httpx.Client(transport=httpx.MockTransport(lambda r: (seen.append(r.url.path), httpx.Response(201, json={}))[1])))
+    agent.publish_reel(job)
+    assert seen == ["/v1/quizzes"]   # the reel is not posted twice

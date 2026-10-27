@@ -64,13 +64,14 @@ function serve() {
   });
 }
 
+const outScale = (cfg.output && cfg.output.scale) || 1;
 const chrome = findChrome();
 if (!chrome) { console.log(JSON.stringify({ ok: false, error: 'Chrome/Chromium not found. Set CHROME_PATH.' })); process.exit(1); }
 const server = await serve(); const port = server.address().port;
 const browser = await puppeteer.launch({
   executablePath: chrome, headless: true,
-  args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--enable-webgl', '--hide-scrollbars', '--force-device-scale-factor=1', '--disable-background-timer-throttling', '--disable-renderer-backgrounding'],
-  defaultViewport: { width: cfg.canvas.width, height: cfg.canvas.height, deviceScaleFactor: 1 },
+  args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist', '--enable-webgl', '--hide-scrollbars', `--force-device-scale-factor=${outScale}`, '--disable-background-timer-throttling', '--disable-renderer-backgrounding'],
+  defaultViewport: { width: cfg.canvas.width, height: cfg.canvas.height, deviceScaleFactor: outScale },
 });
 let exitCode = 0; let result = {};
 try {

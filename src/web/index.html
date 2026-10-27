@@ -2460,7 +2460,7 @@
       document.getElementById("g1_hook").innerText = s.hook || "No hook paradox found";
       document.getElementById("g1_takeaway").innerText = s.key_takeaway || "No takeaway defined";
       document.getElementById("g1_word_count").innerText = `${s.total_word_count || 0}w (Target: 100-180w | 30-90s)`;
-      document.getElementById("g1_subtitle").innerText = `${activeJob.topic_title} • ${activeJob.exam_type} Class ${activeJob.class_level || 'All'} • ${resolveTierKey(activeJob.generation_tier)} tier • ${(s.math_verification && s.math_verification.status === 'verified') ? '✓ ' + s.math_verification.claims + ' narrated numbers verified • ' : ''}${(s.storyboard && s.storyboard.route) ? 'Pack: ' + s.storyboard.route.label + ' (' + s.storyboard.route.method + ', ' + s.storyboard.route.status + ') • ' : ''}[Script Engine: ${activeJob.script_generator || 'AUTO'}]`;
+      document.getElementById("g1_subtitle").innerText = `${activeJob.topic_title} • ${activeJob.exam_type} Class ${activeJob.class_level || 'All'} • ${resolveTierKey(activeJob.generation_tier)} tier • ${(s.quality_gate) ? 'Quality ' + s.quality_gate.score + (s.quality_gate.passed ? '' : ' ⚠ ' + s.quality_gate.checks.filter(c => !c.ok && c.blocking).map(c => c.label).join(', ')) + ' • ' : ''}${(s.math_verification && s.math_verification.status === 'verified') ? '✓ ' + s.math_verification.claims + ' narrated numbers verified • ' : ''}${(s.storyboard && s.storyboard.route) ? 'Pack: ' + s.storyboard.route.label + ' (' + s.storyboard.route.method + ', ' + s.storyboard.route.status + ') • ' : ''}[Script Engine: ${activeJob.script_generator || 'AUTO'}]`;
 
       // Presenter Avatar Pill
       const avatarPill = document.getElementById("g1_avatar_pill");
@@ -2834,15 +2834,25 @@
 
     async function publishToConceptlyLive() {
       if (!activeJob) return;
-      const res = await fetch(`/api/reels/${activeJob.id}/gate3/publish`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${currentToken}` },
-        body: JSON.stringify({ publish_to_conceptly: true })
-      });
+      const headers = { "Content-Type": "application/json", "Authorization": `Bearer ${currentToken}` };
+      let force = false;
+      const pre = await (await fetch(`/api/reels/${activeJob.id}/publish/preview`, { headers })).json();
+      if (!pre.ready) {
+        const soft = pre.problems.every(p => p.startsWith("quality gate") || p.startsWith("quiz still"));
+        if (!soft || !confirm("Conceptly Core publishing is blocked:\n- " + pre.problems.join("\n- ") + "\n\nPublish anyway?")) {
+          if (!soft) alert("Cannot publish yet:\n- " + pre.problems.join("\n- "));
+          return;
+        }
+        force = true;
+      }
+      const res = await fetch(`/api/reels/${activeJob.id}/gate3/publish`, { method: "POST", headers, body: JSON.stringify({ publish_to_conceptly: true, force }) });
       if (res.ok) {
-        alert("🎉 Successfully Published Reel & Quizzes to Conceptly Core!");
+        alert("Published: Conceptly Core confirmed the reel and its quiz.");
         closeModal("gate3Modal");
         fetchJobs();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert("Publishing failed: " + (err.detail || res.status));
       }
     }
 

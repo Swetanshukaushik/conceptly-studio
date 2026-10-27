@@ -59,5 +59,6 @@
       }
     }
   },
-  "request_timeout_seconds": 180
+  "request_timeout_seconds": 180,
+  "attempts_per_model": 2
 }

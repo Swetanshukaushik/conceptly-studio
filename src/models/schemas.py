@@ -221,6 +221,7 @@ class Gate2ApprovalRequest(BaseModel):
 
 class Gate3PublishRequest(BaseModel):
     publish_to_conceptly: bool = True
+    force: bool = False   # publish although the quality gate or the quiz check has open objections
 
 # ================= Response Schemas =================
 class JobStageRead(BaseModel):

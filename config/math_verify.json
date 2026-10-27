@@ -121,6 +121,6 @@
     "min_sentence_words": 3
   },
   "repair": {
-    "max_repairs": 1
+    "max_repairs": 2
   }
 }

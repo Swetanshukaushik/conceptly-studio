@@ -1,0 +1,16 @@
+{
+ "topic": "Newton's Third Law",
+ "subject": "Physics",
+ "class_level": 9,
+ "exam_type": "SCHOOL",
+ "tier": "DEFAULT",
+ "job_id": "a99f7a0b-7bc9-4d27-b241-e3d4f8b6763d",
+ "created_utc": "2026-10-27T14:48:41.549923",
+ "status": "test render, not published, not reviewed",
+ "layout": "full",
+ "look": "obsidian_lab",
+ "qa_notes": null,
+ "narration": [
+  "If you push against a massive brick wall with one hundred Newtons, why does your hand hurt?"
+ ]
+}

@@ -6,6 +6,12 @@ import 'katex/contrib/mhchem';   // enables \ce{N2 + 3H2 <=> 2NH3} for chemical 
 import * as THREE from 'three';
 import { popTiming } from './kit.js';
 
+// Plain-text cards (title, callout, sticker, tag, stat) cannot typeset LaTeX; models still write it, so the common commands become symbols.
+const LATEX_SYMBOLS = { neq: '≠', ne: '≠', approx: '≈', rightarrow: '→', to: '→', Rightarrow: '⇒', leftarrow: '←', times: '×', cdot: '·', div: '÷', pm: '±', leq: '≤', le: '≤', geq: '≥', ge: '≥', Delta: 'Δ', delta: 'δ', theta: 'θ', pi: 'π', mu: 'μ', omega: 'ω', Omega: 'Ω', alpha: 'α', beta: 'β', gamma: 'γ', lambda: 'λ', rho: 'ρ', sigma: 'σ', tau: 'τ', infty: '∞', sqrt: '√', degree: '°', circ: '°' };
+export function plainText(t) {
+  return String(t ?? '').replace(/\\text\{([^}]*)\}/g, '$1').replace(/\\([A-Za-z]+)/g, (m, c) => LATEX_SYMBOLS[c] ?? '').replace(/[_^]\{([^}]*)\}/g, '$1').replace(/[{}$]/g, '').replace(/\s{2,}/g, ' ').trim();
+}
+
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const ease = (k) => 1 - Math.pow(1 - clamp(k, 0, 1), 3);
 
@@ -65,7 +71,7 @@ export class Overlays {
       const node = el('div', `card ${it.kind}`);
       const col = this.color(it.color);
       node.style.setProperty('--c', col);
-      if (it.kind === 'title') { node.textContent = it.text; node.style.fontSize = `${o.titleSize}px`; }
+      if (it.kind === 'title') { node.textContent = plainText(it.text); node.style.fontSize = `${o.titleSize}px`; }
       else if (it.kind === 'formula') {
         try { node.innerHTML = katex.renderToString(it.latex || it.text || '', { throwOnError: true, displayMode: true }); }
         catch (e) { this.warn(`LaTeX error: ${e.message}`); node.textContent = it.latex || it.text || ''; }
@@ -75,7 +81,7 @@ export class Overlays {
         node.style.fontSize = `${it.size || o.formulaSize * 0.8}px`; node.style.textAlign = 'left'; node.lines = [];
         (it.lines || []).forEach((ln) => { const row = el('div', 'dline'); try { row.innerHTML = katex.renderToString(ln, { throwOnError: true, displayMode: false }); } catch (e) { this.warn(`LaTeX error: ${e.message}`); row.textContent = ln; } row.style.opacity = 0; node.append(row); node.lines.push(row); });
         if (it.caption) { const cap = el('div', 'sub'); cap.textContent = it.caption; node.append(cap); }
-      } else if (it.kind === 'callout') { node.textContent = it.text; node.style.fontSize = `${o.calloutSize}px`; }
+      } else if (it.kind === 'callout') { node.textContent = plainText(it.text); node.style.fontSize = `${o.calloutSize}px`; }
       else if (it.kind === 'stat') {
         const v = el('div', 'val'); v.textContent = it.value; v.style.fontSize = `${o.statSize}px`;
         const l = el('div', 'sub'); l.textContent = it.label || ''; node.append(v, l);
@@ -83,9 +89,9 @@ export class Overlays {
         const txt = String(it.text ?? '').toUpperCase(); node.textContent = txt;
         const W = this.cfg.canvas.width, usable = W - 2 * this.cfg.safeZone.side;
         node.style.fontSize = `${Math.min(it.size || o.popSize, usable / Math.max(3, txt.length * 0.66))}px`;
-      } else if (it.kind === 'sticker') { const hex = (col.startsWith('#') ? col : '#888888').slice(1), lum = (0.2126 * parseInt(hex.slice(0, 2), 16) + 0.7152 * parseInt(hex.slice(2, 4), 16) + 0.0722 * parseInt(hex.slice(4, 6), 16)) / 255; node.style.color = lum > 0.55 ? '#0b1020' : '#ffffff'; node.textContent = it.text; node.style.fontSize = `${it.size || o.stickerSize}px`; node.style.transform = `rotate(${it.tilt ?? -3}deg)`; }
+      } else if (it.kind === 'sticker') { const hex = (col.startsWith('#') ? col : '#888888').slice(1), lum = (0.2126 * parseInt(hex.slice(0, 2), 16) + 0.7152 * parseInt(hex.slice(2, 4), 16) + 0.0722 * parseInt(hex.slice(4, 6), 16)) / 255; node.style.color = lum > 0.55 ? '#0b1020' : '#ffffff'; node.textContent = plainText(it.text); node.style.fontSize = `${it.size || o.stickerSize}px`; node.style.transform = `rotate(${it.tilt ?? -3}deg)`; }
       else if (it.kind === 'tag') {
-        node.textContent = it.text; node.style.fontSize = `${o.tagSize}px`;
+        node.textContent = plainText(it.text); node.style.fontSize = `${o.tagSize}px`;
         if (it.style === 'pin') {   // pinned label: dot on the part, a leader line to the label
           node.classList.add('pin'); const line = el('i', 'pinline'), dot = el('i', 'pindot'); node.append(line, dot); node.pin = { line, dot };
         }

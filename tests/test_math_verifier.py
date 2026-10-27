@@ -120,7 +120,7 @@ def test_writer_repairs_once_with_the_problems_then_accepts(monkeypatch):
 
 def test_writer_blocks_the_reel_when_the_repair_is_still_wrong(monkeypatch):
     bad = _out(WRONG, [claim(kind="holds", quote="our point glides to four comma four", stated=[4, 4], lhs="y^2", rhs="8x", at={"x": 4, "y": 4})])
-    _calls(monkeypatch, [bad])
+    _calls(monkeypatch, [bad, bad])   # config allows two repairs; both stay wrong
     with pytest.raises(MathVerificationError) as e:
         WriterAgent._verified(bad, "Mathematics", "USER", ReelGenerationTier.FREE, "AUTO", "writer")
     assert "not produced" in str(e.value) and "does not hold" in str(e.value)

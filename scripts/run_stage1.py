@@ -39,6 +39,11 @@ def main():
         print(f"#{sc['scene_number']} [{sc['start_sec']:.1f}-{sc['end_sec']:.1f}] {sc['spoken_line'][:110]}")
         print(f"   intent: {d.get('intent')}\n   objects: {', '.join(kinds)} | overlays: {[o.get('kind') for o in d.get('overlays', [])]}")
     print("QA", json.dumps(sb.get("qa"), indent=1))
+    qg = data.get("quality_gate") or {}
+    print("QUALITY", qg.get("score"), "PASSED" if qg.get("passed") else "BLOCKED")
+    for c in qg.get("checks", []):
+        if not c["ok"]:
+            print("  FAIL", c["id"], "-", c["label"], "|", c["detail"])
     frames = os.path.join(settings.LOCAL_STORAGE_DIR, "jobs", job_id, "storyboard_frames")
     print("FRAMES", frames)
     try:

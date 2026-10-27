@@ -679,6 +679,16 @@ def approve_gate2_quiz(
     
     return format_job_response(job)
 
+@router.get("/{job_id}/publish/preview")
+def publish_preview(job_id: str, force: bool = False, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """What would be sent to Conceptly Core, and what stops it, without sending anything."""
+    job = db.query(ReelJob).filter(ReelJob.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    from src.agents.publisher_agent import preflight
+    return preflight(job, force=force)
+
+
 @router.post("/{job_id}/gate3/publish", response_model=ReelJobRead)
 def publish_gate3_reel(
     job_id: str,
@@ -692,10 +702,16 @@ def publish_gate3_reel(
         raise HTTPException(status_code=404, detail="Job not found")
     
     if payload.publish_to_conceptly:
-        from src.agents.publisher_agent import publisher_agent
-        publisher_agent.publish_reel(job)
-        PipelineOrchestrator._update_stage(db, job_id, "PUBLISHING", "COMPLETED", 100, "Successfully synced with Conceptly Core API.")
-    
+        from src.agents.publisher_agent import PublishError, publisher_agent
+        try:
+            record = publisher_agent.publish_reel(job, force=payload.force)
+        except PublishError as e:
+            if e.result:   # half-published: remember what landed so a retry only sends the rest
+                script_dict = json.loads(job.script_data); script_dict["publish"] = e.result; job.script_data = json.dumps(script_dict); db.commit()
+            raise HTTPException(status_code=e.status, detail=e.detail)
+        script_dict = json.loads(job.script_data); script_dict["publish"] = record; job.script_data = json.dumps(script_dict)
+        PipelineOrchestrator._update_stage(db, job_id, "PUBLISHING", "COMPLETED", 100, "Ingested by Conceptly Core (reel and quiz confirmed).")
+
     PipelineOrchestrator._update_stage(db, job_id, "GATE_3_REVIEW", "COMPLETED", 100, "Approved and published by creator.")
     job.status = JobStatus.PUBLISHED.value
     db.commit()
