@@ -1,0 +1,269 @@
+{
+ "about": "Single fixed pulley on the ceiling: the load hangs on one rope end and the effort handle is pulled down on the other. Effort equals the load (no force saved, only direction changed). The handle moves down by `dist` and the load rises by the same distance. Origin is the ground under the pulley; ceiling underside at y=`yc`. Add a base_slab, ceiling_beam and workshop_wall.",
+ "params_doc": {
+  "loadText": "label on the weight",
+  "loadForce": "force label for the weight",
+  "effortForce": "force label for the pull",
+  "t0": "scene time (s) when pulling starts",
+  "dur": "seconds the pull lasts",
+  "dist": "how far the handle is pulled (limited automatically so the handle never goes below the ground)",
+  "showForces": "1 = draw force arrows and labels",
+  "forceAt": "scene time when arrows appear",
+  "wheel": "pulley colour"
+ },
+ "params": {
+  "loadText": "100 kg",
+  "loadForce": "1000 N",
+  "effortForce": "1000 N",
+  "t0": 1.2,
+  "dur": 3.0,
+  "dist": 1.4,
+  "showForces": 1,
+  "forceAt": 0.6,
+  "wheel": "#4f86d6",
+  "rf": 0.45,
+  "cxf": 0,
+  "yc": 4.2,
+  "yf": 3.4,
+  "yl0": 1.35,
+  "ye0": 1.9,
+  "p": "smooth(${t0},${t0}+${dur},t)",
+  "pull": "min(${dist},${ye0}-0.25)*${p}",
+  "yl": "${yl0}+${pull}",
+  "ye": "${ye0}-${pull}",
+  "spinF": "-(${pull}/${rf})*57.3",
+  "yb": "${yl}-0.35-0.12"
+ },
+ "objects": [
+  {
+   "type": "rope",
+   "points": [
+    [
+     "${cxf}-${rf}",
+     "${yl}",
+     0
+    ],
+    [
+     "${cxf}-${rf}",
+     "${yf}",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(-1.0000)",
+     "${yf}+${rf}*(0.0000)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(-0.9659)",
+     "${yf}+${rf}*(0.2588)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(-0.8660)",
+     "${yf}+${rf}*(0.5000)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(-0.7071)",
+     "${yf}+${rf}*(0.7071)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(-0.5000)",
+     "${yf}+${rf}*(0.8660)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(-0.2588)",
+     "${yf}+${rf}*(0.9659)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(0.0000)",
+     "${yf}+${rf}*(1.0000)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(0.2588)",
+     "${yf}+${rf}*(0.9659)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(0.5000)",
+     "${yf}+${rf}*(0.8660)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(0.7071)",
+     "${yf}+${rf}*(0.7071)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(0.8660)",
+     "${yf}+${rf}*(0.5000)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(0.9659)",
+     "${yf}+${rf}*(0.2588)",
+     0
+    ],
+    [
+     "${cxf}+${rf}*(1.0000)",
+     "${yf}+${rf}*(0.0000)",
+     0
+    ],
+    [
+     "${cxf}+${rf}",
+     "${ye}",
+     0
+    ]
+   ],
+   "radius": 0.04,
+   "material": {
+    "color": "#c9b48a",
+    "roughness": 0.95,
+    "pattern": {
+     "kind": "stripes",
+     "count": 8,
+     "color2": "#a8946a",
+     "repeat": [
+      90,
+      1
+     ]
+    }
+   }
+  },
+  {
+   "type": "cylinder",
+   "radius": 0.012,
+   "height": "${yc}-${yf}",
+   "material": {
+    "color": "#aeb8c6",
+    "roughness": 0.28,
+    "metalness": 1
+   },
+   "position": [
+    "${cxf}",
+    "(${yc}+${yf})/2",
+    0
+   ]
+  },
+  {
+   "type": "prop",
+   "prefab": "pulley_wheel",
+   "params": {
+    "cx": "${cxf}",
+    "cy": "${yf}",
+    "r": "${rf}",
+    "spin": "${spinF}",
+    "color": "${wheel}"
+   }
+  },
+  {
+   "type": "prop",
+   "prefab": "weight_block",
+   "position": [
+    "${cxf}-${rf}",
+    "${yb}",
+    0
+   ],
+   "params": {
+    "text": "${loadText}"
+   }
+  },
+  {
+   "type": "torus",
+   "radius": 0.07,
+   "tube": 0.022,
+   "material": {
+    "color": "#aeb8c6",
+    "roughness": 0.28,
+    "metalness": 1
+   },
+   "position": [
+    "${cxf}+${rf}",
+    "${ye}-0.07",
+    0
+   ]
+  },
+  {
+   "type": "arrow",
+   "from": [
+    "${cxf}-${rf}-0.7",
+    "${yb}+0.2",
+    0
+   ],
+   "to": [
+    "${cxf}-${rf}-0.7",
+    "${yb}-0.75",
+    0
+   ],
+   "color": "warn",
+   "thickness": 0.03,
+   "visible": "${showForces}",
+   "appear": {
+    "at": "${forceAt}"
+   }
+  },
+  {
+   "type": "label",
+   "text": "${loadForce}",
+   "size": 0.24,
+   "color": "warn",
+   "position": [
+    "${cxf}-${rf}-1.35",
+    "${yb}-0.25",
+    0
+   ],
+   "visible": "${showForces}",
+   "appear": {
+    "at": "${forceAt}"
+   }
+  },
+  {
+   "type": "arrow",
+   "from": [
+    "${cxf}+${rf}+0.3",
+    "${ye}",
+    0
+   ],
+   "to": [
+    "${cxf}+${rf}+0.3",
+    "${ye}-0.9",
+    0
+   ],
+   "color": "accent",
+   "thickness": 0.03,
+   "visible": "${showForces}",
+   "appear": {
+    "at": "${forceAt}+0.4"
+   }
+  },
+  {
+   "type": "label",
+   "text": "${effortForce}",
+   "size": 0.24,
+   "color": "accent",
+   "position": [
+    "${cxf}+${rf}+0.95",
+    "${ye}-0.4",
+    0
+   ],
+   "visible": "${showForces}",
+   "appear": {
+    "at": "${forceAt}+0.4"
+   }
+  }
+ ],
+ "bounds": {
+  "size": [
+   3.6,
+   4.6
+  ],
+  "center": [
+   0.1,
+   2.1
+  ]
+ }
+}

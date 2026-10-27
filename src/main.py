@@ -10,6 +10,7 @@ from src.database.session import engine, Base, SessionLocal
 from src.models.entities import User
 from src.api.auth import router as auth_router
 from src.api.reels import router as reels_router
+from src.api.avatars import router as avatars_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -38,9 +39,15 @@ def serve_studio_ui():
     index_file = os.path.join(os.path.dirname(__file__), "web", "index.html")
     return FileResponse(index_file)
 
+@app.get("/system-design", include_in_schema=False)
+def serve_system_design_ui():
+    design_file = os.path.join(os.path.dirname(__file__), "web", "system_design.html")
+    return FileResponse(design_file)
+
 # Include API Routers
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(reels_router, prefix=settings.API_V1_STR)
+app.include_router(avatars_router, prefix=settings.API_V1_STR)
 
 @app.on_event("startup")
 def on_startup():

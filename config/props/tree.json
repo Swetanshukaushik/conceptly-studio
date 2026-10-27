@@ -1,0 +1,75 @@
+{
+ "about": "A stylised tree: trunk and layered foliage. Seen from any side.",
+ "params_doc": {
+  "height": "tree height",
+  "leaf": "foliage colour",
+  "trunk": "trunk colour"
+ },
+ "params": {
+  "height": 2.4,
+  "leaf": "#3e8a4a",
+  "trunk": "#6b4a2f"
+ },
+ "objects": [
+  {
+   "type": "cylinder",
+   "radius": 0.1,
+   "height": "${height}*0.45",
+   "material": {
+    "color": "${trunk}",
+    "roughness": 0.9,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "${height}*0.225",
+    0
+   ]
+  },
+  {
+   "type": "cone",
+   "radius": "${height}*0.28",
+   "height": "${height}*0.45",
+   "material": {
+    "color": "${leaf}",
+    "roughness": 0.85,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "${height}*0.55",
+    0
+   ]
+  },
+  {
+   "type": "cone",
+   "radius": "${height}*0.22",
+   "height": "${height}*0.4",
+   "material": {
+    "color": "${leaf}",
+    "roughness": 0.85,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "${height}*0.78",
+    0
+   ]
+  },
+  {
+   "type": "cone",
+   "radius": "${height}*0.15",
+   "height": "${height}*0.32",
+   "material": {
+    "color": "${leaf}",
+    "roughness": 0.85,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "${height}*0.97",
+    0
+   ]
+  }
+ ]
+}

@@ -1,0 +1,220 @@
+{
+ "about": "Parabola with its focus F, directrix, a moving point P, its foot M on the directrix and the segments PF and PM. orient 0 opens upward (x^2 = 4py: focus (0,p), directrix y = -p); orient 1 opens to the right (y^2 = 4px: focus (p,0), directrix x = -p). Everything is computed from p, so PF = PM holds exactly in the picture. ALWAYS use this prefab (never hand-place a focus, a directrix or a distance segment) for focus-directrix, locus, standard-equation or eccentricity=1 topics. The axes use equal scales (the defaults do).",
+ "params_doc": {
+  "p": "focal length, 0.5 to 2 (for y^2 = 4ax this is a)",
+  "orient": "0 = opens upward, 1 = opens to the right",
+  "xp": "the across-axis coordinate of P (x when orient 0, y when orient 1): a number or an expression of t such as '2.5*sin(t*1.2)'; keep |xp| within 3 so P stays on screen",
+  "t0": "scene time when the focus, directrix and P appear",
+  "w": "plot width",
+  "h": "plot height",
+  "xmin": "integer",
+  "xmax": "integer",
+  "ymin": "integer",
+  "ymax": "integer",
+  "nx": "xmax-xmin+1",
+  "ny": "ymax-ymin+1"
+ },
+ "bounds": {
+  "size": [
+   4.6,
+   4.6
+  ],
+  "center": [
+   0,
+   0
+  ]
+ },
+ "params": {
+  "p": 1,
+  "orient": 0,
+  "xp": "2.5*sin(t*1.2)",
+  "t0": 0.8,
+  "w": 4.0,
+  "h": 4.0,
+  "xmin": -4,
+  "xmax": 4,
+  "ymin": -4,
+  "ymax": 4,
+  "nx": 9,
+  "ny": 9
+ },
+ "objects": [
+  {
+   "type": "prop",
+   "prefab": "cartesian",
+   "params": {
+    "w": "${w}",
+    "h": "${h}",
+    "xmin": "${xmin}",
+    "xmax": "${xmax}",
+    "ymin": "${ymin}",
+    "ymax": "${ymax}",
+    "nx": "${nx}",
+    "ny": "${ny}",
+    "x1": "((${orient}))*(X^2/(4*${p}))+(1-((${orient})))*(X)",
+    "y1": "((${orient}))*(X)+(1-((${orient})))*(X^2/(4*${p}))",
+    "smin": "(${orient})*(${ymin})+(1-(${orient}))*(${xmin})",
+    "smax": "(${orient})*(${ymax})+(1-(${orient}))*(${xmax})",
+    "t0": 0.2,
+    "dur": 2.2,
+    "cursor": 0
+   }
+  },
+  {
+   "type": "box",
+   "size": [
+    1,
+    1,
+    0.03
+   ],
+   "material": {
+    "color": "good",
+    "opacity": 0.9,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${orient})*((${w})*((((${orient}))*(-(${p}))+(1-((${orient})))*(0))-(${xmin}))/(${xmax}-${xmin})-(${w})/2)",
+    "(1-(${orient}))*((${h})*clamp(((((${orient}))*(0)+(1-((${orient})))*(-(${p})))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2)",
+    0
+   ],
+   "scale": [
+    "(1-(${orient}))*(${w})+(${orient})*0.03",
+    "(${orient})*(${h})+(1-(${orient}))*0.03",
+    1
+   ],
+   "visible": "(t>=${t0})"
+  },
+  {
+   "type": "label",
+   "text": "directrix",
+   "size": 0.2,
+   "color": "good",
+   "position": [
+    "(${orient})*((${w})*((((${orient}))*(-(${p}))+(1-((${orient})))*(0))-(${xmin}))/(${xmax}-${xmin})-(${w})/2-0.5)+(1-(${orient}))*((${w})/2-0.45)",
+    "(${orient})*((${h})/2-0.3)+(1-(${orient}))*((${h})*clamp(((((${orient}))*(0)+(1-((${orient})))*(-(${p})))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2-0.55)",
+    0
+   ],
+   "visible": "(t>=${t0})"
+  },
+  {
+   "type": "sphere",
+   "radius": 0.1,
+   "material": {
+    "color": "warn",
+    "emissive": "warn",
+    "emissiveIntensity": 1.0,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})*((((${orient}))*(${p})+(1-((${orient})))*(0))-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+    "(${h})*clamp(((((${orient}))*(0)+(1-((${orient})))*(${p}))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+    0
+   ],
+   "visible": "(t>=${t0})"
+  },
+  {
+   "type": "label",
+   "text": "F",
+   "size": 0.24,
+   "color": "warn",
+   "position": [
+    "(${w})*((((${orient}))*(${p})+(1-((${orient})))*(0))-(${xmin}))/(${xmax}-${xmin})-(${w})/2+0.25",
+    "(${h})*clamp(((((${orient}))*(0)+(1-((${orient})))*(${p}))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2+0.2",
+    0
+   ],
+   "visible": "(t>=${t0})"
+  },
+  {
+   "type": "curve",
+   "points": [
+    [
+     "(${w})*((((${orient}))*((${xp}^2/(4*${p})))+(1-((${orient})))*((${xp})))-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+     "(${h})*clamp(((((${orient}))*((${xp}))+(1-((${orient})))*((${xp}^2/(4*${p}))))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+     0
+    ],
+    [
+     "(${w})*((((${orient}))*(${p})+(1-((${orient})))*(0))-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+     "(${h})*clamp(((((${orient}))*(0)+(1-((${orient})))*(${p}))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+     0
+    ]
+   ],
+   "color": "warn",
+   "width": 4,
+   "visible": "(t>=${t0})"
+  },
+  {
+   "type": "curve",
+   "points": [
+    [
+     "(${w})*((((${orient}))*((${xp}^2/(4*${p})))+(1-((${orient})))*((${xp})))-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+     "(${h})*clamp(((((${orient}))*((${xp}))+(1-((${orient})))*((${xp}^2/(4*${p}))))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+     0
+    ],
+    [
+     "(${w})*((((${orient}))*(-(${p}))+(1-((${orient})))*((${xp})))-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+     "(${h})*clamp(((((${orient}))*((${xp}))+(1-((${orient})))*(-(${p})))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+     0
+    ]
+   ],
+   "color": "good",
+   "width": 4,
+   "visible": "(t>=${t0})"
+  },
+  {
+   "type": "sphere",
+   "radius": 0.1,
+   "material": {
+    "color": "accent",
+    "emissive": "accent",
+    "emissiveIntensity": 1.3,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})*((((${orient}))*((${xp}^2/(4*${p})))+(1-((${orient})))*((${xp})))-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+    "(${h})*clamp(((((${orient}))*((${xp}))+(1-((${orient})))*((${xp}^2/(4*${p}))))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+    0
+   ],
+   "visible": "(t>=${t0})"
+  },
+  {
+   "type": "label",
+   "text": "P",
+   "size": 0.24,
+   "color": "accent",
+   "position": [
+    "(${w})*((((${orient}))*((${xp}^2/(4*${p})))+(1-((${orient})))*((${xp})))-(${xmin}))/(${xmax}-${xmin})-(${w})/2+0.25",
+    "(${h})*clamp(((((${orient}))*((${xp}))+(1-((${orient})))*((${xp}^2/(4*${p}))))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2+0.2",
+    0
+   ],
+   "visible": "(t>=${t0})"
+  },
+  {
+   "type": "sphere",
+   "radius": 0.07,
+   "material": {
+    "color": "good",
+    "emissive": "good",
+    "emissiveIntensity": 1.0,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})*((((${orient}))*(-(${p}))+(1-((${orient})))*((${xp})))-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+    "(${h})*clamp(((((${orient}))*((${xp}))+(1-((${orient})))*(-(${p})))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+    0
+   ],
+   "visible": "(t>=${t0})"
+  },
+  {
+   "type": "label",
+   "text": "M",
+   "size": 0.22,
+   "color": "good",
+   "position": [
+    "(${w})*((((${orient}))*(-(${p}))+(1-((${orient})))*((${xp})))-(${xmin}))/(${xmax}-${xmin})-(${w})/2+0.22",
+    "(${h})*clamp(((((${orient}))*((${xp}))+(1-((${orient})))*(-(${p})))-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2-0.22",
+    0
+   ],
+   "visible": "(t>=${t0})"
+  }
+ ]
+}

@@ -1,0 +1,75 @@
+{
+  "name": "einstein_photo",
+  "kind": "photo",
+  "label": "Einstein (photo narrator)",
+  "inspired_by": "Orren Jack Turner's 1947 portrait (public domain in the US and India per Wikimedia Commons; not in the EU/UK until 2039). A real photograph, animated; AI-generated narration.",
+  "subjects": [
+    "physics"
+  ],
+  "voice_hint": "warm, curious, slightly playful",
+  "image": "/config/characters/photos/einstein_turner_1947_puppet.jpg",
+  "source": "characters/photos/einstein_turner_1947.source.json",
+  "crop": {
+    "x0": 150,
+    "y0": 100,
+    "x1": 3150,
+    "y1": 3400
+  },
+  "imageSize": [
+    1400,
+    1540
+  ],
+  "landmarks": {
+    "mouthY": 2550,
+    "mouthCx": 1900,
+    "chinY": 2860,
+    "neckY": 3080,
+    "eyeL": [
+      1567,
+      1650
+    ],
+    "eyeR": [
+      2150,
+      1660
+    ],
+    "eyeRx": 165,
+    "eyeRy": 80,
+    "browY": 1540,
+    "browCx": 1860
+  },
+  "motion": {
+    "jawDrop": 105,
+    "jawFalloffX": [
+      300,
+      540
+    ],
+    "browLift": 14,
+    "headSwayDeg": 1.3,
+    "nodDeg": 3.5,
+    "blinkEvery": 3.9,
+    "blinkSeconds": 0.15,
+    "lidColors": [
+      "#7d7974",
+      "#6c6863"
+    ],
+    "cavityColor": "#140909",
+    "cavityHalfWidth": 330,
+    "breath": 0.004,
+    "cavityLow": "#2b1514"
+  },
+  "frame": {
+    "heightFrac": 0.4,
+    "marginFrac": 0.04,
+    "bottomFrac": 0.03,
+    "radius": 0.07,
+    "feather": 0.012,
+    "borderColor": "#ffffff",
+    "borderWidth": 0.012,
+    "exposure": 1.12
+  },
+  "voice": {
+    "id": "en-GB-RyanNeural",
+    "rate": "-6%",
+    "pitch": "-2Hz"
+  }
+}

@@ -49,3 +49,6 @@ temp/
 # OS
 .DS_Store
 Thumbs.db
+
+# Finished test renders (large binaries; kept locally, not in git)
+reels_library/*.mp4

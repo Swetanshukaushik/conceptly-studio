@@ -1,0 +1,85 @@
+{
+ "about": "A table or standing lamp with a warm glow and a real light. Adds mood to interiors.",
+ "params_doc": {
+  "color": "light colour (palette name or hex)",
+  "intensity": "light strength",
+  "flicker": "0..1 flicker amount"
+ },
+ "params": {
+  "color": "accent",
+  "intensity": 10,
+  "flicker": 0.15
+ },
+ "objects": [
+  {
+   "type": "cylinder",
+   "radius": 0.12,
+   "height": 0.05,
+   "material": {
+    "color": "#3a3028",
+    "roughness": 0.4,
+    "metalness": 0.8
+   },
+   "position": [
+    0,
+    0.025,
+    0
+   ]
+  },
+  {
+   "type": "cylinder",
+   "radius": 0.025,
+   "height": 0.7,
+   "material": {
+    "color": "#3a3028",
+    "roughness": 0.4,
+    "metalness": 0.8
+   },
+   "position": [
+    0,
+    0.4,
+    0
+   ]
+  },
+  {
+   "type": "cone",
+   "radius": 0.2,
+   "height": 0.25,
+   "material": {
+    "color": "#d8c9a8",
+    "roughness": 0.8,
+    "metalness": 0,
+    "emissive": "${color}",
+    "emissiveIntensity": 0.5
+   },
+   "position": [
+    0,
+    0.85,
+    0
+   ]
+  },
+  {
+   "type": "glow",
+   "color": "${color}",
+   "size": 1.4,
+   "intensity": "0.7+${flicker}*noise(t*9)",
+   "position": [
+    0,
+    0.8,
+    0
+   ]
+  },
+  {
+   "type": "light",
+   "kind": "point",
+   "color": "${color}",
+   "intensity": "${intensity}*(1+${flicker}*noise(t*9))",
+   "distance": 8,
+   "position": [
+    0,
+    0.8,
+    0.1
+   ]
+  }
+ ]
+}

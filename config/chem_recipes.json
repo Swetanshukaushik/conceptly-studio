@@ -1,0 +1,81 @@
+{
+ "le_chatelier_pressure": {
+  "about": "Squeeze N2 + 3H2 <=> 2NH3: fewer moles of gas on the right, so the equilibrium moves right and more red NH3 particles appear while the gauge rises.",
+  "hint": "Use the default particle_lab reaction; set vol to a falling expression. Say 'shifts toward fewer moles of gas'.",
+  "params": {
+   "vol": "mix(1,0.45,smooth(3,5,t))"
+  }
+ },
+ "le_chatelier_expand": {
+  "about": "Let the same gas expand: the equilibrium moves left toward more moles of gas, so NH3 particles turn into N2 and H2.",
+  "hint": "vol rises above 1; the plunger moves up.",
+  "params": {
+   "vol": "mix(1,1.8,smooth(3,5,t))"
+  }
+ },
+ "le_chatelier_concentration": {
+  "about": "Add N2 at about 3 s: the system consumes it, shifting right (more NH3).",
+  "hint": "dA adds particles of species A (negative removes them).",
+  "params": {
+   "dA": "10*smooth(3,3.6,t)"
+  }
+ },
+ "le_chatelier_temperature_exothermic": {
+  "about": "Heat N2 + 3H2 <=> 2NH3 (exothermic, dH = -92 kJ/mol) from 400 K to 520 K: K falls, the equilibrium moves left, NH3 particles decrease, and all particles move faster.",
+  "hint": "Kt uses vanthoff with the reaction's dH; spd speeds the particle clock while heating. For an endothermic reaction use a positive dH.",
+  "params": {
+   "Kt": "vanthoff(${K},-92,400,400+120*smooth(3,5,t))",
+   "spd": "t+0.6*smoothint(3,5,t)"
+  }
+ },
+ "equal_moles_no_shift": {
+  "about": "H2 + I2 <=> 2HI has the same number of gas moles on both sides: squeezing raises the pressure but does not shift the equilibrium.",
+  "hint": "Colours: H2 white, I2 purple, HI orange.",
+  "params": {
+   "a": 1,
+   "b": 1,
+   "c": 2,
+   "d": 0,
+   "nA": 14,
+   "nB": 14,
+   "nC": 24,
+   "nD": 0,
+   "vol": "mix(1,0.5,smooth(3,5,t))",
+   "cA": "#9aa6bd",
+   "cB": "#8a4dff",
+   "cC": "#ff9a2e"
+  }
+ },
+ "dissociation": {
+  "about": "N2O4 <=> 2NO2 (colourless to brown): compressing favours N2O4 (fewer moles), expanding favours NO2.",
+  "hint": "A = N2O4, C = NO2 (b = 0 and d = 0 mean absent).",
+  "params": {
+   "a": 1,
+   "b": 0,
+   "c": 2,
+   "d": 0,
+   "nA": 20,
+   "nB": 0,
+   "nC": 24,
+   "nD": 0,
+   "vol": "mix(1,0.5,smooth(3,5,t))",
+   "cA": "#d9d2c3",
+   "cC": "#a8571c"
+  }
+ },
+ "boyle_law": {
+  "about": "Pure gas, no reaction: the same particles in a smaller volume hit the walls more often, so the gauge (pressure) rises as the plunger falls (P is proportional to 1/V).",
+  "hint": "Give all four stoichiometric numbers as 0 so no reaction happens; only nA is used.",
+  "params": {
+   "a": 0,
+   "b": 0,
+   "c": 0,
+   "d": 0,
+   "nA": 30,
+   "nB": 0,
+   "nC": 0,
+   "nD": 0,
+   "vol": "mix(1,0.5,smooth(2,4,t))"
+  }
+ }
+}

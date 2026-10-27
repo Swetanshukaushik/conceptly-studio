@@ -1,0 +1,457 @@
+{
+ "projectile": {
+  "about": "Projectile thrown at an angle; trail and velocity arrow; vertical and horizontal components differ.",
+  "sim": {
+   "surfaces": [
+    {
+     "p1": [
+      -1,
+      0
+     ],
+     "p2": [
+      14,
+      0
+     ],
+     "mu": 0.6,
+     "e": 0.3
+    }
+   ],
+   "bodies": [
+    {
+     "id": "ball",
+     "kind": "ball",
+     "m": 1,
+     "r": 0.2,
+     "pos": [
+      0,
+      0.2
+     ],
+     "vel": [
+      6,
+      8
+     ],
+     "color": "accent",
+     "trail": {
+      "color": "accent"
+     },
+     "vectors": [
+      "v"
+     ]
+    }
+   ]
+  },
+  "hint": "camera distance about 14 to show a 10 unit range in explainer_window; plot vy with sim(3,0,X); flight time is 2 vy / g, so a beat of 4 s fits vy up to about 10 m/s at timeScale 1"
+ },
+ "incline_sliding": {
+  "about": "Block sliding down an incline of angle 30 degrees with friction mu: a = g(sin - mu cos).",
+  "sim": {
+   "surfaces": [
+    {
+     "p1": [
+      0,
+      3
+     ],
+     "p2": [
+      5.2,
+      0
+     ],
+     "mu": 0.2
+    },
+    {
+     "p1": [
+      5.2,
+      0
+     ],
+     "p2": [
+      9,
+      0
+     ],
+     "mu": 0.3
+    }
+   ],
+   "bodies": [
+    {
+     "id": "blk",
+     "kind": "block",
+     "m": 2,
+     "size": [
+      0.6,
+      0.4
+     ],
+     "pos": [
+      0.5,
+      2.93
+     ],
+     "vectors": [
+      "a"
+     ],
+     "color": "primary"
+    }
+   ],
+   "timeScale": 0.7
+  },
+  "hint": "for an incline from (0,h) down to (L cos a, 0) place the block at the top; surface is drawn automatically. Place the block centre half its height above the surface; the block slides s = 1/2 a t^2 (about 3.2 m/s^2 here), so pick timeScale so it reaches the bottom inside the beat; add a floor segment at the end so it stops there"
+ },
+ "rolling_race": {
+  "about": "A disc and a block (or a ring) start together on the same incline; the rolling one is slower because some energy goes into rotation.",
+  "sim": {
+   "surfaces": [
+    {
+     "p1": [
+      0,
+      3
+     ],
+     "p2": [
+      6,
+      0.5
+     ],
+     "mu": 1.0
+    }
+   ],
+   "bodies": [
+    {
+     "id": "disc",
+     "kind": "ball",
+     "m": 1,
+     "r": 0.25,
+     "pos": [
+      0.4,
+      3.05
+     ],
+     "color": "accent"
+    },
+    {
+     "id": "ring",
+     "kind": "ring",
+     "m": 1,
+     "r": 0.25,
+     "pos": [
+      0.4,
+      3.55
+     ],
+     "color": "primary"
+    }
+   ],
+   "timeScale": 0.7
+  },
+  "hint": "balls need friction mu >= 0.5 to roll; give ring bodies kind 'ring' (I = m r^2); put them on different heights/rails or in separate scenes"
+ },
+ "pendulum": {
+  "about": "Simple pendulum on a rod or rope; period T = 2 pi sqrt(L/g).",
+  "sim": {
+   "joints": [
+    {
+     "type": "rod",
+     "a": [
+      0,
+      4
+     ],
+     "b": "bob",
+     "length": 2
+    }
+   ],
+   "bodies": [
+    {
+     "id": "bob",
+     "kind": "ball",
+     "m": 1,
+     "r": 0.2,
+     "pos": [
+      1.0,
+      2.268
+     ],
+     "color": "accent",
+     "trail": {
+      "color": "muted"
+     }
+    }
+   ]
+  },
+  "hint": "start position must be at distance length from the pivot: pos = pivot + L (sin a, -cos a). The rod is drawn automatically; add a small sphere at the pivot (and a ceiling box) yourself"
+ },
+ "spring_mass": {
+  "about": "Mass on a spring oscillating on a frictionless floor: T = 2 pi sqrt(m/k).",
+  "sim": {
+   "gravity": [
+    0,
+    0
+   ],
+   "springs": [
+    {
+     "a": [
+      0,
+      0.5
+     ],
+     "b": "m",
+     "k": 20,
+     "L0": 2
+    }
+   ],
+   "bodies": [
+    {
+     "id": "m",
+     "kind": "block",
+     "m": 1,
+     "size": [
+      0.6,
+      0.5
+     ],
+     "pos": [
+      3.2,
+      0.5
+     ],
+     "color": "primary",
+     "vectors": [
+      "v"
+     ]
+    }
+   ]
+  },
+  "hint": "the spring coil is drawn automatically between the anchor and the block; draw a wall at the anchor yourself. For the x-t graph plot sim(0,0,X) - 2 (displacement from equilibrium at x = L0 = 2); T = 2 pi sqrt(m/k)"
+ },
+ "collision_1d": {
+  "about": "Two carts colliding on a frictionless track; restitution 1 is elastic, 0 is perfectly inelastic; momentum is conserved.",
+  "sim": {
+   "gravity": [
+    0,
+    0
+   ],
+   "bodies": [
+    {
+     "id": "a",
+     "kind": "ball",
+     "m": 2,
+     "r": 0.4,
+     "pos": [
+      0,
+      0.5
+     ],
+     "vel": [
+      3,
+      0
+     ],
+     "restitution": 1,
+     "color": "accent",
+     "vectors": [
+      "v"
+     ]
+    },
+    {
+     "id": "b",
+     "kind": "ball",
+     "m": 1,
+     "r": 0.3,
+     "pos": [
+      4,
+      0.5
+     ],
+     "vel": [
+      0,
+      0
+     ],
+     "restitution": 1,
+     "color": "primary",
+     "vectors": [
+      "v"
+     ]
+    }
+   ]
+  },
+  "hint": "set gravity [0,0] for a track; add a thin box object as the track; compare e = 1 and e = 0 in two beats"
+ },
+ "atwood": {
+  "about": "Two masses over a pulley: a = (m1 - m2) g / (m1 + m2), tension T = 2 m1 m2 g / (m1 + m2).",
+  "sim": {
+   "joints": [
+    {
+     "type": "pulley",
+     "a": "m1",
+     "b": "m2",
+     "pulley": [
+      0,
+      4
+     ],
+     "r": 0.3,
+     "length": 5.4
+    }
+   ],
+   "bodies": [
+    {
+     "id": "m1",
+     "kind": "block",
+     "m": 2,
+     "size": [
+      0.5,
+      0.5
+     ],
+     "pos": [
+      -0.3,
+      1.9
+     ],
+     "color": "accent",
+     "vectors": [
+      "a"
+     ]
+    },
+    {
+     "id": "m2",
+     "kind": "block",
+     "m": 1,
+     "size": [
+      0.5,
+      0.5
+     ],
+     "pos": [
+      0.3,
+      2.5
+     ],
+     "color": "primary",
+     "vectors": [
+      "a"
+     ]
+    }
+   ],
+   "surfaces": [
+    {
+     "p1": [
+      -1.5,
+      0.0
+     ],
+     "p2": [
+      1.5,
+      0.0
+     ],
+     "mu": 0.5
+    }
+   ],
+   "timeScale": 0.6
+  },
+  "hint": "rope length = vertical strand lengths at the start: (pulley y - m1 y) + (pulley y - m2 y). The rope is drawn automatically; draw the pulley with the pulley_wheel prefab at the pulley point; with m1 = 2 and m2 = 1 the heavier mass falls 1/2 a t^2: keep both masses between the floor and the pulley during the beat by using timeScale"
+ },
+ "circular_motion": {
+  "about": "Ball on a string moving in a vertical circle or a horizontal path: centripetal acceleration v^2/r.",
+  "sim": {
+   "gravity": [
+    0,
+    0
+   ],
+   "joints": [
+    {
+     "type": "rod",
+     "a": [
+      0,
+      2
+     ],
+     "b": "ball",
+     "length": 1.5
+    }
+   ],
+   "bodies": [
+    {
+     "id": "ball",
+     "kind": "ball",
+     "m": 1,
+     "r": 0.2,
+     "pos": [
+      1.5,
+      2
+     ],
+     "vel": [
+      0,
+      4
+     ],
+     "color": "accent",
+     "vectors": [
+      "v",
+      "a"
+     ],
+     "trail": {
+      "color": "muted"
+     }
+    }
+   ]
+  },
+  "hint": "use gravity [0,0] for a flat circle; initial velocity perpendicular to the string; a = v^2/r points to the centre"
+ },
+ "orbit": {
+  "about": "A planet orbiting a heavy star under inverse-square gravity: v = sqrt(GM/r), T = 2 pi sqrt(r^3/GM).",
+  "sim": {
+   "gravity": [
+    0,
+    0
+   ],
+   "nbody": {
+    "G": 1
+   },
+   "timeScale": 1,
+   "bodies": [
+    {
+     "id": "star",
+     "kind": "point",
+     "m": 100,
+     "pos": [
+      0,
+      0
+     ],
+     "pinned": true
+    },
+    {
+     "id": "planet",
+     "kind": "ball",
+     "m": 0.001,
+     "r": 0.15,
+     "pos": [
+      4,
+      0
+     ],
+     "vel": [
+      0,
+      5
+     ],
+     "color": "accent",
+     "trail": {
+      "color": "accent"
+     }
+    }
+   ]
+  },
+  "hint": "circular orbit needs v = sqrt(G M / r); v larger gives an ellipse; draw the star with a sphere object bound by `bind`"
+ },
+ "charge_in_B": {
+  "about": "Charged particle in a uniform magnetic field moves in a circle of radius m v / (q B).",
+  "sim": {
+   "gravity": [
+    0,
+    0
+   ],
+   "fields": {
+    "B": 1.5
+   },
+   "bodies": [
+    {
+     "id": "p",
+     "kind": "ball",
+     "m": 1,
+     "r": 0.15,
+     "q": 2,
+     "pos": [
+      0,
+      0
+     ],
+     "vel": [
+      3,
+      0
+     ],
+     "color": "accent",
+     "trail": {
+      "color": "accent"
+     },
+     "vectors": [
+      "v"
+     ]
+    }
+   ]
+  },
+  "hint": "B out of the screen is positive; the force direction is q v x B"
+ }
+}

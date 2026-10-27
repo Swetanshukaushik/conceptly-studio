@@ -140,6 +140,20 @@
       </div>
 
       <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Live System Design Button (Internal Architecture Dashboard) -->
+        <a href="/system-design" target="_blank" class="flex items-center space-x-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-lg transition shadow-sm" title="Internal Live Engine System Design & Diagnostics">
+          <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span class="hidden sm:inline">⚡ System Design</span>
+          <span class="sm:hidden">⚡ Design</span>
+        </a>
+
+        <!-- Character Avatars / Presenters Button -->
+        <button onclick="openAvatarsModal()" class="flex items-center space-x-1.5 text-xs font-semibold text-purple-400 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 px-3 py-1.5 rounded-lg transition shadow-sm" title="Master Teacher Avatars & Personas">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400"></i>
+          <span class="hidden sm:inline">🎭 Presenters</span>
+          <span class="sm:hidden">🎭 Avatars</span>
+        </button>
+
         <!-- About Platform Button -->
         <button onclick="openAboutModal()" class="flex items-center space-x-1.5 text-xs font-semibold text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition shadow-sm">
           <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
@@ -262,15 +276,10 @@
         <!-- Tier Filter Dropdown -->
         <div>
           <select id="filterTier" onchange="handleTierFilter(this.value)" class="w-full bg-brand-card border border-brand-border rounded-xl px-3 py-2 text-xs focus:border-brand-cobalt focus:outline-none transition">
-            <option value="ALL">All Tiers (5 Production Levels)</option>
-            <option value="TIER_1_FLASH">⚡ Tier 1: Flash ($0.00)</option>
-            <option value="TIER_2_AVATAR">🗣️ Tier 2: Avatar (~$0.02)</option>
-            <option value="TIER_3_STEM">📐 Tier 3: STEM ($0.00)</option>
-            <option value="TIER_4_CINEMA">🎬 Tier 4: Cinema (~$0.20)</option>
-            <option value="TIER_5_KURZGESAGT">👑 Tier 5: Kurzgesagt (~$0.30)</option>
-            <option value="FREE">Legacy: Free Tier</option>
-            <option value="PREMIUM">Legacy: Premium Tier</option>
-            <option value="ULTRA">Legacy: Ultra Tier</option>
+            <option value="ALL">All Tiers</option>
+            <option value="free">⚡ Free</option>
+            <option value="premium">🎬 Premium</option>
+            <option value="ultra">👑 Ultra</option>
           </select>
         </div>
       </div>
@@ -329,88 +338,33 @@
       </div>
       <form onsubmit="handleCreateJob(event)" class="p-5 space-y-4">
         
-        <!-- 5-Tier Selector with Live Status Badges & Hover Tooltips -->
+        <!-- Tier selector (rendered from config/tiers.json via /api/reels/system/config-status) -->
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Generation Tier (5 Production Levels)</label>
-            <span class="text-[10px] text-slate-400">Hover over any tier badge to view required keys</span>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Generation Tier</label>
+            <button type="button" onclick="closeModal('createModal'); openModal('pricingModal')" class="text-[10px] text-slate-400 hover:text-white hover:underline">Compare tiers &rarr;</button>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 p-1.5 bg-brand-dark rounded-xl border border-brand-border">
-            
-            <!-- Tier 1: Flash -->
-            <label id="selector_card_TIER_1_FLASH" class="relative group flex flex-col justify-between p-2 rounded-xl cursor-pointer transition border border-transparent has-[:checked]:bg-brand-card has-[:checked]:border-emerald-500 text-center hover:border-brand-border/80">
-              <input type="radio" name="generation_tier" value="TIER_1_FLASH" class="hidden">
-              <div class="flex items-center justify-between w-full mb-1">
-                <span class="text-[11px] font-bold text-emerald-400 flex items-center space-x-1"><span>⚡</span> <span>Flash</span></span>
-                <span id="selector_badge_TIER_1_FLASH" onclick="event.stopPropagation(); openApiKeyModal()" class="cursor-pointer px-1.5 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <span class="text-[9px] text-slate-400 leading-tight">$0.00 • Photos + Audio</span>
-            </label>
+          <div id="tierSelector" class="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-brand-dark rounded-xl border border-brand-border"></div>
 
-            <!-- Tier 2: Avatar -->
-            <label id="selector_card_TIER_2_AVATAR" class="relative group flex flex-col justify-between p-2 rounded-xl cursor-pointer transition border border-transparent has-[:checked]:bg-brand-card has-[:checked]:border-purple-500 text-center hover:border-brand-border/80">
-              <input type="radio" name="generation_tier" value="TIER_2_AVATAR" class="hidden">
-              <div class="flex items-center justify-between w-full mb-1">
-                <span class="text-[11px] font-bold text-purple-400 flex items-center space-x-1"><span>🗣️</span> <span>Avatar</span></span>
-                <span id="selector_badge_TIER_2_AVATAR" onclick="event.stopPropagation(); openApiKeyModal()" class="cursor-pointer px-1.5 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <span class="text-[9px] text-slate-400 leading-tight">~$0.02 • Talking Puppet</span>
-            </label>
-
-            <!-- Tier 3: STEM -->
-            <label id="selector_card_TIER_3_STEM" class="relative group flex flex-col justify-between p-2 rounded-xl cursor-pointer transition border border-transparent has-[:checked]:bg-brand-card has-[:checked]:border-cyan-500 text-center hover:border-brand-border/80">
-              <input type="radio" name="generation_tier" value="TIER_3_STEM" checked class="hidden">
-              <div class="flex items-center justify-between w-full mb-1">
-                <span class="text-[11px] font-bold text-cyan-400 flex items-center space-x-1"><span>📐</span> <span>STEM</span></span>
-                <span id="selector_badge_TIER_3_STEM" onclick="event.stopPropagation(); openApiKeyModal()" class="cursor-pointer px-1.5 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <span class="text-[9px] text-slate-400 leading-tight">$0.00 • Manim Vector Sim</span>
-            </label>
-
-            <!-- Tier 4: Cinema -->
-            <label id="selector_card_TIER_4_CINEMA" class="relative group flex flex-col justify-between p-2 rounded-xl cursor-pointer transition border border-transparent has-[:checked]:bg-brand-card has-[:checked]:border-blue-500 text-center hover:border-brand-border/80">
-              <input type="radio" name="generation_tier" value="TIER_4_CINEMA" class="hidden">
-              <div class="flex items-center justify-between w-full mb-1">
-                <span class="text-[11px] font-bold text-blue-400 flex items-center space-x-1"><span>🎬</span> <span>Cinema</span></span>
-                <span id="selector_badge_TIER_4_CINEMA" onclick="event.stopPropagation(); openApiKeyModal()" class="cursor-pointer px-1.5 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <span class="text-[9px] text-slate-400 leading-tight">~$0.20 • Kling AI Diffusion</span>
-            </label>
-
-            <!-- Tier 5: Kurzgesagt -->
-            <label id="selector_card_TIER_5_KURZGESAGT" class="relative group flex flex-col justify-between p-2 rounded-xl cursor-pointer transition border border-transparent has-[:checked]:bg-brand-card has-[:checked]:border-amber-400 text-center hover:border-brand-border/80">
-              <input type="radio" name="generation_tier" value="TIER_5_KURZGESAGT" class="hidden">
-              <div class="flex items-center justify-between w-full mb-1">
-                <span class="text-[11px] font-bold text-amber-400 flex items-center space-x-1"><span>👑</span> <span>Kurzgesagt</span></span>
-                <span id="selector_badge_TIER_5_KURZGESAGT" onclick="event.stopPropagation(); openApiKeyModal()" class="cursor-pointer px-1.5 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <span class="text-[9px] text-slate-400 leading-tight">~$0.30 • Puppet + Vector Sim</span>
-            </label>
-
-          </div>
-
-          <!-- Selected Tier Live Requirements & Guidance Banner -->
           <div id="create_tier_info_banner" class="mt-2.5 p-2.5 rounded-xl bg-brand-card/70 border border-brand-border flex items-center justify-between text-xs transition">
             <div class="flex items-center space-x-2.5 overflow-hidden">
-              <span id="tier_info_icon" class="text-lg shrink-0">📐</span>
+              <span id="tier_info_icon" class="text-lg shrink-0">⚡</span>
               <div class="min-w-0">
                 <div class="font-bold text-white flex items-center space-x-2">
-                  <span id="tier_info_title" class="truncate">Tier 3: STEM Rigor</span>
-                  <span id="tier_info_badge" onclick="openApiKeyModal()" class="cursor-pointer px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition hover:bg-emerald-500/30">● Enabled</span>
+                  <span id="tier_info_title" class="truncate">Free</span>
+                  <span id="tier_info_badge" class="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-slate-800 text-slate-400">Checking...</span>
                 </div>
-                <div id="tier_info_desc" class="text-[11px] text-slate-400 mt-0.5 leading-snug truncate">High-precision 3Blue1Brown/Manim vector physics simulation with live mathematical HUDs.</div>
+                <div id="tier_info_desc" class="text-[11px] text-slate-400 mt-0.5 leading-snug"></div>
               </div>
             </div>
-            <button id="tier_info_btn" type="button" onclick="openApiKeyModal()" class="shrink-0 ml-3 px-2.5 py-1 text-[11px] font-bold rounded-lg border transition">
-              Key Setup
-            </button>
+            <button id="tier_info_btn" type="button" onclick="openApiKeyModal()" class="shrink-0 ml-3 px-2.5 py-1 text-[11px] font-bold rounded-lg border transition">Key Setup</button>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-medium text-slate-300 mb-1">Exam Track</label>
-            <select id="exam_type" class="w-full bg-brand-card border border-brand-border rounded-lg px-3 py-2 text-sm focus:border-brand-cobalt focus:outline-none">
+            <select id="exam_type" onchange="onExamTypeChanged()" class="w-full bg-brand-card border border-brand-border rounded-lg px-3 py-2 text-sm focus:border-brand-cobalt focus:outline-none">
               <option value="SCHOOL">NCERT (School)</option>
               <option value="IIT_JEE">IIT-JEE (Advanced)</option>
               <option value="NEET">NEET (Medical)</option>
@@ -435,13 +389,102 @@
 
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1">Topic Title</label>
-          <input type="text" id="topic_title" placeholder="e.g. Newton's Third Law" value="Newton's Third Law" required class="w-full bg-brand-card border border-brand-border rounded-lg px-3 py-2 text-sm focus:border-brand-cobalt focus:outline-none">
+          <input type="text" id="topic_title" placeholder="e.g. Projectile Motion" value="" required class="w-full bg-brand-card border border-brand-border rounded-lg px-3 py-2 text-sm focus:border-brand-cobalt focus:outline-none">
+        </div>
+
+        <!-- Script Generator Engine Selector -->
+        <div class="p-3 bg-brand-dark/80 rounded-xl border border-brand-border space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
+              <span>✍️ Script Generator Engine</span>
+              <span class="text-[10px] text-cyan-400 font-mono font-normal">(persona follows the teacher below)</span>
+            </label>
+            <span class="text-[10px] text-slate-400">30–70 s reel</span>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <label class="relative flex flex-col p-2.5 rounded-lg border border-brand-border cursor-pointer bg-brand-card hover:border-cyan-500/60 transition group">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-white flex items-center space-x-1">
+                  <span>⚡ Auto Router</span>
+                </span>
+                <input type="radio" name="script_generator" value="AUTO" checked class="text-cyan-500 focus:ring-0">
+              </div>
+              <p class="text-[10px] text-slate-400">Smart cascade (Gemini ➔ OpenAI). High availability.</p>
+              <span class="mt-1.5 text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded w-fit">Fastest & Resilient</span>
+            </label>
+
+            <label class="relative flex flex-col p-2.5 rounded-lg border border-brand-border cursor-pointer bg-brand-card hover:border-cyan-500/60 transition group">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-white flex items-center space-x-1">
+                  <span>🌟 Google Gemini</span>
+                </span>
+                <input type="radio" name="script_generator" value="GEMINI" class="text-cyan-500 focus:ring-0">
+              </div>
+              <p class="text-[10px] text-slate-400">Gemini 2.5/3.5 Flash. Ultra-fast structured JSON (~$0.0006).</p>
+              <span class="mt-1.5 text-[9px] font-mono text-cyan-300 bg-cyan-500/10 px-1.5 py-0.5 rounded w-fit">Active Credits</span>
+            </label>
+
+            <label class="relative flex flex-col p-2.5 rounded-lg border border-brand-border cursor-pointer bg-brand-card hover:border-cyan-500/60 transition group">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-white flex items-center space-x-1">
+                  <span>🧠 OpenAI GPT-4o</span>
+                </span>
+                <input type="radio" name="script_generator" value="OPENAI" class="text-cyan-500 focus:ring-0">
+              </div>
+              <p class="text-[10px] text-slate-400">GPT-4o / GPT-4o-mini. Deep pedagogical rigor.</p>
+              <span class="mt-1.5 text-[9px] font-mono text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded w-fit">Direct OpenAI API</span>
+            </label>
+          </div>
+          <div class="text-[10px] text-slate-400 flex items-center space-x-1 pt-0.5">
+            <i data-lucide="info" class="w-3 h-3 text-cyan-400 shrink-0"></i>
+            <span>Audio-first narration (no visual cues, equations in words). Voice and persona come from the selected teacher.</span>
+          </div>
+        </div>
+
+        <!-- Character Avatar / Teacher Persona Selector -->
+        <div class="p-3 bg-brand-dark/80 rounded-xl border border-brand-border space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center space-x-1.5">
+              <span>🎭 Teacher Avatar Persona</span>
+              <span class="text-[10px] text-purple-400 font-mono font-normal">(Consistency Engine)</span>
+            </label>
+            <button type="button" onclick="openAvatarsModal()" class="text-[10px] text-purple-400 hover:text-purple-300 hover:underline flex items-center space-x-1">
+              <span>Browse All Personas &rarr;</span>
+            </button>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <select id="avatar_id" onchange="onAvatarSelectionChange()" class="w-full bg-brand-card border border-brand-border rounded-lg px-2.5 py-2 text-xs focus:border-purple-500 focus:outline-none text-slate-200">
+                <option value="AUTO" selected>✨ Auto-Select (Synced to Track)</option>
+                <option value="einstein_cyber">⚛️ Albert Einstein (IIT-JEE / Physics)</option>
+                <option value="franklin_dna">🧬 Dr. Rosalind Franklin (NEET / Medical)</option>
+                <option value="kalam_visionary">🚀 Dr. A.P.J. Abdul Kalam (UPSC / Governance)</option>
+                <option value="arya_youth">⚡ Arya (NCERT / School Youth)</option>
+                <option value="quarks_duck">🦆 Dr. Quarks Duck (Kurzgesagt Mascot)</option>
+              </select>
+            </div>
+            
+            <div id="avatar_preview_pill" class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-xs">
+              <span id="avatar_preview_icon" class="text-base shrink-0">⚛️</span>
+              <div class="min-w-0">
+                <div id="avatar_preview_name" class="font-bold text-purple-300 truncate">Albert Einstein</div>
+                <div id="avatar_preview_style" class="text-[9px] text-slate-400 truncate">PIXAR_CYBERPUNK • Gray Sheet Turnaround</div>
+              </div>
+            </div>
+          </div>
+          <div class="text-[10px] text-slate-400 flex items-center space-x-1">
+            <i data-lucide="info" class="w-3 h-3 text-purple-400 shrink-0"></i>
+            <span>Pre-generates neutral-gray (#808080) turnaround sheets before video diffusion to prevent identity drift.</span>
+          </div>
         </div>
 
         <div class="pt-2 flex justify-end space-x-3">
           <button type="button" onclick="closeModal('createModal')" class="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancel</button>
-          <button type="submit" class="px-5 py-2 text-sm font-medium bg-brand-cobalt hover:bg-blue-600 rounded-lg text-white shadow-lg shadow-brand-cobalt/30 transition">
-            Launch Stage 1
+          <button type="submit" class="px-5 py-2 text-sm font-medium bg-brand-cobalt hover:bg-blue-600 rounded-lg text-white shadow-lg shadow-brand-cobalt/30 transition flex items-center space-x-2">
+            <span>Launch Reel Production</span>
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
           </button>
         </div>
       </form>
@@ -473,6 +516,10 @@
           <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
           <span>Screenplay Blueprint (4 Acts)</span>
         </button>
+        <button id="g1_tab_dos_btn" onclick="switchGate1Tab('dossier')" class="px-4 py-2.5 text-xs font-medium text-purple-400 hover:text-purple-300 border-b-2 border-transparent flex items-center space-x-1.5 transition">
+          <i data-lucide="brain" class="w-3.5 h-3.5 text-purple-400"></i>
+          <span>Domain & Pedagogy Dossier (Stage 0)</span>
+        </button>
       </div>
 
       <!-- Scrollable Content Area -->
@@ -488,6 +535,14 @@
             <div class="text-xs text-slate-400">Core Takeaway: <span id="g1_takeaway" class="text-slate-200 font-medium"></span></div>
           </div>
           <div class="flex items-center space-x-3 shrink-0">
+            <!-- Presenter Avatar Pill -->
+            <div id="g1_avatar_pill" class="hidden flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs">
+              <span id="g1_avatar_icon" class="text-base">🎭</span>
+              <div class="text-left">
+                <div class="text-[9px] uppercase text-purple-300 font-mono font-bold">Presenter</div>
+                <div id="g1_avatar_name" class="font-bold text-white text-xs truncate max-w-[130px]">Presenter</div>
+              </div>
+            </div>
             <div class="text-right">
               <div class="text-[10px] uppercase text-slate-400 font-mono">Pacing Check</div>
               <div id="g1_word_count" class="text-xs font-bold text-emerald-400">115w (~45s)</div>
@@ -512,6 +567,20 @@
           <div class="text-xs text-slate-400">Vertical Retention 4-Act Screenplay Structure:</div>
           <div id="g1_acts_container" class="space-y-3">
             <!-- Dynamically populated with act cards -->
+          </div>
+        </div>
+
+        <!-- VIEW 3: Stage 0 Domain & Pedagogical Intelligence Dossier -->
+        <div id="g1_dossier_view" class="hidden space-y-4">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span class="flex items-center space-x-1.5">
+              <span>Deep Curriculum Assessment & Cognitive Misconception Mapping</span>
+              <span id="g1_dossier_provider_badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-purple-500/10 text-purple-300 border border-purple-500/20">OpenAI ChatGPT</span>
+            </span>
+            <span class="text-[11px] text-slate-400">💡 Governs the Screenplay, 3D/Video prompts, and Checkpoint MCQs</span>
+          </div>
+          <div id="g1_dossier_content" class="space-y-4">
+            <!-- Dynamically populated with dossier cards -->
           </div>
         </div>
       </div>
@@ -630,7 +699,7 @@
 
   <!-- MODAL 5: Tier Pricing & Unit Economics -->
   <div id="pricingModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
-    <div class="glass max-w-7xl w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+    <div class="glass max-w-4xl w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
       <!-- Header -->
       <div class="p-5 border-b border-brand-border flex items-center justify-between bg-brand-card/50">
         <div class="flex items-center space-x-3">
@@ -638,327 +707,26 @@
             <i data-lucide="circle-dollar-sign" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="font-bold text-lg text-white">Tier Pricing & Production Architecture (5 Production Levels)</h3>
-            <p class="text-xs text-slate-400">Transparent unit economics, engine pipelines, and real-time API key status per 45s reel</p>
+            <h3 class="font-bold text-lg text-white">Tiers: Free, Premium, Ultra</h3>
+            <p class="text-xs text-slate-400">What each tier uses, what it costs, and what is available today</p>
           </div>
         </div>
         <button onclick="closeModal('pricingModal')" class="text-slate-400 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <!-- Scrollable Comparison Area -->
+      <!-- Scrollable Comparison Area (rendered from config/tiers.json) -->
       <div class="p-6 overflow-y-auto space-y-6 flex-1">
-        <!-- 5 Tier Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3.5">
-          
-          <!-- TIER 1: FLASH -->
-          <div class="bg-brand-card rounded-2xl border border-emerald-500/30 p-4 flex flex-col justify-between relative shadow-lg">
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center space-x-1">
-                  <span>⚡</span> <span>Flash</span>
-                </span>
-                <span id="pricing_badge_TIER_1_FLASH" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <div>
-                <div class="text-2xl font-extrabold text-white">$0.00 <span class="text-[10px] font-normal text-slate-400">/ reel</span></div>
-                <div class="text-[10px] text-emerald-400 font-mono mt-0.5">~20s - 30s Render</div>
-                <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">2.5D Ken Burns photo motion with synced neural voiceover. Fast & lightweight.</p>
-              </div>
-
-              <div class="space-y-1.5 text-[11px] text-slate-300 pt-2.5 border-t border-brand-border">
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Visuals:</strong> Fal / Pollen / HF Stills</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Motion:</strong> 2.5D Ken Burns Pan/Zoom</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Voice:</strong> EdgeTTS Neural (Free)</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Keys:</strong> <code class="text-emerald-300 text-[10px]">GEMINI</code> + <code class="text-emerald-300 text-[10px]">FAL/POLLEN</code></span>
-                </div>
-              </div>
-            </div>
-            <div class="pt-3 mt-3 border-t border-brand-border/60">
-              <button onclick="selectTierAndOpen('TIER_1_FLASH')" class="w-full py-1.5 px-3 rounded-xl text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition text-center flex items-center justify-center space-x-1">
-                <span>Select Flash Tier</span> &rarr;
-              </button>
-            </div>
-          </div>
-
-          <!-- TIER 2: AVATAR -->
-          <div class="bg-brand-card rounded-2xl border border-purple-500/30 p-4 flex flex-col justify-between relative shadow-lg">
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20 flex items-center space-x-1">
-                  <span>🗣️</span> <span>Avatar</span>
-                </span>
-                <span id="pricing_badge_TIER_2_AVATAR" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <div>
-                <div class="text-2xl font-extrabold text-white">~$0.02 <span class="text-[10px] font-normal text-slate-400">/ reel</span></div>
-                <div class="text-[10px] text-purple-400 font-mono mt-0.5">~25s - 35s Render</div>
-                <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Interactive 2D teacher puppet with real-time lip-sync, blinking eyes, and gestures.</p>
-              </div>
-
-              <div class="space-y-1.5 text-[11px] text-slate-300 pt-2.5 border-t border-brand-border">
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-purple-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Visuals:</strong> Rigged 2D Character</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-purple-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Motion:</strong> Phoneme Lip-Sync & Blinks</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-purple-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Voice:</strong> EdgeTTS Neural (Free)</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-purple-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Keys:</strong> Only <code class="text-purple-300 text-[10px]">GEMINI_API_KEY</code></span>
-                </div>
-              </div>
-            </div>
-            <div class="pt-3 mt-3 border-t border-brand-border/60">
-              <button onclick="selectTierAndOpen('TIER_2_AVATAR')" class="w-full py-1.5 px-3 rounded-xl text-xs font-semibold bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 transition text-center flex items-center justify-center space-x-1">
-                <span>Select Avatar Tier</span> &rarr;
-              </button>
-            </div>
-          </div>
-
-          <!-- TIER 3: STEM -->
-          <div class="bg-brand-card rounded-2xl border-2 border-cyan-500/50 p-4 flex flex-col justify-between relative shadow-xl shadow-cyan-500/10">
-            <div class="absolute -top-2.5 right-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow">
-              100% Free STEM
-            </div>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full border border-cyan-500/20 flex items-center space-x-1">
-                  <span>📐</span> <span>STEM Rigor</span>
-                </span>
-                <span id="pricing_badge_TIER_3_STEM" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <div>
-                <div class="text-2xl font-extrabold text-white">$0.00 <span class="text-[10px] font-normal text-slate-400">/ reel (Local)</span></div>
-                <div class="text-[10px] text-cyan-400 font-mono mt-0.5">~30s - 45s Render</div>
-                <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Exact 3Blue1Brown/Manim vector physics simulation with live mathematical HUDs.</p>
-              </div>
-
-              <div class="space-y-1.5 text-[11px] text-slate-300 pt-2.5 border-t border-brand-border">
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Visuals:</strong> Pure Vector Graphics / HUD</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Motion:</strong> Real-time Physics ODEs</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Voice:</strong> EdgeTTS Neural (Free)</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Keys:</strong> Only <code class="text-cyan-300 text-[10px]">GEMINI_API_KEY</code></span>
-                </div>
-              </div>
-            </div>
-            <div class="pt-3 mt-3 border-t border-brand-border/60">
-              <button onclick="selectTierAndOpen('TIER_3_STEM')" class="w-full py-1.5 px-3 rounded-xl text-xs font-semibold bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-500/40 transition text-center flex items-center justify-center space-x-1">
-                <span>Select STEM Tier</span> &rarr;
-              </button>
-            </div>
-          </div>
-
-          <!-- TIER 4: CINEMA -->
-          <div class="bg-brand-card rounded-2xl border border-blue-500/30 p-4 flex flex-col justify-between relative shadow-lg">
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20 flex items-center space-x-1">
-                  <span>🎬</span> <span>Cinema AI</span>
-                </span>
-                <span id="pricing_badge_TIER_4_CINEMA" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <div>
-                <div class="text-2xl font-extrabold text-white">~$0.20 <span class="text-[10px] font-normal text-slate-400">/ reel</span></div>
-                <div class="text-[10px] text-blue-400 font-mono mt-0.5">~60s - 90s Render</div>
-                <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Generative AI video diffusion via Kling 1.5 or Runway for continuous realistic human motion.</p>
-              </div>
-
-              <div class="space-y-1.5 text-[11px] text-slate-300 pt-2.5 border-t border-brand-border">
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Visuals:</strong> Kling AI / Runway Diffusion</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Motion:</strong> 3D Camera / Fluid Motion</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Voice:</strong> EdgeTTS or ElevenLabs</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Keys:</strong> <code class="text-blue-300 text-[10px]">GEMINI</code> + <code class="text-blue-300 text-[10px]">FAL/KLING</code></span>
-                </div>
-              </div>
-            </div>
-            <div class="pt-3 mt-3 border-t border-brand-border/60">
-              <button onclick="selectTierAndOpen('TIER_4_CINEMA')" class="w-full py-1.5 px-3 rounded-xl text-xs font-semibold bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 transition text-center flex items-center justify-center space-x-1">
-                <span>Select Cinema Tier</span> &rarr;
-              </button>
-            </div>
-          </div>
-
-          <!-- TIER 5: KURZGESAGT -->
-          <div class="bg-brand-card rounded-2xl border-2 border-amber-500/50 p-4 flex flex-col justify-between relative shadow-xl shadow-amber-500/10">
-            <div class="absolute -top-2.5 right-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow">
-              Flagship Studio
-            </div>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 flex items-center space-x-1">
-                  <span>👑</span> <span>Kurzgesagt</span>
-                </span>
-                <span id="pricing_badge_TIER_5_KURZGESAGT" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking key requirements...">Checking...</span>
-              </div>
-              <div>
-                <div class="text-2xl font-extrabold text-white">~$0.30 <span class="text-[10px] font-normal text-slate-400">/ reel</span></div>
-                <div class="text-[10px] text-amber-400 font-mono mt-0.5">~35s - 50s Render</div>
-                <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Rigged scientist duck mascot in lab coat with laser pointer alongside live physics simulations.</p>
-              </div>
-
-              <div class="space-y-1.5 text-[11px] text-slate-300 pt-2.5 border-t border-brand-border">
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Visuals:</strong> Studio Puppet + Manim Sim</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Motion:</strong> Character Gestures & Particles</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Voice:</strong> EdgeTTS or ElevenLabs</span>
-                </div>
-                <div class="flex items-start space-x-1.5">
-                  <i data-lucide="check" class="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5"></i>
-                  <span><strong>Keys:</strong> Only <code class="text-amber-300 text-[10px]">GEMINI_API_KEY</code></span>
-                </div>
-              </div>
-            </div>
-            <div class="pt-3 mt-3 border-t border-brand-border/60">
-              <button onclick="selectTierAndOpen('TIER_5_KURZGESAGT')" class="w-full py-1.5 px-3 rounded-xl text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 transition text-center flex items-center justify-center space-x-1">
-                <span>Select Kurzgesagt</span> &rarr;
-              </button>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Detailed Unit Economics Matrix Table -->
-        <div class="bg-brand-dark/70 rounded-2xl border border-brand-border overflow-hidden">
-          <div class="p-4 border-b border-brand-border flex items-center justify-between">
-            <h4 class="font-bold text-sm text-white flex items-center space-x-2">
-              <i data-lucide="table" class="w-4 h-4 text-brand-amber"></i>
-              <span>Component-Level Unit Economics Matrix (5 Production Levels)</span>
-            </h4>
-            <span class="text-xs text-slate-400">Assuming 8 scene cuts @ 4.5s each (40–45s reel)</span>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs min-w-[700px]">
-              <thead class="bg-brand-card/60 text-slate-400 uppercase tracking-wider border-b border-brand-border font-mono text-[10px]">
-                <tr>
-                  <th class="py-3 px-4">Pipeline Component</th>
-                  <th class="py-3 px-3 text-emerald-400">⚡ Tier 1: Flash</th>
-                  <th class="py-3 px-3 text-purple-400">🗣️ Tier 2: Avatar</th>
-                  <th class="py-3 px-3 text-cyan-400">📐 Tier 3: STEM</th>
-                  <th class="py-3 px-3 text-blue-400">🎬 Tier 4: Cinema</th>
-                  <th class="py-3 px-3 text-amber-400">👑 Tier 5: Kurzgesagt</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-brand-border/60 font-mono text-slate-300">
-                <tr class="hover:bg-brand-card/30">
-                  <td class="py-2.5 px-4 font-sans font-medium text-white">1. Script & Blueprint LLM</td>
-                  <td class="py-2.5 px-3 text-emerald-400">$0.000 (Gemini)</td>
-                  <td class="py-2.5 px-3 text-purple-400">$0.000 (Gemini)</td>
-                  <td class="py-2.5 px-3 text-cyan-400">$0.000 (Gemini)</td>
-                  <td class="py-2.5 px-3 text-blue-400">$0.000 (Gemini)</td>
-                  <td class="py-2.5 px-3 text-amber-400">$0.000 (Gemini)</td>
-                </tr>
-                <tr class="hover:bg-brand-card/30">
-                  <td class="py-2.5 px-4 font-sans font-medium text-white">2. Neural Voiceover (120w)</td>
-                  <td class="py-2.5 px-3 text-emerald-400">$0.000 (EdgeTTS)</td>
-                  <td class="py-2.5 px-3 text-purple-400">$0.000 (EdgeTTS)</td>
-                  <td class="py-2.5 px-3 text-cyan-400">$0.000 (EdgeTTS)</td>
-                  <td class="py-2.5 px-3 text-blue-400">$0.000 (EdgeTTS)</td>
-                  <td class="py-2.5 px-3 text-amber-400">$0.000 (EdgeTTS)</td>
-                </tr>
-                <tr class="hover:bg-brand-card/30">
-                  <td class="py-2.5 px-4 font-sans font-medium text-white">3. Video Engine Synthesis</td>
-                  <td class="py-2.5 px-3 text-emerald-400">$0.000 (Free Image APIs)</td>
-                  <td class="py-2.5 px-3 text-purple-400">$0.000 (Local Puppet)</td>
-                  <td class="py-2.5 px-3 text-cyan-400">$0.000 (Local ODE Manim)</td>
-                  <td class="py-2.5 px-3 text-blue-400">~$0.180 (8 x Kling GPU)</td>
-                  <td class="py-2.5 px-3 text-amber-400">$0.000 (Local Duck Sim)</td>
-                </tr>
-                <tr class="hover:bg-brand-card/30">
-                  <td class="py-2.5 px-4 font-sans font-medium text-white">4. Subtitles, Audio Ducking & VFX</td>
-                  <td class="py-2.5 px-3 text-emerald-400">$0.000 (FFmpeg)</td>
-                  <td class="py-2.5 px-3 text-purple-400">$0.000 (FFmpeg)</td>
-                  <td class="py-2.5 px-3 text-cyan-400">$0.000 (FFmpeg)</td>
-                  <td class="py-2.5 px-3 text-blue-400">$0.000 (FFmpeg)</td>
-                  <td class="py-2.5 px-3 text-amber-400">$0.000 (FFmpeg)</td>
-                </tr>
-                <tr class="hover:bg-brand-card/30">
-                  <td class="py-2.5 px-4 font-sans font-medium text-white">5. Cloudflare R2 Media Storage</td>
-                  <td class="py-2.5 px-3 text-emerald-400">&lt; $0.0001</td>
-                  <td class="py-2.5 px-3 text-purple-400">&lt; $0.0001</td>
-                  <td class="py-2.5 px-3 text-cyan-400">&lt; $0.0001</td>
-                  <td class="py-2.5 px-3 text-blue-400">&lt; $0.0001</td>
-                  <td class="py-2.5 px-3 text-amber-400">&lt; $0.0001</td>
-                </tr>
-                <tr class="bg-brand-card/80 font-bold border-t-2 border-brand-border">
-                  <td class="py-3 px-4 font-sans text-white text-sm">TOTAL UNIT COST PER REEL</td>
-                  <td class="py-3 px-3 text-emerald-400 text-sm">$0.00</td>
-                  <td class="py-3 px-3 text-purple-400 text-sm">~$0.02</td>
-                  <td class="py-3 px-3 text-cyan-400 text-sm">$0.00 (Free)</td>
-                  <td class="py-3 px-3 text-blue-400 text-sm">~$0.20</td>
-                  <td class="py-3 px-3 text-amber-400 text-sm">~$0.30</td>
-                </tr>
-                <tr class="hover:bg-brand-card/30">
-                  <td class="py-2.5 px-4 font-sans font-medium text-white">Required API Keys</td>
-                  <td class="py-2.5 px-3 text-[10px] text-slate-300">GEMINI + Visual Key</td>
-                  <td class="py-2.5 px-3 text-[10px] text-slate-300">GEMINI_API_KEY only</td>
-                  <td class="py-2.5 px-3 text-[10px] text-slate-300">GEMINI_API_KEY only</td>
-                  <td class="py-2.5 px-3 text-[10px] text-slate-300">GEMINI + FAL/KLING</td>
-                  <td class="py-2.5 px-3 text-[10px] text-slate-300">GEMINI_API_KEY only</td>
-                </tr>
-                <tr class="hover:bg-brand-card/30">
-                  <td class="py-2.5 px-4 font-sans font-medium text-white">Live Pipeline Status</td>
-                  <td class="py-2.5 px-3"><span id="table_badge_TIER_1_FLASH" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking...">Checking...</span></td>
-                  <td class="py-2.5 px-3"><span id="table_badge_TIER_2_AVATAR" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking...">Checking...</span></td>
-                  <td class="py-2.5 px-3"><span id="table_badge_TIER_3_STEM" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking...">Checking...</span></td>
-                  <td class="py-2.5 px-3"><span id="table_badge_TIER_4_CINEMA" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking...">Checking...</span></td>
-                  <td class="py-2.5 px-3"><span id="table_badge_TIER_5_KURZGESAGT" onclick="openApiKeyModal()" class="cursor-pointer px-2 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-slate-800 text-slate-400" title="Checking...">Checking...</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div id="pricingTierCards" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        <div class="p-4 rounded-xl bg-brand-card/60 border border-brand-border text-xs text-slate-300 space-y-1.5">
+          <div class="font-bold text-white">What every tier includes</div>
+          <div class="text-slate-400">9:16 vertical MP4 (720p now), synced narration, captions, a checkpoint quiz, the 3-gate review, and ingestion into Conceptly Core.</div>
+          <div class="text-slate-400">Costs are estimates per reel. Paid tiers will enforce a hard spend cap before every provider call.</div>
         </div>
       </div>
 
       <!-- Footer -->
       <div class="p-4 px-6 border-t border-brand-border bg-brand-card flex items-center justify-between">
-        <span class="text-xs text-slate-400">All 5 tiers render 9:16 vertical 1080x1920 MP4 video with synced neural voice, burned-in subtitles, and interactive quiz gates.</span>
+        <span class="text-xs text-slate-400">Ultra is marked later and cannot be selected yet.</span>
         <button onclick="closeModal('pricingModal')" class="px-5 py-2 text-xs font-semibold bg-brand-dark hover:bg-slate-800 border border-brand-border text-slate-200 rounded-xl transition">
           Close
         </button>
@@ -976,7 +744,7 @@
           </div>
           <div>
             <h3 class="font-bold text-lg text-white">API Keys & Pipeline Intelligence</h3>
-            <p class="text-xs text-slate-400">Configure keys in <code class="font-mono text-amber-300">.env</code> to enable all 5 video generation tiers</p>
+            <p class="text-xs text-slate-400">Configure keys in <code class="font-mono text-amber-300">.env</code> to enable Free today and Premium later</p>
           </div>
         </div>
         <button onclick="closeModal('apiKeyModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -1021,28 +789,28 @@
         <!-- Built-in 100% Local Rigs Note -->
         <div class="p-3.5 rounded-xl bg-cyan-950/30 border border-cyan-500/30 text-xs space-y-1">
           <div class="font-bold text-cyan-300 flex items-center space-x-1.5">
-            <span>✨</span> <span>Tiers 2, 3, and 5 Run 100% Free with Only Gemini!</span>
+            <span>✨</span> <span>Free tier runs with only a Gemini key</span>
           </div>
           <p class="text-[11px] text-cyan-200/80 leading-relaxed">
-            Tier 2 (Avatar Teacher), Tier 3 (STEM Vector Sim), and Tier 5 (Kurzgesagt Mascot) compile natively on your computer with Python/FFmpeg without paying any GPU cloud keys!
+            The Free tier renders on this computer with Chrome and FFmpeg. No GPU cloud keys are needed.
           </p>
         </div>
 
         <!-- Visual & Video Generation Keys for Tiers 1 and 4 -->
         <div class="space-y-3">
-          <div class="text-xs font-bold text-slate-300 uppercase tracking-wider">External Keys for Tier 1 (Flash) & Tier 4 (Cinema)</div>
+          <div class="text-xs font-bold text-slate-300 uppercase tracking-wider">Optional keys for Premium (planned)</div>
           
           <!-- Free Visual Generation Options for Tier 1 -->
           <div class="p-3.5 rounded-xl bg-brand-card border border-brand-border space-y-2.5">
             <div class="flex items-center justify-between">
               <span class="font-bold text-emerald-400 text-xs flex items-center space-x-1.5">
-                <span>⚡ Tier 1 External Visual Keys</span>
+                <span>⚡ Image provider keys</span>
                 <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">For AI Photos</span>
               </span>
               <span id="cfg_visual_status" class="text-[10px] text-slate-400 font-bold">Checking...</span>
             </div>
             <div class="text-[11px] text-slate-300 leading-relaxed">
-              To enable Tier 1 photo visuals, configure any one of these keys in <code class="text-amber-300 font-mono bg-brand-dark px-1 py-0.5 rounded">.env</code>:
+              To enable generated images, configure any one of these keys in <code class="text-amber-300 font-mono bg-brand-dark px-1 py-0.5 rounded">.env</code>:
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1">
               <div class="p-2.5 rounded-lg bg-brand-dark/70 border border-brand-border/60">
@@ -1067,7 +835,7 @@
           <div class="p-3.5 rounded-xl bg-brand-card border border-brand-border space-y-2.5">
             <div class="flex items-center justify-between">
               <span class="font-bold text-blue-400 text-xs flex items-center space-x-1.5">
-                <span>🎬 Tier 4 AI Video Diffusion Keys</span>
+                <span>🎬 Video provider keys</span>
                 <span class="text-[9px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded font-mono">Kling / Runway</span>
               </span>
               <span id="cfg_fal_status" class="text-[10px] text-slate-400 font-bold">Checking...</span>
@@ -1253,59 +1021,13 @@
           </div>
         </div>
 
-        <!-- Section 4: The 5 Generation Tiers Spectrum -->
+        <!-- Section 4: Generation tiers (rendered from config/tiers.json) -->
         <div class="bg-brand-card/60 p-5 rounded-2xl border border-brand-border space-y-3">
           <h4 class="text-sm font-bold text-white flex items-center space-x-2">
             <i data-lucide="layers" class="w-4 h-4 text-brand-amber"></i>
-            <span>4. The 5 Production Engine Levels</span>
+            <span>4. Generation Tiers</span>
           </h4>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
-            <div class="p-3 bg-brand-dark rounded-xl border border-emerald-500/30 space-y-1">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-emerald-400">⚡ Tier 1: Flash</span>
-                <span class="text-[10px] text-emerald-400 font-mono">$0.00</span>
-              </div>
-              <p class="text-[10px] text-slate-300">
-                2.5D Ken Burns photo motion with synced neural voiceover. Lightweight & fast for conceptual recaps.
-              </p>
-            </div>
-            <div class="p-3 bg-brand-dark rounded-xl border border-purple-500/30 space-y-1">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-purple-400">🗣️ Tier 2: Avatar</span>
-                <span class="text-[10px] text-purple-400 font-mono">~$0.02</span>
-              </div>
-              <p class="text-[10px] text-slate-300">
-                Rigged 2D character teacher puppet with real-time lip-sync, blinking eyes, and gesturing arms.
-              </p>
-            </div>
-            <div class="p-3 bg-brand-dark rounded-xl border border-cyan-500/30 space-y-1">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-cyan-400">📐 Tier 3: STEM</span>
-                <span class="text-[10px] text-cyan-400 font-mono">$0.00 Local</span>
-              </div>
-              <p class="text-[10px] text-slate-300">
-                Exact 3Blue1Brown/Manim vector physics simulation with live mathematical HUDs and formula derivations.
-              </p>
-            </div>
-            <div class="p-3 bg-brand-dark rounded-xl border border-blue-500/30 space-y-1">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-blue-400">🎬 Tier 4: Cinema</span>
-                <span class="text-[10px] text-blue-400 font-mono">~$0.20</span>
-              </div>
-              <p class="text-[10px] text-slate-300">
-                Kling AI & Hailuo AI diffusion video synthesis via Fal.ai for native camera moves, human walking, and 3D fluid motion.
-              </p>
-            </div>
-            <div class="p-3 bg-brand-dark rounded-xl border border-amber-500/30 space-y-1">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-amber-400">👑 Tier 5: Kurzgesagt</span>
-                <span class="text-[10px] text-amber-400 font-mono">~$0.30</span>
-              </div>
-              <p class="text-[10px] text-slate-300">
-                Rigged scientist duck mascot in lab coat with laser pointer alongside embedded vector physics simulations.
-              </p>
-            </div>
-          </div>
+          <div id="aboutTierCards" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
         </div>
 
         <!-- Section 5: Cognitive Science Principles -->
@@ -1342,6 +1064,263 @@
     </div>
   </div>
 
+  <!-- MODAL 7: Character Avatars & Presenters Roster -->
+  <div id="avatarsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-6">
+    <div class="glass max-w-6xl w-full max-h-[92vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-purple-500/30">
+      
+      <!-- Header -->
+      <div class="p-5 px-6 border-b border-brand-border flex items-center justify-between bg-brand-card/90">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center text-xl shadow-lg shadow-purple-600/30">
+            🎭
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="font-bold text-lg text-white">Master Teacher Avatars & Presenters</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">I2V CONSISTENCY ENGINE</span>
+            </div>
+            <p class="text-xs text-slate-400">Consistent AI teacher personas across reels using neutral-gray reference sheets and reference-to-video diffusion</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="toggleCustomAvatarForm()" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 transition flex items-center space-x-1.5 shadow-sm">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+            <span>+ Custom Persona</span>
+          </button>
+          <button onclick="closeModal('avatarsModal')" class="text-slate-400 hover:text-white transition p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+      </div>
+
+      <!-- Scrollable Content Body -->
+      <div class="p-5 md:p-6 overflow-y-auto space-y-6 flex-1 text-slate-300 text-xs sm:text-sm">
+        
+        <!-- Workflow Insight Banner (Learned from Practical I2V AI Video Creation) -->
+        <div class="bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-brand-card/70 p-4 rounded-2xl border border-purple-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-purple-300 flex items-center space-x-2">
+              <span>💡</span>
+              <span>The 4-Step Reference-to-Video Consistency Workflow</span>
+            </div>
+            <span class="text-[10px] text-slate-400 font-mono">Zero Facial Drift Rule</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5 pt-1 text-[11px]">
+            <div class="bg-black/30 p-2.5 rounded-xl border border-white/5 space-y-1">
+              <div class="font-bold text-white flex items-center space-x-1.5">
+                <span class="w-4 h-4 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px]">1</span>
+                <span>Ideate & Script</span>
+              </div>
+              <p class="text-slate-400 text-[10px] leading-relaxed">Break 45s lesson into 8-12 beats. Define tone, visual modality, and speaker identity.</p>
+            </div>
+            <div class="bg-black/30 p-2.5 rounded-xl border border-white/5 space-y-1">
+              <div class="font-bold text-amber-300 flex items-center space-x-1.5">
+                <span class="w-4 h-4 rounded-full bg-amber-500 text-black font-bold flex items-center justify-center text-[10px]">2</span>
+                <span>Neutral Gray Sheet</span>
+              </div>
+              <p class="text-slate-400 text-[10px] leading-relaxed">Generate character sheet on seamless 50% gray (<code class="text-amber-200">#808080</code>) first (saving video credits).</p>
+            </div>
+            <div class="bg-black/30 p-2.5 rounded-xl border border-white/5 space-y-1">
+              <div class="font-bold text-cyan-300 flex items-center space-x-1.5">
+                <span class="w-4 h-4 rounded-full bg-cyan-600 text-white flex items-center justify-center text-[10px]">3</span>
+                <span>Reference-to-Video</span>
+              </div>
+              <p class="text-slate-400 text-[10px] leading-relaxed">Feed turnaround sheet + scene prompt to Kling/Runway to lock clothing, hair, and face.</p>
+            </div>
+            <div class="bg-black/30 p-2.5 rounded-xl border border-white/5 space-y-1">
+              <div class="font-bold text-emerald-300 flex items-center space-x-1.5">
+                <span class="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px]">4</span>
+                <span>Audio Sync & Polish</span>
+              </div>
+              <p class="text-slate-400 text-[10px] leading-relaxed">Combine cuts with neural EdgeTTS voice, animated subtitles, and sound effects.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collapsible Custom Persona Form -->
+        <div id="customAvatarCard" class="hidden bg-brand-card/90 rounded-2xl border border-purple-500/40 p-5 space-y-4 shadow-xl">
+          <div class="flex items-center justify-between border-b border-brand-border pb-3">
+            <div class="flex items-center space-x-2">
+              <span class="text-lg">✨</span>
+              <h4 class="font-bold text-sm text-white">Create New Custom Presenter Persona</h4>
+            </div>
+            <button type="button" onclick="toggleCustomAvatarForm(false)" class="text-xs text-slate-400 hover:text-white">&times; Close Form</button>
+          </div>
+
+          <form id="customAvatarForm" onsubmit="handleCreateCustomAvatar(event)" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Character Name</label>
+                <input type="text" id="custom_avatar_name" placeholder="e.g. Sir Isaac Newton" required class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Title / Persona Role</label>
+                <input type="text" id="custom_avatar_title" placeholder="e.g. Classical Mechanics Pioneer" required class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Target Exam Track</label>
+                <select id="custom_avatar_track" class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none">
+                  <option value="ALL">All Curricula</option>
+                  <option value="IIT_JEE">IIT-JEE (Advanced)</option>
+                  <option value="NEET">NEET (Medical)</option>
+                  <option value="UPSC">UPSC Civil Services</option>
+                  <option value="SCHOOL">NCERT (School)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Primary Subject</label>
+                <input type="text" id="custom_avatar_subject" value="Physics" required class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Visual Style Badge</label>
+                <select id="custom_avatar_style" class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none">
+                  <option value="PIXAR_CYBERPUNK">Pixar-meets-Cyberpunk 3D</option>
+                  <option value="TECH_NOIR_OCTANE">Tech-Noir Octane Render</option>
+                  <option value="CINEMATIC_DIGNIFIED">Cinematic Dignified 3D</option>
+                  <option value="STUDIO_MASCOT">Studio Mascot / Kurzgesagt</option>
+                  <option value="ANIME_MODERN">Anime Modern Tech-Savvy</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Neural Voice Pairing</label>
+                <select id="custom_avatar_voice" class="w-full bg-brand-dark border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none">
+                  <option value="en-US-ChristopherNeural">en-US-Christopher (Authoritative, Wise)</option>
+                  <option value="en-US-JennyNeural">en-US-Jenny (Clear, Analytical)</option>
+                  <option value="en-IN-PrabhatNeural">en-IN-Prabhat (Warm, Dignified Indian)</option>
+                  <option value="en-IN-NeerjaNeural">en-IN-Neerja (Energetic, Youthful)</option>
+                  <option value="en-US-GuyNeural">en-US-Guy (Mascot, Playful)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">
+                  Full Cinematic Generation Prompt
+                  <span class="text-[10px] text-slate-400 font-normal">(Used for scene cuts & thumbnails)</span>
+                </label>
+                <textarea id="custom_avatar_prompt" rows="3" required placeholder="A stylized modern 3D avatar inspired by Sir Isaac Newton holding a prism separating glowing spectral sunlight..." class="w-full bg-brand-dark border border-brand-border rounded-lg p-2.5 text-xs text-white focus:border-purple-500 focus:outline-none"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">
+                  Neutral Gray Reference Turnaround Prompt
+                  <span class="text-[10px] text-amber-300 font-normal">(#808080 Gray Sheet for I2V)</span>
+                </label>
+                <textarea id="custom_avatar_neutral" rows="3" placeholder="Same character on a seamless 50% neutral gray background (#808080), isolated turnaround reference sheet, studio lighting..." class="w-full bg-brand-dark border border-brand-border rounded-lg p-2.5 text-xs text-white focus:border-purple-500 focus:outline-none"></textarea>
+              </div>
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-1">
+              <button type="button" onclick="toggleCustomAvatarForm(false)" class="px-3.5 py-1.5 text-xs text-slate-400 hover:text-white">Cancel</button>
+              <button type="submit" class="px-4 py-1.5 text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition shadow-md shadow-purple-600/30">
+                Save & Add to Roster
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-brand-border pb-3">
+          <div class="flex flex-wrap items-center gap-1.5 text-xs">
+            <span class="text-slate-400 text-[11px] mr-1 font-mono uppercase">Filter:</span>
+            <button onclick="filterAvatars('ALL')" id="avatar_filter_ALL" class="avatar-filter-btn px-2.5 py-1 rounded-lg font-medium transition bg-purple-600 text-white">All Personas (<span id="count_all_avatars">5</span>)</button>
+            <button onclick="filterAvatars('IIT_JEE')" id="avatar_filter_IIT_JEE" class="avatar-filter-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-brand-card transition">⚛️ IIT-JEE (Einstein)</button>
+            <button onclick="filterAvatars('NEET')" id="avatar_filter_NEET" class="avatar-filter-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-brand-card transition">🧬 NEET (Franklin)</button>
+            <button onclick="filterAvatars('UPSC')" id="avatar_filter_UPSC" class="avatar-filter-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-brand-card transition">🚀 UPSC (Kalam)</button>
+            <button onclick="filterAvatars('SCHOOL')" id="avatar_filter_SCHOOL" class="avatar-filter-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-brand-card transition">⚡ NCERT (Arya)</button>
+            <button onclick="filterAvatars('MASCOT')" id="avatar_filter_MASCOT" class="avatar-filter-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-brand-card transition">🦆 Kurzgesagt</button>
+          </div>
+          <div class="text-[11px] text-slate-400 font-mono">
+            Neutral Gray Reference Turnaround Ready: <span class="text-emerald-400 font-bold">100%</span>
+          </div>
+        </div>
+
+        <!-- Personas Cards Grid -->
+        <div id="avatarCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamically populated by renderAvatarCatalogCards() -->
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 px-6 border-t border-brand-border bg-brand-card flex items-center justify-between">
+        <div class="text-xs text-slate-400 flex items-center space-x-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-purple-400"></i>
+          <span>All personas integrated with Scene Director Agent & Gate 1 Storyboard Pipeline</span>
+        </div>
+        <button onclick="closeModal('avatarsModal')" class="px-5 py-2 text-xs font-semibold bg-brand-dark hover:bg-slate-800 border border-brand-border text-slate-200 rounded-xl transition">
+          Close Catalog
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 8: Character Persona Prompt Inspector -->
+  <div id="avatarPromptModal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-50 flex items-center justify-center p-3 sm:p-6">
+    <div class="glass max-w-3xl w-full max-h-[90vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col border border-purple-500/30">
+      
+      <!-- Header -->
+      <div class="p-5 px-6 border-b border-brand-border flex items-center justify-between bg-brand-card/90">
+        <div class="flex items-center space-x-3">
+          <span id="inspect_avatar_icon" class="text-2xl">⚛️</span>
+          <div>
+            <h3 id="inspect_avatar_name" class="font-bold text-base text-white">Albert Einstein</h3>
+            <p id="inspect_avatar_title" class="text-xs text-slate-400">Sci-Fi Cybernetic Physicist</p>
+          </div>
+        </div>
+        <button onclick="closeModal('avatarPromptModal')" class="text-slate-400 hover:text-white transition p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Content -->
+      <div class="p-5 md:p-6 overflow-y-auto space-y-5 flex-1 text-xs">
+        
+        <!-- Tab 1: Full Cinematic Generation Prompt -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-200 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
+              <span>🎬</span>
+              <span>1. Full Cinematic Scene Prompt (Vertical 9:16 or 1:1)</span>
+            </span>
+            <button onclick="copyInspectorPrompt('cinematic')" class="px-2.5 py-1 text-[11px] font-semibold bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-lg transition flex items-center space-x-1">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span id="copy_cinematic_label">Copy Prompt</span>
+            </button>
+          </div>
+          <div id="inspect_cinematic_prompt" class="p-3.5 bg-brand-dark rounded-xl border border-brand-border font-mono text-[11px] text-slate-300 leading-relaxed whitespace-pre-wrap select-all"></div>
+        </div>
+
+        <!-- Tab 2: Neutral Gray Reference Turnaround Sheet -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-amber-300 uppercase tracking-wider text-[11px] flex items-center space-x-1.5">
+              <span>🌫️</span>
+              <span>2. Neutral Gray Turnaround Sheet Prompt (#808080 Background)</span>
+            </span>
+            <button onclick="copyInspectorPrompt('neutral')" class="px-2.5 py-1 text-[11px] font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-lg transition flex items-center space-x-1">
+              <i data-lucide="copy" class="w-3 h-3"></i>
+              <span id="copy_neutral_label">Copy Sheet Prompt</span>
+            </button>
+          </div>
+          <div id="inspect_neutral_prompt" class="p-3.5 bg-brand-dark rounded-xl border border-brand-border font-mono text-[11px] text-amber-100/90 leading-relaxed whitespace-pre-wrap select-all"></div>
+          <p class="text-[10px] text-slate-400">💡 Tip: Generate this reference turnaround sheet first in Midjourney / FLUX. Then pass that image as the reference in Kling / Runway / Luma for 100% facial consistency.</p>
+        </div>
+
+        <!-- Voice Pairing Info -->
+        <div class="p-3 bg-brand-card/70 rounded-xl border border-brand-border flex items-center justify-between">
+          <div class="space-y-0.5">
+            <div class="text-[10px] uppercase font-mono text-slate-400">Neural Voice Persona</div>
+            <div id="inspect_avatar_voice" class="text-xs font-bold text-white">en-US-ChristopherNeural</div>
+          </div>
+          <button id="inspect_use_btn" onclick="selectAvatarForJobFromInspector()" class="px-4 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition shadow-md shadow-purple-600/30 flex items-center space-x-1.5">
+            <span>Use in New Reel</span> &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <script>
     let currentToken = localStorage.getItem("token") || "";
     let activeJob = null;
@@ -1360,11 +1339,24 @@
       if (!currentToken) {
         await loginDefaultAdmin();
       } else {
-        renderAuth();
+        try {
+          const testRes = await fetch("/api/auth/me", {
+            headers: { "Authorization": `Bearer ${currentToken}` }
+          });
+          if (!testRes.ok) {
+            console.warn("Stored token expired or invalid, auto-refreshing login...");
+            await loginDefaultAdmin();
+          } else {
+            renderAuth();
+          }
+        } catch (e) {
+          await loginDefaultAdmin();
+        }
       }
       await checkApiConfiguration();
+      await fetchAvatars();
       initTierSelectors();
-      fetchJobs();
+      await fetchJobs();
       setInterval(fetchJobs, 4000);
     }
 
@@ -1413,9 +1405,15 @@
     // ================= API Configuration & Key Status =================
     async function checkApiConfiguration() {
       try {
-        const res = await fetch("/api/reels/system/config-status", {
+        let res = await fetch("/api/reels/system/config-status", {
           headers: { "Authorization": `Bearer ${currentToken}` }
         });
+        if (res.status === 401) {
+          await loginDefaultAdmin();
+          res = await fetch("/api/reels/system/config-status", {
+            headers: { "Authorization": `Bearer ${currentToken}` }
+          });
+        }
         if (res.ok) {
           systemConfig = await res.json();
           updateConfigUI(systemConfig);
@@ -1444,7 +1442,7 @@
         visualStatus.className = cfg.visual_configured ? "text-[10px] text-emerald-400 font-bold" : "text-[10px] text-amber-400 font-bold animate-pulse";
       }
       if (falStatus) {
-        falStatus.innerText = cfg.fal_active ? "✓ Active in .env" : "Optional (Tier 4)";
+        falStatus.innerText = cfg.fal_active ? "✓ Active in .env" : "Optional (Premium)";
         falStatus.className = cfg.fal_active ? "text-[10px] text-emerald-400 font-bold" : "text-[10px] text-slate-400 font-medium";
       }
 
@@ -1458,145 +1456,145 @@
         }
       }
 
-      // Update All 5-Tier Status Badges and Tooltips across Create Modal & Pricing Modal
-      if (cfg.tiers) {
-        const tierKeys = ["TIER_1_FLASH", "TIER_2_AVATAR", "TIER_3_STEM", "TIER_4_CINEMA", "TIER_5_KURZGESAGT"];
-        tierKeys.forEach(tKey => {
-          const tInfo = cfg.tiers[tKey];
-          if (!tInfo) return;
-
-          const isEnabled = Boolean(tInfo.enabled);
-          const tooltip = isEnabled 
-            ? (tInfo.tooltip || "✓ Ready to Generate: All required keys active in .env")
-            : (`🔒 Disabled: Missing ${tInfo.missing_keys.join(' and ')} in .env. Click badge to configure keys.`);
-
-          // 1. Create Modal Selector Badge
-          const sBadge = document.getElementById(`selector_badge_${tKey}`);
-          if (sBadge) {
-            sBadge.className = isEnabled
-              ? "cursor-pointer px-1.5 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30"
-              : "cursor-pointer px-1.5 py-0.5 rounded text-[8px] font-mono font-bold transition shadow-sm bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30";
-            sBadge.innerHTML = isEnabled ? "● Enabled" : "🔒 Disabled";
-            sBadge.setAttribute("title", tooltip);
-          }
-
-          // 2. Create Modal Selector Card Container
-          const sCard = document.getElementById(`selector_card_${tKey}`);
-          if (sCard) {
-            sCard.setAttribute("title", tooltip);
-            if (!isEnabled) {
-              sCard.classList.add("opacity-65");
-            } else {
-              sCard.classList.remove("opacity-65");
-            }
-          }
-
-          // 3. Pricing Modal Card Badge
-          const pBadge = document.getElementById(`pricing_badge_${tKey}`);
-          if (pBadge) {
-            pBadge.className = isEnabled
-              ? "cursor-pointer px-2 py-0.5 rounded-full text-[9px] font-mono font-bold transition shadow-sm bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30"
-              : "cursor-pointer px-2 py-0.5 rounded-full text-[9px] font-mono font-bold transition shadow-sm bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30";
-            pBadge.innerHTML = isEnabled ? "● Enabled" : "🔒 Disabled";
-            pBadge.setAttribute("title", tooltip);
-          }
-
-          // 4. Pricing Modal Matrix Table Badge
-          const tblBadge = document.getElementById(`table_badge_${tKey}`);
-          if (tblBadge) {
-            tblBadge.className = isEnabled
-              ? "cursor-pointer inline-flex items-center px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30"
-              : "cursor-pointer inline-flex items-center px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30";
-            tblBadge.innerHTML = isEnabled ? "● Enabled" : "🔒 Disabled";
-            tblBadge.setAttribute("title", tooltip);
-          }
-        });
-      }
+      if (cfg.tier_catalog) { renderTierUI(); if (typeof renderJobs === 'function' && typeof allJobs !== 'undefined' && allJobs.length) renderJobs(); }
 
       updateTierBanner();
       lucide.createIcons();
     }
 
-    const TIER_META = {
-      "TIER_1_FLASH": {
-        icon: "⚡",
-        title: "Tier 1: Flash Summary ($0.00)",
-        desc: "2.5D Ken Burns photo motion with synced neural voiceover. Fast & lightweight.",
-        required: "GEMINI_API_KEY + FAL_KEY / POLLEN_KEY"
-      },
-      "TIER_2_AVATAR": {
-        icon: "🗣️",
-        title: "Tier 2: Talking Avatar (~$0.02)",
-        desc: "Interactive 2D teacher puppet with real-time lip-sync, blinking eyes, and gesturing arms.",
-        required: "Only GEMINI_API_KEY (Built-in engine!)"
-      },
-      "TIER_3_STEM": {
-        icon: "📐",
-        title: "Tier 3: STEM Rigor ($0.00 Local)",
-        desc: "Exact 3Blue1Brown/Manim vector physics simulation with live mathematical HUDs.",
-        required: "Only GEMINI_API_KEY (Zero GPU cost!)"
-      },
-      "TIER_4_CINEMA": {
-        icon: "🎬",
-        title: "Tier 4: Cinema AI (~$0.20)",
-        desc: "Generative AI video diffusion via Kling 1.5 or Runway for continuous realistic human motion.",
-        required: "GEMINI_API_KEY + FAL_KEY / KLING_API_KEY / RUNWAY_API_KEY"
-      },
-      "TIER_5_KURZGESAGT": {
-        icon: "👑",
-        title: "Tier 5: Kurzgesagt Masterpiece (~$0.30)",
-        desc: "Rigged scientist duck mascot in lab coat with laser pointer alongside embedded vector physics simulations.",
-        required: "Only GEMINI_API_KEY (100% Local Python Render!)"
-      }
+    // ================= Tiers (data comes from config/tiers.json) =================
+    const TIER_ACCENT = {
+      emerald: { border: "has-[:checked]:border-emerald-500", text: "text-emerald-400", chip: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30", btn: "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border-emerald-500/30", box: "border-emerald-500/30" },
+      blue:    { border: "has-[:checked]:border-blue-500",    text: "text-blue-400",    chip: "bg-blue-500/10 text-blue-400 border-blue-500/30",       btn: "bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border-blue-500/30",       box: "border-blue-500/30" },
+      amber:   { border: "has-[:checked]:border-amber-400",   text: "text-amber-400",   chip: "bg-amber-500/10 text-amber-400 border-amber-500/30",     btn: "bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border-amber-500/30",   box: "border-amber-500/30" },
     };
+
+    function tierList() { return (systemConfig && systemConfig.tier_catalog) ? systemConfig.tier_catalog.tiers : []; }
+
+    function tierStatusFor(key) { return (systemConfig && systemConfig.tiers && systemConfig.tiers[key]) || null; }
+
+    // Map any stored value (including legacy TIER_* names) to a configured tier key.
+    function resolveTierKey(value) {
+      const needle = String(value || "").toUpperCase();
+      const list = tierList();
+      for (const t of list) {
+        if (needle === t.key.toUpperCase() || (t.aliases || []).map(a => a.toUpperCase()).includes(needle)) return t.key;
+      }
+      return list.length ? systemConfig.tier_catalog.default_tier : "free";
+    }
+
+    function tierStateBadge(t, compact) {
+      const st = tierStatusFor(t.key);
+      const size = compact ? "px-1.5 py-0.5 text-[8px]" : "px-2 py-0.5 text-[9px]";
+      if (t.status !== "available") {
+        return `<span class="${size} rounded font-mono font-bold bg-slate-700/60 text-slate-300 border border-slate-600/50" title="${t.status_note || t.status}">${(t.status_note || t.status).toUpperCase()}</span>`;
+      }
+      const ok = st ? st.enabled : true;
+      return ok
+        ? `<span onclick="event.stopPropagation(); openApiKeyModal()" class="cursor-pointer ${size} rounded font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" title="${st ? st.tooltip : ''}">● Enabled</span>`
+        : `<span onclick="event.stopPropagation(); openApiKeyModal()" class="cursor-pointer ${size} rounded font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30" title="${st ? st.tooltip : ''}">🔒 Disabled</span>`;
+    }
+
+    function renderTierUI() {
+      const list = tierList();
+      if (!list.length) return;
+
+      // Create modal: keep the current choice across re-renders
+      const sel = document.getElementById("tierSelector");
+      if (sel) {
+        const prev = document.querySelector('input[name="generation_tier"]:checked');
+        const chosen = prev ? prev.value : systemConfig.tier_catalog.default_tier;
+        sel.innerHTML = list.map(t => {
+          const a = TIER_ACCENT[t.accent] || TIER_ACCENT.emerald;
+          const locked = t.status !== "available";
+          return `<label class="relative flex flex-col justify-between p-2.5 rounded-xl transition border border-transparent has-[:checked]:bg-brand-card ${a.border} text-center ${locked ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:border-brand-border/80'}">
+            <input type="radio" name="generation_tier" value="${t.key}" ${t.key === chosen && !locked ? 'checked' : ''} ${locked ? 'disabled' : ''} class="hidden">
+            <div class="text-xl mb-0.5">${t.icon}</div>
+            <div class="text-xs font-bold text-white">${t.label}</div>
+            <div class="text-[10px] text-slate-400 leading-tight mb-1">${t.subtitle || ''}</div>
+            <div class="flex items-center justify-center space-x-1.5">
+              <span class="text-[10px] font-mono ${a.text}">${t.price_label}</span>
+              ${tierStateBadge(t, true)}
+            </div>
+          </label>`;
+        }).join("");
+        sel.querySelectorAll('input[name="generation_tier"]').forEach(r => r.addEventListener('change', updateTierBanner));
+      }
+
+      // Pricing modal
+      const cards = document.getElementById("pricingTierCards");
+      if (cards) {
+        cards.innerHTML = list.map(t => {
+          const a = TIER_ACCENT[t.accent] || TIER_ACCENT.emerald;
+          const available = t.status === "available";
+          return `<div class="p-4 rounded-2xl bg-brand-dark border ${a.box} flex flex-col space-y-3 ${available ? '' : 'opacity-80'}">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-base font-bold ${a.text}">${t.icon} ${t.label}</div>
+                <div class="text-[11px] text-slate-400">${t.subtitle || ''}</div>
+              </div>
+              ${tierStateBadge(t, false)}
+            </div>
+            <div class="text-lg font-mono font-bold text-white">${t.price_label}<span class="text-[10px] text-slate-400 font-normal"> / reel</span></div>
+            <p class="text-xs text-slate-300">${t.tagline}</p>
+            <p class="text-[11px] text-slate-400 leading-relaxed">${t.summary}</p>
+            <ul class="text-[11px] text-slate-300 space-y-1 flex-1">${t.highlights.map(h => `<li>• ${h}</li>`).join("")}</ul>
+            <button ${available ? `onclick="selectTierAndOpen('${t.key}')"` : 'disabled'} class="w-full py-1.5 px-3 rounded-xl text-xs font-semibold border transition ${available ? a.btn : 'bg-slate-800/60 text-slate-500 border-slate-700 cursor-not-allowed'}">
+              ${available ? `Use ${t.label} &rarr;` : (t.status_note || t.status)}
+            </button>
+          </div>`;
+        }).join("");
+      }
+
+      // About modal
+      const about = document.getElementById("aboutTierCards");
+      if (about) {
+        about.innerHTML = list.map(t => {
+          const a = TIER_ACCENT[t.accent] || TIER_ACCENT.emerald;
+          return `<div class="p-3 bg-brand-dark rounded-xl border ${a.box} space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold ${a.text}">${t.icon} ${t.label}</span>
+              <span class="text-[10px] ${a.text} font-mono">${t.price_label}</span>
+            </div>
+            <p class="text-[10px] text-slate-300">${t.tagline}</p>
+          </div>`;
+        }).join("");
+      }
+      updateTierBanner();
+    }
 
     function updateTierBanner() {
       const banner = document.getElementById("create_tier_info_banner");
       if (!banner) return;
-      const checkedInput = document.querySelector('input[name="generation_tier"]:checked');
-      const tierKey = checkedInput ? checkedInput.value : "TIER_3_STEM";
-      const meta = TIER_META[tierKey] || TIER_META["TIER_3_STEM"];
+      const list = tierList();
+      if (!list.length) return;
+      const checked = document.querySelector('input[name="generation_tier"]:checked');
+      const t = list.find(x => x.key === (checked ? checked.value : systemConfig.tier_catalog.default_tier)) || list[0];
+      const st = tierStatusFor(t.key);
+      const isEnabled = t.status === "available" && (st ? Boolean(st.enabled) : true);
 
-      const tInfo = (systemConfig && systemConfig.tiers) ? systemConfig.tiers[tierKey] : null;
-      const isEnabled = tInfo ? Boolean(tInfo.enabled) : true;
-      const tooltip = tInfo ? (tInfo.tooltip || "") : "";
-
-      const iconEl = document.getElementById("tier_info_icon");
-      const titleEl = document.getElementById("tier_info_title");
+      document.getElementById("tier_info_icon").innerText = t.icon;
+      document.getElementById("tier_info_title").innerText = `${t.label} (${t.price_label})`;
+      document.getElementById("tier_info_desc").innerHTML = isEnabled
+        ? `<span class="text-slate-300">${t.tagline}</span>`
+        : `<span class="text-rose-300 font-medium">${st ? st.tooltip : ''}</span>`;
       const badgeEl = document.getElementById("tier_info_badge");
-      const descEl = document.getElementById("tier_info_desc");
+      badgeEl.className = isEnabled
+        ? "px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+        : "px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30";
+      badgeEl.innerHTML = isEnabled ? "● Enabled" : "🔒 Disabled";
       const btnEl = document.getElementById("tier_info_btn");
-
-      if (iconEl) iconEl.innerText = meta.icon;
-      if (titleEl) titleEl.innerText = meta.title;
-      if (descEl) {
-        descEl.innerHTML = isEnabled 
-          ? `<span class="text-slate-300">${meta.desc}</span> <span class="text-emerald-400 font-medium ml-1">(${meta.required})</span>`
-          : `<span class="text-rose-300 font-medium">${tooltip}</span>`;
-      }
-      if (badgeEl) {
-        badgeEl.className = isEnabled
-          ? "px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-pointer"
-          : "px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 cursor-pointer";
-        badgeEl.innerHTML = isEnabled ? "● Enabled" : "🔒 Disabled";
-        badgeEl.setAttribute("title", tooltip);
-      }
-      if (btnEl) {
-        if (isEnabled) {
-          btnEl.className = "shrink-0 ml-3 px-2.5 py-1 text-[11px] font-bold rounded-lg border transition bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20";
-          btnEl.innerHTML = `✓ Ready`;
-        } else {
-          btnEl.className = "shrink-0 ml-3 px-2.5 py-1 text-[11px] font-bold rounded-lg border transition bg-rose-500/20 text-rose-300 border-rose-500/40 hover:bg-rose-500/30 animate-pulse";
-          btnEl.innerHTML = `Configure Key &rarr;`;
-        }
-      }
+      btnEl.className = isEnabled
+        ? "shrink-0 ml-3 px-2.5 py-1 text-[11px] font-bold rounded-lg border transition bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+        : "shrink-0 ml-3 px-2.5 py-1 text-[11px] font-bold rounded-lg border transition bg-rose-500/20 text-rose-300 border-rose-500/40 hover:bg-rose-500/30";
+      btnEl.innerHTML = isEnabled ? "✓ Ready" : "Configure Key &rarr;";
     }
 
     function selectTierAndOpen(tierKey) {
       closeModal('pricingModal');
       openCreateModal();
       const radio = document.querySelector(`input[name="generation_tier"][value="${tierKey}"]`);
-      if (radio) {
+      if (radio && !radio.disabled) {
         radio.checked = true;
         updateTierBanner();
       }
@@ -1608,21 +1606,11 @@
     }
 
     function getTierBadgeHtml(tier) {
-      if (tier === "TIER_5_KURZGESAGT") {
-        return `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/30">👑 Kurzgesagt</span>`;
-      } else if (tier === "TIER_4_CINEMA" || tier === "PREMIUM") {
-        return `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/30">🎬 Cinema AI</span>`;
-      } else if (tier === "TIER_3_STEM") {
-        return `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">📐 STEM Manim</span>`;
-      } else if (tier === "TIER_2_AVATAR") {
-        return `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/30">🗣️ Avatar</span>`;
-      } else if (tier === "TIER_1_FLASH") {
-        return `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">⚡ Flash</span>`;
-      } else if (tier === "ULTRA") {
-        return `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/30">👑 Ultra</span>`;
-      } else {
-        return `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">⚡ Free Sim</span>`;
-      }
+      const key = resolveTierKey(tier);
+      const t = tierList().find(x => x.key === key);
+      const a = TIER_ACCENT[(t && t.accent) || "emerald"];
+      const label = t ? `${t.icon} ${t.label}` : "⚡ Free";
+      return `<span class="px-2 py-0.5 text-[10px] font-bold rounded-md border ${a.chip}">${label}</span>`;
     }
 
     // ================= Theme Switcher (Dark, Gray, Light) =================
@@ -1662,6 +1650,338 @@
       lucide.createIcons();
     }
 
+    // ================= Character Presenters & Avatars Catalog =================
+    let avatarCatalog = [];
+    let currentAvatarFilter = "ALL";
+    let activeInspectAvatarId = null;
+
+    async function fetchAvatars() {
+      try {
+        let headers = currentToken ? { "Authorization": `Bearer ${currentToken}` } : {};
+        let res = await fetch("/api/avatars", { headers });
+        if (res.status === 401) {
+          await loginDefaultAdmin();
+          headers = { "Authorization": `Bearer ${currentToken}` };
+          res = await fetch("/api/avatars", { headers });
+        }
+        if (res.ok) {
+          avatarCatalog = await res.json();
+          renderAvatarSelectorDropdown();
+          renderAvatarCatalogCards();
+        }
+      } catch (err) {
+        console.error("Failed to load avatars:", err);
+      }
+    }
+
+    function renderAvatarSelectorDropdown() {
+      const select = document.getElementById("avatar_id");
+      if (!select) return;
+      const currentVal = select.value || "AUTO";
+      
+      let html = `<option value="AUTO">✨ Auto-Select (Curriculum Synced)</option>`;
+      avatarCatalog.forEach(a => {
+        html += `<option value="${a.id}">${a.avatar_icon || '🎭'} ${a.name} (${a.exam_track})</option>`;
+      });
+      select.innerHTML = html;
+      if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
+        select.value = currentVal;
+      } else {
+        select.value = "AUTO";
+      }
+      onAvatarSelectionChange();
+    }
+
+    function onExamTypeChanged() {
+      const examType = document.getElementById("exam_type").value;
+      const subjInput = document.getElementById("subject");
+      
+      // Intelligent Subject auto-suggestion based on curriculum track
+      if (examType === "IIT_JEE") {
+        if (!subjInput.value || ["Science", "Biology", "Polity & History"].includes(subjInput.value)) subjInput.value = "Physics";
+      } else if (examType === "NEET") {
+        if (!subjInput.value || ["Physics", "Science", "Polity & History"].includes(subjInput.value)) subjInput.value = "Biology";
+      } else if (examType === "UPSC") {
+        if (!subjInput.value || ["Physics", "Biology", "Science"].includes(subjInput.value)) subjInput.value = "Polity & History";
+      } else if (examType === "SCHOOL") {
+        if (!subjInput.value || ["Polity & History"].includes(subjInput.value)) subjInput.value = "Science";
+      }
+      
+      onAvatarSelectionChange();
+    }
+
+    function onAvatarSelectionChange() {
+      const select = document.getElementById("avatar_id");
+      const previewPill = document.getElementById("avatar_preview_pill");
+      const previewIcon = document.getElementById("avatar_preview_icon");
+      const previewName = document.getElementById("avatar_preview_name");
+      const previewStyle = document.getElementById("avatar_preview_style");
+      if (!select || !previewPill) return;
+
+      const selectedId = select.value;
+      let matchedAvatar = null;
+
+      if (selectedId === "AUTO") {
+        const examType = document.getElementById("exam_type").value;
+        if (examType === "IIT_JEE") {
+          matchedAvatar = avatarCatalog.find(a => a.id === "einstein_cyber");
+        } else if (examType === "NEET") {
+          matchedAvatar = avatarCatalog.find(a => a.id === "franklin_dna");
+        } else if (examType === "UPSC") {
+          matchedAvatar = avatarCatalog.find(a => a.id === "kalam_visionary");
+        } else if (examType === "SCHOOL") {
+          matchedAvatar = avatarCatalog.find(a => a.id === "arya_youth");
+        }
+        if (!matchedAvatar && avatarCatalog.length > 0) {
+          matchedAvatar = avatarCatalog[0];
+        }
+
+        if (matchedAvatar) {
+          previewIcon.innerText = matchedAvatar.avatar_icon || "✨";
+          previewName.innerText = `Auto: ${matchedAvatar.name}`;
+          previewStyle.innerText = `${matchedAvatar.style_badge} • Synced to ${matchedAvatar.exam_track}`;
+        }
+      } else {
+        matchedAvatar = avatarCatalog.find(a => a.id === selectedId);
+        if (matchedAvatar) {
+          previewIcon.innerText = matchedAvatar.avatar_icon || "🎭";
+          previewName.innerText = matchedAvatar.name;
+          previewStyle.innerText = `${matchedAvatar.style_badge} • Manual Selection`;
+        }
+      }
+    }
+
+    function openAvatarsModal() {
+      fetchAvatars();
+      openModal("avatarsModal");
+    }
+
+    function toggleCustomAvatarForm(forceState) {
+      const formCard = document.getElementById("customAvatarCard");
+      if (!formCard) return;
+      if (typeof forceState === "boolean") {
+        if (forceState) formCard.classList.remove("hidden");
+        else formCard.classList.add("hidden");
+      } else {
+        formCard.classList.toggle("hidden");
+      }
+    }
+
+    function filterAvatars(track) {
+      currentAvatarFilter = track;
+      document.querySelectorAll(".avatar-filter-btn").forEach(btn => {
+        btn.className = "avatar-filter-btn px-2.5 py-1 rounded-lg font-medium text-slate-400 hover:text-white hover:bg-brand-card transition";
+      });
+      const activeBtn = document.getElementById(`avatar_filter_${track}`);
+      if (activeBtn) {
+        activeBtn.className = "avatar-filter-btn px-2.5 py-1 rounded-lg font-medium transition bg-purple-600 text-white shadow-sm";
+      }
+      renderAvatarCatalogCards();
+    }
+
+    function renderAvatarCatalogCards() {
+      const container = document.getElementById("avatarCardsContainer");
+      if (!container) return;
+
+      const filtered = avatarCatalog.filter(a => {
+        if (currentAvatarFilter === "ALL") return true;
+        if (currentAvatarFilter === "MASCOT") return a.id.includes("duck") || a.style_badge === "STUDIO_MASCOT";
+        return a.exam_track === currentAvatarFilter;
+      });
+
+      const countBadge = document.getElementById("count_all_avatars");
+      if (countBadge) countBadge.innerText = avatarCatalog.length;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full p-8 text-center bg-brand-card/50 rounded-2xl border border-brand-border text-slate-400">
+            No character personas found for this filter. Click "+ Custom Persona" to add one!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(a => {
+        const accent = a.accent_color || "from-purple-600 to-indigo-600";
+        const promptPreview = a.prompt.length > 120 ? a.prompt.substring(0, 120) + "..." : a.prompt;
+        
+        return `
+          <div class="bg-brand-card rounded-2xl border border-brand-border hover:border-purple-500/50 transition-all duration-200 overflow-hidden flex flex-col justify-between shadow-lg group">
+            
+            <!-- Top Gradient Accent Header -->
+            <div class="h-1.5 w-full bg-gradient-to-r ${accent}"></div>
+            
+            <div class="p-4 space-y-3 flex-1">
+              <!-- Name & Icon Row -->
+              <div class="flex items-start justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${accent} flex items-center justify-center text-xl shadow-md shrink-0">
+                    ${a.avatar_icon || '🎭'}
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-white text-sm group-hover:text-purple-300 transition">${a.name}</h4>
+                    <p class="text-[11px] text-slate-400 leading-snug line-clamp-1">${a.title}</p>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-brand-dark text-purple-300 border border-purple-500/30 shrink-0">
+                  ${a.exam_track}
+                </span>
+              </div>
+
+              <!-- Tags / Modality Pills -->
+              <div class="flex flex-wrap items-center gap-1.5 text-[10px]">
+                <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-medium">
+                  🎨 ${a.style_badge}
+                </span>
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-medium">
+                  📚 ${a.subject}
+                </span>
+                <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium" title="Turnaround Reference Ready">
+                  ✓ #808080 Gray Sheet
+                </span>
+              </div>
+
+              <!-- Prompt Snippet -->
+              <div class="p-2.5 bg-brand-dark/80 rounded-xl border border-brand-border/60 space-y-1.5">
+                <div class="text-[9px] uppercase font-mono text-slate-400 flex items-center justify-between">
+                  <span>Prompt Blueprint</span>
+                  <button onclick="openAvatarPromptModal('${a.id}')" class="text-purple-400 hover:text-purple-300 hover:underline">
+                    Inspect Full Prompt &rarr;
+                  </button>
+                </div>
+                <p class="text-[10px] text-slate-300 font-mono leading-relaxed line-clamp-2">
+                  "${promptPreview}"
+                </p>
+              </div>
+
+              <!-- Voice Pairing Tag -->
+              <div class="flex items-center space-x-1.5 text-[10px] text-slate-400">
+                <i data-lucide="mic" class="w-3 h-3 text-brand-amber shrink-0"></i>
+                <span class="truncate">Voice: <code class="text-slate-300">${a.voice_id || 'EdgeTTS Neural'}</code></span>
+              </div>
+            </div>
+
+            <!-- Footer Action Buttons -->
+            <div class="p-3 border-t border-brand-border/70 bg-brand-dark/40 flex items-center space-x-2">
+              <button onclick="openAvatarPromptModal('${a.id}')" class="flex-1 py-1.5 px-2.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white bg-brand-card hover:bg-slate-800 border border-brand-border transition text-center flex items-center justify-center space-x-1">
+                <i data-lucide="eye" class="w-3 h-3"></i>
+                <span>Inspect</span>
+              </button>
+              <button onclick="selectAvatarForJob('${a.id}')" class="flex-1 py-1.5 px-2.5 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 transition text-center flex items-center justify-center space-x-1 shadow-md shadow-purple-600/30">
+                <span>Use Persona</span> &rarr;
+              </button>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+      
+      lucide.createIcons();
+    }
+
+    function openAvatarPromptModal(avatarId) {
+      const a = avatarCatalog.find(item => item.id === avatarId);
+      if (!a) return;
+
+      activeInspectAvatarId = avatarId;
+      document.getElementById("inspect_avatar_icon").innerText = a.avatar_icon || '🎭';
+      document.getElementById("inspect_avatar_name").innerText = a.name;
+      document.getElementById("inspect_avatar_title").innerText = `${a.title} • ${a.style_badge}`;
+      document.getElementById("inspect_cinematic_prompt").innerText = a.prompt;
+      document.getElementById("inspect_neutral_prompt").innerText = a.neutral_prompt || a.prompt;
+      document.getElementById("inspect_avatar_voice").innerText = a.voice_id || 'en-US-ChristopherNeural';
+
+      document.getElementById("copy_cinematic_label").innerText = "Copy Prompt";
+      document.getElementById("copy_neutral_label").innerText = "Copy Sheet Prompt";
+
+      openModal("avatarPromptModal");
+    }
+
+    function copyInspectorPrompt(type) {
+      let text = "";
+      let labelEl = null;
+      if (type === 'cinematic') {
+        text = document.getElementById("inspect_cinematic_prompt").innerText;
+        labelEl = document.getElementById("copy_cinematic_label");
+      } else {
+        text = document.getElementById("inspect_neutral_prompt").innerText;
+        labelEl = document.getElementById("copy_neutral_label");
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        if (labelEl) {
+          const original = labelEl.innerText;
+          labelEl.innerText = "✓ Copied!";
+          setTimeout(() => { labelEl.innerText = original; }, 2000);
+        }
+        showToast("Copied to Clipboard", "Prompt ready to paste into Midjourney / FLUX / Kling", "success", 3000);
+      });
+    }
+
+    function selectAvatarForJob(avatarId) {
+      closeModal("avatarsModal");
+      closeModal("avatarPromptModal");
+      openCreateModal();
+      
+      const select = document.getElementById("avatar_id");
+      if (select) {
+        select.value = avatarId;
+        onAvatarSelectionChange();
+      }
+      
+      const a = avatarCatalog.find(item => item.id === avatarId);
+      if (a && a.exam_track && a.exam_track !== 'ALL') {
+        const examSelect = document.getElementById("exam_type");
+        if (examSelect && Array.from(examSelect.options).some(o => o.value === a.exam_track)) {
+          examSelect.value = a.exam_track;
+        }
+        if (a.subject) {
+          document.getElementById("subject").value = a.subject.split('&')[0].trim();
+        }
+      }
+    }
+
+    function selectAvatarForJobFromInspector() {
+      if (activeInspectAvatarId) {
+        selectAvatarForJob(activeInspectAvatarId);
+      }
+    }
+
+    async function handleCreateCustomAvatar(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById("custom_avatar_name").value,
+        title: document.getElementById("custom_avatar_title").value,
+        exam_track: document.getElementById("custom_avatar_track").value,
+        subject: document.getElementById("custom_avatar_subject").value,
+        style_badge: document.getElementById("custom_avatar_style").value,
+        prompt: document.getElementById("custom_avatar_prompt").value,
+        neutral_prompt: document.getElementById("custom_avatar_neutral").value || document.getElementById("custom_avatar_prompt").value,
+        voice_id: document.getElementById("custom_avatar_voice").value || "en-US-ChristopherNeural"
+      };
+
+      try {
+        const res = await fetch("/api/avatars", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${currentToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          showToast("Custom Persona Created", `"${payload.name}" added to Studio Catalog`, "success", 4000);
+          document.getElementById("customAvatarForm").reset();
+          toggleCustomAvatarForm(false);
+          await fetchAvatars();
+        } else {
+          const err = await res.json();
+          showToast("Error", err.detail || "Failed to create custom avatar", "error");
+        }
+      } catch (err) {
+        showToast("Error", err.message || String(err), "error");
+      }
+    }
+
     async function loginDefaultAdmin() {
       try {
         const res = await fetch("/api/auth/login", {
@@ -1692,13 +2012,25 @@
 
     async function fetchJobs() {
       try {
-        const res = await fetch("/api/reels", {
+        if (!currentToken) {
+          await loginDefaultAdmin();
+        }
+        let res = await fetch("/api/reels", {
           headers: { "Authorization": `Bearer ${currentToken}` }
         });
+        if (res.status === 401) {
+          console.warn("Auth token expired, refreshing login...");
+          await loginDefaultAdmin();
+          res = await fetch("/api/reels", {
+            headers: { "Authorization": `Bearer ${currentToken}` }
+          });
+        }
         if (res.ok) {
           allJobs = await res.json();
           updateSubjectDropdown();
           renderJobs();
+        } else {
+          console.error("Fetch jobs error: status", res.status);
         }
       } catch (e) {
         console.error("Fetch jobs error:", e);
@@ -1807,7 +2139,7 @@
         }
         if (selectedSubject !== "ALL" && j.subject !== selectedSubject) return false;
         if (selectedStatus !== "ALL" && j.status !== selectedStatus) return false;
-        if (selectedTier !== "ALL" && j.generation_tier !== selectedTier) return false;
+        if (selectedTier !== "ALL" && resolveTierKey(j.generation_tier) !== selectedTier) return false;
         return true;
       });
     }
@@ -1919,6 +2251,12 @@
       } else if (j.status === "PROCESSING") {
         statusBadge = `<span class="px-2.5 py-1 text-[11px] font-medium rounded-full bg-indigo-500/20 text-indigo-400 animate-pulse">Rendering 30fps Video...</span>`;
         actionBtn = `<button disabled class="w-full py-2 px-3 text-xs font-medium bg-slate-800 text-slate-400 rounded-xl cursor-not-allowed">Rendering Engine Busy...</button>`;
+      } else if (j.status === "FAILED") {
+        statusBadge = `<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30">Failed</span>`;
+        actionBtn = `<div class="text-[11px] text-rose-400 font-mono bg-rose-950/40 p-2 rounded-lg border border-rose-900/40 truncate" title="${j.error_message || ''}">${j.error_message || 'Pipeline halted'}</div>`;
+      } else {
+        statusBadge = `<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-slate-500/20 text-slate-400 border border-slate-500/30">${j.status}</span>`;
+        actionBtn = `<button disabled class="w-full py-2 px-3 text-xs font-medium bg-slate-800 text-slate-400 rounded-xl cursor-not-allowed">Status: ${j.status}</button>`;
       }
 
       const hookText = j.script_data?.hook ? `"${j.script_data.hook}"` : "45-second micro-learning conceptual breakdown.";
@@ -2034,22 +2372,29 @@
 
     async function handleCreateJob(e) {
       e.preventDefault();
-      const tier = document.querySelector('input[name="generation_tier"]:checked').value;
+      const tierInput = document.querySelector('input[name="generation_tier"]:checked');
+      if (!tierInput) { showToast("No tier", "Pick an available tier first.", "error"); return; }
+      const tier = tierInput.value.toUpperCase();
       
       // Client-side key validation: prevent launch if tier is disabled
-      if (systemConfig && systemConfig.tiers && systemConfig.tiers[tier] && !systemConfig.tiers[tier].enabled) {
-        const tInfo = systemConfig.tiers[tier];
+      if (systemConfig && systemConfig.tiers && systemConfig.tiers[tierInput.value] && !systemConfig.tiers[tierInput.value].enabled) {
+        const tInfo = systemConfig.tiers[tierInput.value];
         showToast("Tier Disabled", tInfo.tooltip || `Missing required API keys: ${tInfo.missing_keys.join(', ')}`, "error", 7000);
         openApiKeyModal();
         return;
       }
+
+      const scriptGenRadio = document.querySelector('input[name="script_generator"]:checked');
+      const scriptGenerator = scriptGenRadio ? scriptGenRadio.value : "AUTO";
 
       const payload = {
         topic_title: document.getElementById("topic_title").value,
         exam_type: document.getElementById("exam_type").value,
         class_level: parseInt(document.getElementById("class_level").value),
         subject: document.getElementById("subject").value,
-        generation_tier: tier
+        generation_tier: tier,
+        script_generator: scriptGenerator,
+        avatar_id: document.getElementById("avatar_id") ? document.getElementById("avatar_id").value : "AUTO"
       };
 
       try {
@@ -2081,20 +2426,30 @@
       currentGate1Tab = tab;
       const sbView = document.getElementById("g1_storyboard_view");
       const scView = document.getElementById("g1_script_view");
+      const dosView = document.getElementById("g1_dossier_view");
       const sbBtn = document.getElementById("g1_tab_sb_btn");
       const scBtn = document.getElementById("g1_tab_sc_btn");
+      const dosBtn = document.getElementById("g1_tab_dos_btn");
       
+      sbView.classList.add("hidden");
+      scView.classList.add("hidden");
+      if (dosView) dosView.classList.add("hidden");
+
+      sbBtn.className = "px-4 py-2.5 text-xs font-medium text-slate-400 hover:text-white border-b-2 border-transparent flex items-center space-x-1.5 transition";
+      scBtn.className = "px-4 py-2.5 text-xs font-medium text-slate-400 hover:text-white border-b-2 border-transparent flex items-center space-x-1.5 transition";
+      if (dosBtn) dosBtn.className = "px-4 py-2.5 text-xs font-medium text-purple-400 hover:text-purple-300 border-b-2 border-transparent flex items-center space-x-1.5 transition";
+
       if (tab === 'storyboard') {
         sbView.classList.remove("hidden");
-        scView.classList.add("hidden");
         sbBtn.className = "px-4 py-2.5 text-xs font-bold text-white border-b-2 border-brand-amber flex items-center space-x-1.5 transition";
-        scBtn.className = "px-4 py-2.5 text-xs font-medium text-slate-400 hover:text-white border-b-2 border-transparent flex items-center space-x-1.5 transition";
-      } else {
-        sbView.classList.add("hidden");
+      } else if (tab === 'script') {
         scView.classList.remove("hidden");
         scBtn.className = "px-4 py-2.5 text-xs font-bold text-white border-b-2 border-brand-amber flex items-center space-x-1.5 transition";
-        sbBtn.className = "px-4 py-2.5 text-xs font-medium text-slate-400 hover:text-white border-b-2 border-transparent flex items-center space-x-1.5 transition";
+      } else if (tab === 'dossier' && dosView && dosBtn) {
+        dosView.classList.remove("hidden");
+        dosBtn.className = "px-4 py-2.5 text-xs font-bold text-purple-300 border-b-2 border-purple-500 flex items-center space-x-1.5 transition";
       }
+      lucide.createIcons();
     }
 
     async function openGate1Modal(jobId) {
@@ -2104,8 +2459,22 @@
       const s = activeJob.script_data || {};
       document.getElementById("g1_hook").innerText = s.hook || "No hook paradox found";
       document.getElementById("g1_takeaway").innerText = s.key_takeaway || "No takeaway defined";
-      document.getElementById("g1_word_count").innerText = `${s.total_word_count || 0}w (Target: 110-130)`;
-      document.getElementById("g1_subtitle").innerText = `${activeJob.topic_title} • ${activeJob.exam_type} Class ${activeJob.class_level || 'All'} • ${activeJob.generation_tier} Tier`;
+      document.getElementById("g1_word_count").innerText = `${s.total_word_count || 0}w (Target: 100-180w | 30-90s)`;
+      document.getElementById("g1_subtitle").innerText = `${activeJob.topic_title} • ${activeJob.exam_type} Class ${activeJob.class_level || 'All'} • ${resolveTierKey(activeJob.generation_tier)} tier • ${(s.math_verification && s.math_verification.status === 'verified') ? '✓ ' + s.math_verification.claims + ' narrated numbers verified • ' : ''}${(s.storyboard && s.storyboard.route) ? 'Pack: ' + s.storyboard.route.label + ' (' + s.storyboard.route.method + ', ' + s.storyboard.route.status + ') • ' : ''}[Script Engine: ${activeJob.script_generator || 'AUTO'}]`;
+
+      // Presenter Avatar Pill
+      const avatarPill = document.getElementById("g1_avatar_pill");
+      if (avatarPill) {
+        const avatar = (activeJob.script_data && activeJob.script_data.avatar) || activeJob.avatar;
+        if (avatar) {
+          avatarPill.classList.remove("hidden");
+          document.getElementById("g1_avatar_icon").innerText = avatar.avatar_icon || "🎭";
+          document.getElementById("g1_avatar_name").innerText = avatar.name;
+          avatarPill.title = `${avatar.title} (${avatar.style_badge})`;
+        } else {
+          avatarPill.classList.add("hidden");
+        }
+      }
 
       // 1. Populate Storyboard Grid
       const scenes = (s.storyboard && s.storyboard.scenes) ? s.storyboard.scenes : [];
@@ -2188,6 +2557,127 @@
           <div class="text-[11px] text-slate-400">Visual Direction: <span class="italic text-slate-300">${act.visual_direction}</span></div>
         </div>
       `).join('');
+
+      // 3. Populate Stage 0 Domain & Pedagogical Intelligence Dossier
+      const dossier = s.domain_dossier || activeJob.domain_dossier;
+      const dossierContent = document.getElementById("g1_dossier_content");
+      const providerBadge = document.getElementById("g1_dossier_provider_badge");
+
+      if (dossier && dossierContent) {
+        if (providerBadge) {
+          providerBadge.innerText = dossier.provider_used || "OpenAI ChatGPT";
+        }
+        const keywords = (dossier.marking_scheme_keywords || []).map(k => `
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">${k}</span>
+        `).join(' ');
+        
+        const excluded = (dossier.strictly_excluded_topics || []).map(e => `
+          <li class="flex items-start space-x-1.5 text-slate-400">
+            <span class="text-rose-400 shrink-0">✕</span>
+            <span>${e}</span>
+          </li>
+        `).join('');
+
+        dossierContent.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Card 1: 75% Misconception Trap -->
+            <div class="p-4 rounded-2xl bg-brand-card border border-rose-500/30 space-y-2 shadow-sm">
+              <div class="flex items-center space-x-2 text-rose-400 font-bold text-xs">
+                <span>⚠️</span>
+                <span>The #1 Student Misconception Trap</span>
+              </div>
+              <p class="text-xs text-rose-200/90 font-medium leading-relaxed">
+                "${dossier.core_misconception}"
+              </p>
+              <div class="text-[11px] text-slate-400 pt-1 border-t border-brand-border">
+                <strong>Why the brain fails:</strong> ${dossier.root_flaw || 'Intuitive macroscopic projection'}
+              </div>
+            </div>
+
+            <!-- Card 2: 3-Second Scroll-Stopping Paradox -->
+            <div class="p-4 rounded-2xl bg-brand-card border border-amber-500/30 space-y-2 shadow-sm">
+              <div class="flex items-center space-x-2 text-amber-400 font-bold text-xs">
+                <span>⚡</span>
+                <span>3-Second Hook Paradox (Scroll-Stopper)</span>
+              </div>
+              <p class="text-xs text-amber-100 font-semibold leading-relaxed">
+                "${dossier.counter_intuitive_hook}"
+              </p>
+              <div class="text-[11px] text-slate-400 pt-1 border-t border-brand-border">
+                <strong>Curiosity Gap:</strong> ${dossier.curiosity_gap || 'Creates urgency to resolve paradox'}
+              </div>
+            </div>
+
+            <!-- Card 3: 45-Second Scope Boundary -->
+            <div class="p-4 rounded-2xl bg-brand-card border border-blue-500/30 space-y-2 shadow-sm">
+              <div class="flex items-center space-x-2 text-blue-400 font-bold text-xs">
+                <span>🎯</span>
+                <span>45-Second Syllabus Scope Guardrail</span>
+              </div>
+              <div class="text-xs text-slate-200">
+                <span class="text-blue-300 font-bold">Must Include:</span> ${dossier.must_include_concept}
+              </div>
+              <div class="text-[11px] text-slate-400 pt-1 border-t border-brand-border">
+                <span class="font-bold text-slate-300">Strictly Excluded (Prevents Rush):</span>
+                <ul class="mt-1 space-y-1">
+                  ${excluded || '<li>None</li>'}
+                </ul>
+              </div>
+            </div>
+
+            <!-- Card 4: Kinetic Visual Metaphor -->
+            <div class="p-4 rounded-2xl bg-brand-card border border-cyan-500/30 space-y-2 shadow-sm">
+              <div class="flex items-center space-x-2 text-cyan-400 font-bold text-xs">
+                <span>🎥</span>
+                <span>Physical Metaphor (For Manim / Kling Diffusion)</span>
+              </div>
+              <p class="text-xs text-cyan-100 leading-relaxed">
+                "${dossier.concrete_visual_metaphor}"
+              </p>
+              <div class="text-[11px] text-slate-400 pt-1 border-t border-brand-border">
+                <strong>Visual Climax Beat:</strong> ${dossier.visual_transformation_beat || 'Vector shift'}
+              </div>
+            </div>
+
+            <!-- Card 5: Marking Scheme Keywords -->
+            <div class="p-4 rounded-2xl bg-brand-card border border-emerald-500/30 space-y-2 shadow-sm">
+              <div class="flex items-center space-x-2 text-emerald-400 font-bold text-xs">
+                <span>📝</span>
+                <span>Official Marking-Scheme Keywords (NCERT / JEE)</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                ${keywords}
+              </div>
+              <div class="text-[11px] text-slate-300 pt-1 border-t border-brand-border">
+                <strong>One-Sentence Law:</strong> "${dossier.atomic_takeaway}"
+              </div>
+            </div>
+
+            <!-- Card 6: Pre-formed Diagnostic Trap MCQ -->
+            <div class="p-4 rounded-2xl bg-brand-card border border-purple-500/30 space-y-2 shadow-sm">
+              <div class="flex items-center space-x-2 text-purple-400 font-bold text-xs">
+                <span>🧩</span>
+                <span>Pre-formed Diagnostic Checkpoint (Gate 2 Ready)</span>
+              </div>
+              <p class="text-xs text-white font-medium">
+                ${dossier.diagnostic_question || 'Diagnostic question'}
+              </p>
+              <div class="text-[11px] space-y-1 pt-1 border-t border-brand-border">
+                <div class="text-emerald-300"><strong>✓ Correct:</strong> ${dossier.correct_answer || 'Correct'}</div>
+                <div class="text-rose-300"><strong>✕ Trapping Distractor:</strong> ${dossier.distractor_misconception_answer || 'Distractor'}</div>
+              </div>
+            </div>
+
+          </div>
+        `;
+      } else if (dossierContent) {
+        dossierContent.innerHTML = `
+          <div class="p-8 text-center text-slate-400 bg-brand-card rounded-xl border border-brand-border">
+            No Stage 0 Domain Dossier recorded for this reel.
+          </div>
+        `;
+      }
 
       // Default to Storyboard tab
       switchGate1Tab(scenes.length > 0 ? 'storyboard' : 'script');
@@ -2378,6 +2868,7 @@
       checkApiConfiguration();
       openModal("createModal"); 
       updateTierBanner();
+      onAvatarSelectionChange();
     }
     function openPricingModal() { 
       checkApiConfiguration();

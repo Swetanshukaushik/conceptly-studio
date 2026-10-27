@@ -1,0 +1,33 @@
+{
+ "about": "A concrete ceiling slab that things hang from. Its underside is at y=`y`.",
+ "params_doc": {
+  "y": "y of the underside",
+  "width": "slab width"
+ },
+ "params": {
+  "y": 4.2,
+  "width": 5
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    0.2,
+    1.4
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "#d9dde3",
+    "roughness": 0.8,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "${y}+0.1",
+    0
+   ]
+  }
+ ],
+ "background": true
+}

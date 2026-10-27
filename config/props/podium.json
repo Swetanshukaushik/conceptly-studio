@@ -1,0 +1,54 @@
+{
+ "about": "A speaker's podium or lectern with a small angled top.",
+ "params_doc": {
+  "wood": "wood colour"
+ },
+ "params": {
+  "wood": "#5a3d28"
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    0.7,
+    1.0,
+    0.5
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "${wood}",
+    "roughness": 0.55,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    0.5,
+    0
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    0.8,
+    0.05,
+    0.55
+   ],
+   "bevel": 0.015,
+   "material": {
+    "color": "${wood}",
+    "roughness": 0.5,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    1.03,
+    0.02
+   ],
+   "rotation": [
+    -12,
+    0,
+    0
+   ]
+  }
+ ]
+}

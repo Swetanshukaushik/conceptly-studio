@@ -1,0 +1,60 @@
+{
+ "about": "Dark grunge backdrop wall with a soft orange glow on the right and a blue glow on the left, behind the action. Use as the set for mechanisms. Place at the origin; it sits at z=-2.",
+ "params_doc": {
+  "wall": "wall colour",
+  "left": "left glow colour",
+  "right": "right glow colour"
+ },
+ "params": {
+  "wall": "#12233b",
+  "left": "#2f7bd6",
+  "right": "#ff8a3d"
+ },
+ "objects": [
+  {
+   "type": "plane",
+   "size": [
+    22,
+    12
+   ],
+   "material": {
+    "color": "${wall}",
+    "roughness": 0.95,
+    "metalness": 0,
+    "pattern": {
+     "kind": "noise"
+    }
+   },
+   "position": [
+    0,
+    3,
+    -2
+   ],
+   "castShadow": false,
+   "receiveShadow": false
+  },
+  {
+   "type": "glow",
+   "color": "${right}",
+   "size": 9,
+   "intensity": 0.55,
+   "position": [
+    5,
+    2.6,
+    -1.8
+   ]
+  },
+  {
+   "type": "glow",
+   "color": "${left}",
+   "size": 8,
+   "intensity": 0.5,
+   "position": [
+    -5.5,
+    2.4,
+    -1.8
+   ]
+  }
+ ],
+ "background": true
+}

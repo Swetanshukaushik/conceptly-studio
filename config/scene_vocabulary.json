@@ -1,0 +1,366 @@
+{
+ "coordinate_system": "Right-handed, Y is up, units are metres-like scene units. The ground plane is y=0. The camera looks at `target`; the frame is a tall 9:16 portrait.",
+ "expressions": {
+  "summary": "Any numeric field may be a number or a math-expression string. Expressions are evaluated every frame, so they animate.",
+  "variables": {
+   "t": "seconds since this scene started",
+   "p": "scene progress 0..1 (use p for camera moves: it stays correct if the scene is stretched)",
+   "dur": "scene duration in seconds",
+   "params.*": "every key of the scene's `params` object is a variable (e.g. params {\"g\": 9.8} gives variable g)",
+   "u, v": "curve / surface parameters",
+   "i, n, f": "particle index, count and i/(n-1)",
+   "x, y, z": "sample position inside a vectorfield",
+   "ts": "simulated time in seconds for scenes with a `sim` block (scene time x sim.timeScale after sim.start); use it for anything that follows the simulation"
+  },
+  "operators": "+ - * / % ^ ( ) < > <= >= == != && || !",
+  "functions": [
+   "sin",
+   "cos",
+   "tan",
+   "asin",
+   "acos",
+   "atan",
+   "atan2",
+   "sinh",
+   "cosh",
+   "tanh",
+   "sqrt",
+   "abs",
+   "exp",
+   "log",
+   "log10",
+   "pow",
+   "min",
+   "max",
+   "floor",
+   "ceil",
+   "round",
+   "sign",
+   "mod(a,b)",
+   "clamp(x,a,b)",
+   "mix(a,b,k)",
+   "smooth(a,b,x) (0..1 ease between a and b)",
+   "smoother(a,b,x)",
+   "pop(a,b,x) (overshoot ease)",
+   "pulse(a,b,x) (1 while a<=x<=b)",
+   "noise(x)",
+   "hash(x) (0..1 pseudo random)",
+   "if(cond,a,b)",
+   "sim(k, i, tau): value of simulated quantity k for body number i (0,1,2 in the order of sim.bodies) at simulated time tau. k: 0 x, 1 y, 2 vx, 3 vy, 4 ax, 5 ay, 6 speed, 7 kinetic energy, 8 potential energy (m*g*y), 9 rotation angle in radians, 10 angular velocity, 11 net force x, 12 net force y. Example: sim(3,0,ts) is the vertical velocity of body 0 now; sim(6,1,X) inside a graph is the speed of body 1 at time X"
+  ],
+  "constants": [
+   "pi",
+   "tau",
+   "e"
+  ],
+  "angles": "sin/cos use radians. `rotation` fields are in DEGREES."
+ },
+ "object_common": {
+  "id": "unique string; needed for tags and parent links",
+  "type": "see object_types",
+  "position": "[x,y,z] numbers or expressions",
+  "rotation": "[x,y,z] DEGREES, numbers or expressions",
+  "scale": "number or [x,y,z], numbers or expressions",
+  "material": "preset name from the look (string) or {preset, color, emissive, emissiveIntensity, opacity, metalness, roughness, transmission, wireframe, doubleSided}. Colours are palette names (ink, muted, primary, secondary, accent, warn, good, surface) or hex strings.",
+  "appear": "{at, duration, style:'pop'|'fade'} reveal the object at scene time `at` (at may be an expression)",
+  "vanish": "{at, duration} remove the object",
+  "visible": "expression; the object shows while it is > 0",
+  "parent": "id of another object to attach to",
+  "children": "array of objects positioned relative to this one",
+  "castShadow": "false to disable",
+  "repeat": "integer N: create N copies; inside the copy use ${i} (0..N-1) and ${n} (N) in any string, e.g. position [\"-3+${i}*0.8\",0,0]",
+  "vars": "{name: expression}: extra variables available to this object's expressions only, e.g. {\"X\": \"ts\"}"
+ },
+ "object_types": {
+  "group": {
+   "about": "Empty container for moving several things together.",
+   "fields": {}
+  },
+  "sphere": {
+   "about": "Ball, planet, atom, cell, drop.",
+   "fields": {
+    "radius": "number or expression"
+   }
+  },
+  "box": {
+   "about": "Rounded box: blocks, batteries, buildings, screens.",
+   "fields": {
+    "size": "[x,y,z] static numbers",
+    "bevel": "corner radius"
+   }
+  },
+  "cylinder": {
+   "about": "Rods, wires, tanks, pistons, columns.",
+   "fields": {
+    "radius": "n",
+    "radiusTop": "n",
+    "radiusBottom": "n",
+    "height": "n",
+    "openEnded": "bool"
+   }
+  },
+  "cone": {
+   "about": "Pointed shapes.",
+   "fields": {
+    "radius": "n",
+    "height": "n"
+   }
+  },
+  "torus": {
+   "about": "Rings, coils, orbits, doughnuts.",
+   "fields": {
+    "radius": "n",
+    "tube": "n"
+   }
+  },
+  "capsule": {
+   "about": "Pill shapes: bacteria, organelles, bullets.",
+   "fields": {
+    "radius": "n",
+    "length": "n"
+   }
+  },
+  "plane": {
+   "about": "Flat panel; use with a material for screens, mirrors, walls.",
+   "fields": {
+    "size": "[w,h]"
+   }
+  },
+  "ring": {
+   "about": "Flat annulus.",
+   "fields": {
+    "inner": "n",
+    "outer": "n"
+   }
+  },
+  "lathe": {
+   "about": "Surface of revolution around the Y axis from a profile: flasks, lenses, vases, bottles, bells, vessels.",
+   "fields": {
+    "profile": "[[radius,y],...] points from bottom to top",
+    "smooth": "true to spline the profile"
+   }
+  },
+  "extrude": {
+   "about": "2D outline given as points, extruded into 3D: arrows, gears, letters, maps, prisms.",
+   "fields": {
+    "shape": "[[x,y],...] polygon",
+    "depth": "n",
+    "bevel": "n"
+   }
+  },
+  "tube": {
+   "about": "Pipe following a smooth path through points: wires, veins, DNA strands, roads.",
+   "fields": {
+    "points": "[[x,y,z],...]",
+    "radius": "n",
+    "closed": "bool"
+   }
+  },
+  "curve": {
+   "about": "Glowing line from parametric expressions of u in `range` (default 0..1). Use for trajectories, waves, field lines, graphs.",
+   "fields": {
+    "x": "expr of u,t",
+    "y": "expr",
+    "z": "expr",
+    "range": "[u0,u1]",
+    "samples": "points (default 160)",
+    "points": "alternative: [[x,y,z],...] (each may be an expression)",
+    "color": "palette or hex",
+    "width": "pixels",
+    "draw": "expression 0..1: fraction of the curve already drawn (animate with clamp((t-1)/2,0,1))",
+    "dashed": "bool",
+    "opacity": "n",
+    "plot": "{x:[xmin,xmax], y:[ymin,ymax], w, h}: plot data-space expressions instead of world coordinates; the curve is drawn into a box w x h units. Use with `var` (default X): y is an expression of X, e.g. y 'sim(3,0,X)' for the v-t graph of body 0",
+    "var": "name of the independent variable used with plot (default X)"
+   }
+  },
+  "arrow": {
+   "about": "Vector arrow from `from` to `to` (each [x,y,z] expressions). Use for forces, velocities, fields, flows.",
+   "fields": {
+    "from": "[x,y,z]",
+    "to": "[x,y,z]",
+    "color": "palette or hex",
+    "thickness": "n or expression"
+   }
+  },
+  "surface": {
+   "about": "Parametric surface; shape and motion from expressions of u,v,t: waves, potential wells, terrain, membranes, sheets.",
+   "fields": {
+    "x": "expr of u,v,t",
+    "y": "expr",
+    "z": "expr",
+    "uRange": "[a,b]",
+    "vRange": "[a,b]",
+    "resolution": "[nu,nv]",
+    "wireframe": "bool",
+    "material": "as object material"
+   }
+  },
+  "particles": {
+   "about": "Up to 4000 small spheres each positioned by expressions of i,n,f,t: gas molecules, electrons, ions, stars, dust, crowds, data packets.",
+   "fields": {
+    "count": "n",
+    "x": "expr",
+    "y": "expr",
+    "z": "expr",
+    "radius": "n or expr",
+    "color": "palette or hex"
+   }
+  },
+  "flow": {
+   "about": "Explainer kit: dots that travel along a path, for blood, current, fuel, air, data or money flowing through a system. Optionally drawn inside a translucent pipe. Use several flows with different colours to show different substances (for example red oxygenated and blue deoxygenated blood).",
+   "fields": {
+    "points": "[[x,y,z],...] at least 2 static numbers; the path is a smooth curve through them",
+    "count": "number of dots (default 40, max 600)",
+    "speed": "path lengths per second, number or expression (default 0.25)",
+    "size": "dot radius (default 0.06)",
+    "spread": "random sideways scatter of dots, in units (default 0)",
+    "pipe": "true or a radius to draw a translucent tube along the path",
+    "color": "palette name or hex",
+    "loop": "false to run once instead of repeating"
+   }
+  },
+  "vectorfield": {
+   "about": "Grid of small oriented cones showing a vector field.",
+   "fields": {
+    "grid": "[nx,ny,nz]",
+    "bounds": "[[x0,x1],[y0,y1],[z0,z1]]",
+    "vx": "expr of x,y,z,t",
+    "vy": "expr",
+    "vz": "expr",
+    "scale": "length multiplier",
+    "color": "palette or hex"
+   }
+  },
+  "glow": {
+   "about": "Additive soft light sprite; marks hot spots, energy, stars.",
+   "fields": {
+    "size": "n",
+    "color": "palette or hex",
+    "intensity": "0..1"
+   }
+  },
+  "label": {
+   "about": "Text floating in 3D space that always faces the camera. Keep to 1-3 words.",
+   "fields": {
+    "text": "string",
+    "size": "world height",
+    "color": "palette or hex",
+    "glow": "bool"
+   }
+  },
+  "image": {
+   "about": "Textured plane for real photographs, diagrams or archival images. Give a short `query` describing the photo; the pipeline downloads a matching public-domain image and fills `src`.",
+   "fields": {
+    "query": "search phrase",
+    "size": "[w,h] world units; match the photo's likely aspect ratio",
+    "dim": "0..1 brightness"
+   }
+  },
+  "light": {
+   "about": "Extra point light attached to this position, for local glows.",
+   "fields": {
+    "kind": "point|spot",
+    "color": "n",
+    "intensity": "n",
+    "distance": "n"
+   }
+  },
+  "prop": {
+   "about": "A ready-made prefab from the prop library (people, crowds, halls, buildings, flags, books, lamps, trees, atoms, planets...). The list of prefabs, their parameters and poses is given under 'Prop library'. PREFER props for people and places: they carry far more recognisable detail than primitives.",
+   "fields": {
+    "prefab": "prefab name from the library",
+    "pose": "pose name (humanoid only)",
+    "params": "object of prefab parameters, e.g. {\"top\":\"#2b4c7e\",\"turban\":1}; values may be numbers, colours or expressions of t"
+   }
+  }
+ },
+ "overlay_kinds": {
+  "title": {
+   "about": "Large headline text, no card. At most 7 words.",
+   "fields": {
+    "text": "string"
+   }
+  },
+  "formula": {
+   "about": "LaTeX equation in a card. Use real LaTeX (\\frac, \\Delta, ^).",
+   "fields": {
+    "latex": "string",
+    "caption": "optional small line under it"
+   }
+  },
+  "callout": {
+   "about": "Short sentence in a card with an accent bar. At most 12 words.",
+   "fields": {
+    "text": "string"
+   }
+  },
+  "stat": {
+   "about": "Big number with a label.",
+   "fields": {
+    "value": "string e.g. '9.8 m/s²'",
+    "label": "string"
+   }
+  },
+  "tag": {
+   "about": "Small label pinned to a 3D object; follows it as it moves. Add style 'pin' for a dot on the part with a leader line to the label (best for labelling parts of a machine, organ or diagram).",
+   "fields": {
+    "target": "object id",
+    "text": "string, 1-4 words",
+    "offset": "[x,y,z] optional world offset",
+    "style": "optional 'pin'",
+    "side": "for style pin: 'right' (default), 'left', 'up' or 'down'",
+    "distance": "for style pin: pixels from the part to the label (default 150)"
+   }
+  },
+  "derivation": {
+   "about": "Step-by-step derivation: several LaTeX lines that appear one after another. Use for derivations and worked solutions; at most 4 lines per card.",
+   "fields": {
+    "lines": "array of LaTeX strings",
+    "step": "seconds between lines (default 1.2)",
+    "caption": "optional small line"
+   }
+  },
+  "pop": {
+   "about": "Explainer kit: ONE big word flashed in the middle of the screen at the exact moment the narrator says it. Use for the key term of a beat (a single word, at most two words). Not a caption: the normal captions keep running.",
+   "fields": {
+    "word": "the word exactly as it appears in the narration of this beat; the renderer times it to the speech",
+    "occurrence": "1 for the first time the word is said, 2 for the second (default 1)",
+    "text": "optional different display text",
+    "anchor": "top|upper|center|lower (default center)"
+   }
+  },
+  "sticker": {
+   "about": "Explainer kit: loud rounded label in the accent colour with a slight tilt, for the one rule or result the viewer must remember (for example 'PRESSURE UP: SHIFTS RIGHT'). At most 6 words, may contain a line break.",
+   "fields": {
+    "text": "string",
+    "tilt": "degrees, default -3",
+    "at": "scene seconds",
+    "until": "scene seconds"
+   }
+  }
+ },
+ "overlay_common": {
+  "at": "scene-local seconds when it appears",
+  "until": "scene-local seconds when it leaves (default end of scene)",
+  "anchor": "top | upper | center | lower (tag ignores)",
+  "color": "palette name or hex"
+ },
+ "camera": {
+  "position": "[x,y,z] expressions",
+  "target": "[x,y,z] expressions: the world point shown at the centre of the screen",
+  "fov": "vertical field of view in degrees, 30-50 typical (40 default)",
+  "roll": "degrees, small values (<6) for energy",
+  "framing": "The portrait frame is NARROW. With vertical fov F and camera distance d from the target: visible height = 2*d*tan(F/2); visible width = 0.5625 * visible height. Examples at fov 40: d=5 -> 2.0 wide x 3.6 tall; d=8 -> 2.9 x 5.8; d=12 -> 4.4 x 8.7; d=16 -> 5.8 x 11.7. Pick d so the hero subject occupies 60-80% of the visible width. Anything with |x - target.x| greater than half the visible width is off screen. Anything closer to the camera than ~1.5 units is clipped.",
+  "vertical_layout": "Screen rows (fraction of height from the top): 0-8% app UI, 8-30% 'top' text zone, 30-62% main subject zone, 55-70% 'lower' card zone, 70-100% captions and app UI. Aim the camera so the hero sits at 35-55% from the top: put target.y slightly BELOW the hero's centre (about 0.2 x visible height lower).",
+  "fit": "In scenes with a `sim` block the camera frames the whole simulated motion automatically (side view, all bodies and their paths visible with a margin). Set fit:false to use position and target yourself; margin (default 0.18) adds room.",
+  "tour": "Explainer kit: a camera flight through waypoints instead of position/target expressions: [{\"at\": seconds, \"position\":[x,y,z], \"target\":[x,y,z], \"fov\": optional}, ...], at least 2, sorted by time, at least 0.2 s apart, plain numbers. The camera eases to rest at the first and last waypoint and flows smoothly through the others. Use for tours of a machine, organ or diagram (move at most ~6 units between waypoints so the motion stays readable)."
+ },
+ "scene_fields": {
+  "look": "optional override of the reel look for this scene",
+  "params": "named numbers usable in expressions",
+  "floor": "false to hide the look's grid floor; in scenes with a sim block the floor is hidden unless you set it to true, because sim surfaces are drawn instead",
+  "transition": "{type:'dip'|'none', duration} for entering this scene",
+  "sim": "Motion simulator (side view in the x-y plane, y up, SI units). Real physics, not animation: results obey Newton's laws, so use it for any motion topic. Fields: gravity [gx,gy] default [0,-9.8]; timeScale (slow motion < 1); start (scene second when it begins); fields {E:[Ex,Ey], B: out-of-screen positive}; nbody {G} (bodies attract each other by inverse-square gravity); bodies [{id, kind:'ball'|'block'|'point'|'ring', m, r (ball radius or block half height), size:[w,h] (block), pos:[x,y], vel:[vx,vy], omega, theta, q (charge), restitution 0..1, drag:{lin, quad}, forces:[{F:[fx,fy], from, to}], torque, I (moment of inertia), pinned, bind (id of a scene object or prefab that becomes the body's picture; otherwise a default ball or box is drawn), color, material, trail:{color,width}, vectors:['v','a','F'] (arrows that follow the body)}]; surfaces [{p1:[x,y], p2:[x,y], mu (friction), e (bounciness), draw (default true), thickness, flip (swap the free side; the free side is to the LEFT of the direction p1 to p2)}]; springs [{a, b, k, L0, c}] (a and b are body ids or [x,y]); joints [{type:'rod'|'rope', a, b, length}] or {type:'pulley', a, b, pulley:[x,y], r (pulley radius), length (rope length without the wrap)}. Balls roll when friction allows; blocks slide flush on surfaces. Everything is computed once per scene, so graphs can plot it with sim(). Start from the recipes below. IMPORTANT: only sim surfaces stop bodies; boxes and other scene objects are just pictures. With gravity and no surfaces a ground at y = 0 is added automatically (set ground:false for free fall in space). Springs (coils), rods, ropes and pulley ropes are DRAWN AUTOMATICALLY between their ends (draw:false to hide, color/width/turns/radius to style); do not draw them again as objects. Anchors given as [x,y] are fixed points: draw a wall, ceiling or pivot there yourself."
+ }
+}

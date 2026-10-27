@@ -1,0 +1,60 @@
+{
+ "about": "A closed hardback book lying flat (rotate to stand it). Cover colour and thickness adjustable.",
+ "params_doc": {
+  "cover": "cover colour",
+  "width": "book width",
+  "depth": "book depth",
+  "thick": "thickness"
+ },
+ "params": {
+  "cover": "#7a2f2a",
+  "width": 0.6,
+  "depth": 0.85,
+  "thick": 0.12
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    "${thick}",
+    "${depth}"
+   ],
+   "bevel": 0.015,
+   "material": {
+    "color": "${cover}",
+    "roughness": 0.6,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "${thick}/2",
+    0
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    "${width}-0.06",
+    "${thick}-0.03",
+    "${depth}-0.04"
+   ],
+   "bevel": 0.004,
+   "material": {
+    "color": "#eadfc6",
+    "roughness": 0.95,
+    "metalness": 0,
+    "pattern": {
+     "kind": "lines",
+     "count": 30,
+     "color2": "#8a7b5a"
+    }
+   },
+   "position": [
+    0.015,
+    "${thick}/2",
+    0
+   ]
+  }
+ ]
+}

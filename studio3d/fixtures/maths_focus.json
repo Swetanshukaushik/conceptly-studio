@@ -1,0 +1,171 @@
+{
+ "version": 1,
+ "look": "maths_navy",
+ "layout": "maths",
+ "header": [
+  "01 / Parabolas",
+  "Why is every point dancing equally?",
+  "Locus of focus and directrix"
+ ],
+ "duration": 16,
+ "fps": 30,
+ "captions": [
+  {
+   "w": "Every",
+   "t0": 0.3,
+   "t1": 0.6
+  },
+  {
+   "w": "point",
+   "t0": 0.65,
+   "t1": 0.95
+  },
+  {
+   "w": "on",
+   "t0": 1.0,
+   "t1": 1.3
+  },
+  {
+   "w": "the",
+   "t0": 1.35,
+   "t1": 1.65
+  },
+  {
+   "w": "curve",
+   "t0": 1.7,
+   "t1": 2.0
+  },
+  {
+   "w": "is",
+   "t0": 2.05,
+   "t1": 2.35
+  },
+  {
+   "w": "as",
+   "t0": 2.4,
+   "t1": 2.7
+  },
+  {
+   "w": "far",
+   "t0": 2.75,
+   "t1": 3.05
+  },
+  {
+   "w": "from",
+   "t0": 3.1,
+   "t1": 3.4
+  },
+  {
+   "w": "the",
+   "t0": 3.45,
+   "t1": 3.75
+  },
+  {
+   "w": "focus",
+   "t0": 3.8,
+   "t1": 4.1
+  },
+  {
+   "w": "as",
+   "t0": 4.15,
+   "t1": 4.45
+  },
+  {
+   "w": "from",
+   "t0": 4.5,
+   "t1": 4.8
+  },
+  {
+   "w": "the",
+   "t0": 4.85,
+   "t1": 5.15
+  },
+  {
+   "w": "directrix.",
+   "t0": 5.2,
+   "t1": 5.5
+  }
+ ],
+ "scenes": [
+  {
+   "id": "a",
+   "start": 0,
+   "end": 8,
+   "floor": false,
+   "camera": {
+    "position": [
+     0,
+     0.2,
+     9
+    ],
+    "target": [
+     0,
+     0.2,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "type": "prop",
+     "prefab": "parabola_focus",
+     "params": {
+      "p": 1,
+      "xp": "2.5*sin(t*1.2)",
+      "t0": 0.8
+     },
+     "position": [
+      0,
+      0.2,
+      0
+     ]
+    }
+   ],
+   "overlays": [
+    {
+     "kind": "sticker",
+     "text": "PF = PM, always",
+     "anchor": "top",
+     "at": 3
+    }
+   ]
+  },
+  {
+   "id": "b",
+   "start": 8,
+   "end": 16,
+   "floor": false,
+   "camera": {
+    "position": [
+     0,
+     0.2,
+     9
+    ],
+    "target": [
+     0,
+     0.2,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "type": "prop",
+     "prefab": "parabola_focus",
+     "params": {
+      "p": 2,
+      "orient": 1,
+      "xp": "3*sin(t*1.2)",
+      "t0": 0.8
+     },
+     "position": [
+      0,
+      0.2,
+      0
+     ]
+    }
+   ],
+   "overlays": []
+  }
+ ]
+}

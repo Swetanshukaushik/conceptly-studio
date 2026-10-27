@@ -1,0 +1,37 @@
+{
+  "name": "physics",
+  "label": "Physics",
+  "status": "ready",
+  "summary": "Simulator-driven scenes: forces, motion, energy, fields, waves. Hero-machine tours are planned.",
+  "subjects": [
+    "physics"
+  ],
+  "layout_hint": "explainer_window",
+  "look_hint": "obsidian_lab",
+  "requires_sim": true,
+  "kits": [
+    "sim",
+    "graph",
+    "derivation",
+    "prop_mechanisms",
+    "formula_cards"
+  ],
+  "verification": [
+    "simulator_vs_textbook",
+    "narrated_numbers"
+  ],
+  "persona": {
+    "archetype": "einstein_photo",
+    "status": "ready",
+    "fallback": "einstein_like"
+  },
+  "tiers": {
+    "free": "ready",
+    "premium": "planned"
+  },
+  "prompt": "packs/physics.md",
+  "claims": {
+    "required": false,
+    "coverage": "note"
+  }
+}

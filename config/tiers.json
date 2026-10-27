@@ -1,0 +1,75 @@
+{
+  "default_tier": "free",
+  "tiers": {
+    "free": {
+      "label": "Free",
+      "subtitle": "In-house",
+      "icon": "⚡",
+      "accent": "emerald",
+      "status": "available",
+      "aliases": ["FREE", "DEFAULT", "TIER_1_FLASH", "TIER_2_AVATAR", "TIER_3_STEM"],
+      "renderer": "studio3d",
+      "est_cost_usd": 0.0,
+      "cost_cap_usd": 0.05,
+      "price_label": "$0.00",
+      "tagline": "Our own 3D engine. Zero per-reel render cost.",
+      "summary": "Declarative 3D scenes (three.js), real physics simulation, KaTeX maths, synced neural voice and captions. Runs on your machine; only the script LLM call costs anything.",
+      "highlights": [
+        "3D scenes, graphs, derivations, particle labs",
+        "Physics simulator checked against textbook formulas",
+        "Layout lint and vision QA with one auto-retry",
+        "Best for physics, chemistry and maths"
+      ],
+      "required_keys": ["GEMINI_API_KEY"],
+      "providers": { "llm": ["gemini", "anthropic"], "images": ["wikimedia"], "tts": ["edge_tts"], "video": [] },
+      "limits": { "min_seconds": 25, "max_seconds": 75 }
+    },
+    "premium": {
+      "label": "Premium",
+      "subtitle": "Generated imagery + selective video",
+      "icon": "🎬",
+      "accent": "blue",
+      "status": "planned",
+      "status_note": "Coming next",
+      "aliases": ["PREMIUM", "TIER_4_CINEMA"],
+      "renderer": "studio3d+generative_video",
+      "est_cost_usd": 2.0,
+      "cost_cap_usd": 3.0,
+      "price_label": "~$0.50–$2",
+      "tagline": "Photoreal scenes for history, civics and biology.",
+      "summary": "Generated stills with in-house camera moves, plus a few short generated video clips on the key moments. Provider adapters and a hard spend cap per reel.",
+      "highlights": [
+        "Generated stills with parallax and camera moves",
+        "2–4 short video clips per reel, at 720p",
+        "Premium narration voice",
+        "Hard spend cap enforced before every call"
+      ],
+      "required_keys": ["GEMINI_API_KEY", "IMAGE_PROVIDER_KEY", "VIDEO_PROVIDER_KEY"],
+      "providers": { "llm": ["anthropic", "gemini"], "images": ["image_model"], "tts": ["tts_premium"], "video": ["video_model"] },
+      "limits": { "min_seconds": 25, "max_seconds": 75, "generative_video_seconds": 20 }
+    },
+    "ultra": {
+      "label": "Ultra",
+      "subtitle": "Cinematic",
+      "icon": "👑",
+      "accent": "amber",
+      "status": "later",
+      "status_note": "Later",
+      "aliases": ["ULTRA", "TIER_5_KURZGESAGT"],
+      "renderer": "studio3d+generative_video",
+      "est_cost_usd": 10.0,
+      "cost_cap_usd": 15.0,
+      "price_label": "TBD",
+      "tagline": "Full cinematic generation. Not being built yet.",
+      "summary": "Reserved for a later phase once Free and Premium are solid.",
+      "highlights": [
+        "Longer generated video coverage",
+        "Highest-fidelity models",
+        "Scope and pricing to be decided"
+      ],
+      "required_keys": [],
+      "providers": { "llm": ["anthropic"], "images": ["image_model"], "tts": ["tts_premium"], "video": ["video_model"] },
+      "limits": { "min_seconds": 25, "max_seconds": 75, "generative_video_seconds": 45 }
+    }
+  }
+}

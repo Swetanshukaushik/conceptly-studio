@@ -1,0 +1,23 @@
+{
+  "name": "generic",
+  "label": "General explainer",
+  "status": "partial",
+  "summary": "Fallback for topics no pack claims: a clear mechanism, process or comparison built from the shared kit.",
+  "subjects": [],
+  "layout_hint": "explainer_window",
+  "look_hint": "obsidian_lab",
+  "requires_sim": false,
+  "kits": [
+    "graph",
+    "derivation",
+    "formula_cards",
+    "image_resolver"
+  ],
+  "verification": [],
+  "persona": null,
+  "tiers": {
+    "free": "partial",
+    "premium": "planned"
+  },
+  "prompt": "packs/generic.md"
+}

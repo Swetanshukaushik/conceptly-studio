@@ -1,0 +1,118 @@
+{
+ "about": "Carbon dioxide molecule CO2 (linear, C=O 1.16 A). Ball-and-stick model with true bond lengths and angles; it turns slowly.",
+ "params_doc": {
+  "size": "scale",
+  "spin": "degrees per second of slow rotation about the vertical axis"
+ },
+ "bounds": {
+  "size": [
+   1.6,
+   1.6
+  ],
+  "center": [
+   0,
+   0
+  ]
+ },
+ "params": {
+  "size": 1,
+  "spin": 25
+ },
+ "objects": [
+  {
+   "type": "group",
+   "scale": "${size}",
+   "rotation": [
+    0,
+    "${spin}*t",
+    0
+   ],
+   "children": [
+    {
+     "type": "sphere",
+     "radius": 0.2,
+     "material": {
+      "color": "#4a4f57",
+      "roughness": 0.35,
+      "metalness": 0.05
+     },
+     "position": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "type": "sphere",
+     "radius": 0.19,
+     "material": {
+      "color": "#ff2a2a",
+      "roughness": 0.35,
+      "metalness": 0.05
+     },
+     "position": [
+      0.638,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "type": "sphere",
+     "radius": 0.19,
+     "material": {
+      "color": "#ff2a2a",
+      "roughness": 0.35,
+      "metalness": 0.05
+     },
+     "position": [
+      -0.638,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "type": "tube",
+     "points": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.638,
+       0.0,
+       0.0
+      ]
+     ],
+     "radius": 0.045,
+     "material": {
+      "color": "#c9ced8",
+      "roughness": 0.5,
+      "metalness": 0.2
+     }
+    },
+    {
+     "type": "tube",
+     "points": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       -0.638,
+       0.0,
+       0.0
+      ]
+     ],
+     "radius": 0.045,
+     "material": {
+      "color": "#c9ced8",
+      "roughness": 0.5,
+      "metalness": 0.2
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,379 @@
+{
+ "about": "Maths graph board with axes through the origin, unit tick marks, up to two curves drawn progressively from expressions of X, a moving point with dashed-style drop lines to both axes, and one optional permanent highlighted point (vertex, intercept, solution). Set xmin<0<xmax and ymin<0 or 0 as needed; ticks are one per unit (nx = xmax-xmin+1, ny = ymax-ymin+1, at most 13 each). Curves may use `t` and the scene `params` so the equation itself can animate (for example a coefficient moving from 1 to -1 shows the parabola flipping). The origin of the prop is the centre of the plot rectangle. Curve 1 is y1 = X^2 by default: set s1 to 0 or give your own y1 for any other topic.",
+ "params_doc": {
+  "w": "plot width",
+  "h": "plot height",
+  "xmin": "X at the left (integer)",
+  "xmax": "X at the right (integer)",
+  "ymin": "Y at the bottom (integer)",
+  "ymax": "Y at the top (integer)",
+  "nx": "xmax-xmin+1",
+  "ny": "ymax-ymin+1",
+  "y1": "expression of X for curve 1",
+  "y2": "curve 2",
+  "s1": "1 to show curve 1",
+  "s2": "1 to show curve 2",
+  "c1": "colour 1",
+  "c2": "colour 2",
+  "t0": "scene time when drawing starts",
+  "dur": "seconds to draw the curves",
+  "cursor": "1 = moving point with drop lines on curve 1",
+  "ps": "1 to show the permanent point",
+  "px": "X of the permanent point",
+  "py": "Y of the permanent point",
+  "pt": "scene time when the permanent point appears",
+  "plabel": "label of the permanent point (ASCII)",
+  "xname": "x axis name",
+  "yname": "y axis name",
+  "x1": "optional x of curve 1 as an expression of X (default X); with y1 it draws sideways or parametric curves, e.g. x1 'X^2/8' and y1 'X' is a parabola opening to the right",
+  "smin": "lowest value of X sampled (default xmin; use ymin for a sideways curve)",
+  "smax": "highest value of X sampled (default xmax)"
+ },
+ "bounds": {
+  "size": [
+   3.6,
+   3.6
+  ],
+  "center": [
+   0,
+   0
+  ]
+ },
+ "params": {
+  "w": 3.0,
+  "h": 3.0,
+  "xmin": -3,
+  "xmax": 3,
+  "ymin": -1,
+  "ymax": 9,
+  "nx": 7,
+  "ny": 11,
+  "y1": "X^2",
+  "y2": "0",
+  "s1": 1,
+  "s2": 0,
+  "c1": "primary",
+  "c2": "accent",
+  "t0": 0.4,
+  "dur": 3,
+  "cursor": 1,
+  "ps": 0,
+  "px": 0,
+  "py": 0,
+  "pt": 0,
+  "plabel": "",
+  "xname": "x",
+  "yname": "y",
+  "x1": "X",
+  "smin": "${xmin}",
+  "smax": "${xmax}"
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${w}",
+    0.03,
+    0.03
+   ],
+   "material": {
+    "color": "muted",
+    "emissive": "muted",
+    "emissiveIntensity": 0.0,
+    "roughness": 0.5
+   },
+   "position": [
+    0,
+    "(${h})*(-(${ymin}))/(${ymax}-${ymin})-(${h})/2",
+    0
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    0.03,
+    "${h}",
+    0.03
+   ],
+   "material": {
+    "color": "muted",
+    "emissive": "muted",
+    "emissiveIntensity": 0.0,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})*(-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+    0,
+    0
+   ]
+  },
+  {
+   "type": "cone",
+   "radius": 0.07,
+   "height": 0.18,
+   "material": {
+    "color": "muted",
+    "emissive": "muted",
+    "emissiveIntensity": 0.0,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})/2+0.06",
+    "(${h})*(-(${ymin}))/(${ymax}-${ymin})-(${h})/2",
+    0
+   ],
+   "rotation": [
+    0,
+    0,
+    -90
+   ]
+  },
+  {
+   "type": "cone",
+   "radius": 0.07,
+   "height": 0.18,
+   "material": {
+    "color": "muted",
+    "emissive": "muted",
+    "emissiveIntensity": 0.0,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})*(-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+    "(${h})/2+0.06",
+    0
+   ]
+  },
+  {
+   "type": "label",
+   "text": "${xname}",
+   "size": 0.2,
+   "color": "muted",
+   "position": [
+    "(${w})/2+0.3",
+    "(${h})*(-(${ymin}))/(${ymax}-${ymin})-(${h})/2",
+    0
+   ]
+  },
+  {
+   "type": "label",
+   "text": "${yname}",
+   "size": 0.2,
+   "color": "muted",
+   "position": [
+    "(${w})*(-(${xmin}))/(${xmax}-${xmin})-(${w})/2+0.26",
+    "(${h})/2+0.12",
+    0
+   ]
+  },
+  {
+   "repeat": "${nx}",
+   "type": "box",
+   "size": [
+    0.025,
+    0.12,
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "emissive": "muted",
+    "emissiveIntensity": 0.0,
+    "roughness": 0.5
+   },
+   "position": [
+    "${i}*(${w})/(${xmax}-${xmin})-(${w})/2",
+    "(${h})*(-(${ymin}))/(${ymax}-${ymin})-(${h})/2",
+    0
+   ]
+  },
+  {
+   "repeat": "${ny}",
+   "type": "box",
+   "size": [
+    0.12,
+    0.025,
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "emissive": "muted",
+    "emissiveIntensity": 0.0,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})*(-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+    "${i}*(${h})/(${ymax}-${ymin})-(${h})/2",
+    0
+   ]
+  },
+  {
+   "type": "curve",
+   "plot": {
+    "x": [
+     "${xmin}",
+     "${xmax}"
+    ],
+    "y": [
+     "${ymin}",
+     "${ymax}"
+    ],
+    "w": "${w}",
+    "h": "${h}",
+    "s": [
+     "${smin}",
+     "${smax}"
+    ]
+   },
+   "var": "X",
+   "y": "${y1}",
+   "samples": 200,
+   "color": "${c1}",
+   "width": 7,
+   "draw": "clamp((t-${t0})/${dur},0,1)",
+   "position": [
+    "-(${w})/2",
+    "-(${h})/2",
+    0
+   ],
+   "visible": "${s1}",
+   "x": "${x1}"
+  },
+  {
+   "type": "curve",
+   "plot": {
+    "x": [
+     "${xmin}",
+     "${xmax}"
+    ],
+    "y": [
+     "${ymin}",
+     "${ymax}"
+    ],
+    "w": "${w}",
+    "h": "${h}",
+    "s": [
+     "${xmin}",
+     "${xmax}"
+    ]
+   },
+   "var": "X",
+   "y": "${y2}",
+   "samples": 200,
+   "color": "${c2}",
+   "width": 7,
+   "draw": "clamp((t-${t0})/${dur},0,1)",
+   "position": [
+    "-(${w})/2",
+    "-(${h})/2",
+    0
+   ],
+   "visible": "${s2}"
+  },
+  {
+   "type": "sphere",
+   "radius": 0.075,
+   "material": {
+    "color": "accent",
+    "emissive": "accent",
+    "emissiveIntensity": 1.2,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})*((${x1})-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+    "(${h})*clamp(((${y1})-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+    0
+   ],
+   "visible": "${s1}*${cursor}",
+   "vars": {
+    "X": "(${smin}+(${smax}-${smin})*clamp((t-${t0})/${dur},0,1))"
+   }
+  },
+  {
+   "type": "box",
+   "size": [
+    0.012,
+    1,
+    0.012
+   ],
+   "material": {
+    "color": "accent",
+    "opacity": 0.55,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})*((${x1})-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+    "((${h})*(-(${ymin}))/(${ymax}-${ymin})-(${h})/2+(${h})*clamp(((${y1})-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2)/2",
+    0
+   ],
+   "scale": [
+    1,
+    "abs((${h})*clamp(((${y1})-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2-((${h})*(-(${ymin}))/(${ymax}-${ymin})-(${h})/2))",
+    1
+   ],
+   "visible": "${s1}*${cursor}",
+   "vars": {
+    "X": "(${smin}+(${smax}-${smin})*clamp((t-${t0})/${dur},0,1))"
+   }
+  },
+  {
+   "type": "box",
+   "size": [
+    1,
+    0.012,
+    0.012
+   ],
+   "material": {
+    "color": "accent",
+    "opacity": 0.55,
+    "roughness": 0.5
+   },
+   "position": [
+    "((${w})*(-(${xmin}))/(${xmax}-${xmin})-(${w})/2+(${w})*((${x1})-(${xmin}))/(${xmax}-${xmin})-(${w})/2)/2",
+    "(${h})*clamp(((${y1})-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+    0
+   ],
+   "scale": [
+    "abs((${w})*((${x1})-(${xmin}))/(${xmax}-${xmin})-(${w})/2-((${w})*(-(${xmin}))/(${xmax}-${xmin})-(${w})/2))",
+    1,
+    1
+   ],
+   "visible": "${s1}*${cursor}",
+   "vars": {
+    "X": "(${smin}+(${smax}-${smin})*clamp((t-${t0})/${dur},0,1))"
+   }
+  },
+  {
+   "type": "sphere",
+   "radius": 0.095,
+   "material": {
+    "color": "warn",
+    "emissive": "warn",
+    "emissiveIntensity": 1.2,
+    "roughness": 0.5
+   },
+   "position": [
+    "(${w})*((${px})-(${xmin}))/(${xmax}-${xmin})-(${w})/2",
+    "(${h})*clamp(((${py})-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2",
+    0
+   ],
+   "visible": "${ps}*(t>=${pt})",
+   "appear": {
+    "at": "${pt}",
+    "duration": 0.3,
+    "style": "pop"
+   }
+  },
+  {
+   "type": "label",
+   "text": "${plabel}",
+   "size": 0.2,
+   "color": "warn",
+   "position": [
+    "(${w})*((${px})-(${xmin}))/(${xmax}-${xmin})-(${w})/2+0.55",
+    "(${h})*clamp(((${py})-(${ymin}))/(${ymax}-${ymin}),-0.05,1.05)-(${h})/2+0.25",
+    0
+   ],
+   "visible": "${ps}*(t>=${pt})"
+  }
+ ]
+}

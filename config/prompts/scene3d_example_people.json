@@ -1,0 +1,160 @@
+{
+ "look": "warm_archive",
+ "scenes": [
+  {
+   "beat": 1,
+   "intent": "Show a speaker addressing a hall so the viewer sees who is speaking and where",
+   "staging": "A figure in a blue jacket speaks behind a podium in a brick hall; a lamp glows left; the camera drifts right and pushes in.",
+   "params": {},
+   "camera": {
+    "position": [
+     "mix(-1.2,1.0,smooth(0,1,p))",
+     1.7,
+     "mix(8.8,6.8,smooth(0,1,p))"
+    ],
+    "target": [
+     0,
+     1.1,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "id": "hall",
+     "type": "prop",
+     "prefab": "hall",
+     "params": {
+      "width": 6,
+      "depth": 6,
+      "columns": 3
+     }
+    },
+    {
+     "id": "speaker",
+     "type": "prop",
+     "prefab": "humanoid",
+     "pose": "speak",
+     "position": [
+      0,
+      0,
+      0.5
+     ],
+     "params": {
+      "top": "#2b4c7e",
+      "glasses": 1
+     },
+     "appear": {
+      "at": 0.2
+     }
+    },
+    {
+     "id": "podium",
+     "type": "prop",
+     "prefab": "podium",
+     "position": [
+      0,
+      0,
+      1.2
+     ]
+    },
+    {
+     "id": "lamp",
+     "type": "prop",
+     "prefab": "lamp",
+     "position": [
+      -1.6,
+      0,
+      0.5
+     ]
+    },
+    {
+     "id": "dust",
+     "type": "particles",
+     "count": 120,
+     "x": "-2.5+5*hash(i*1.7)",
+     "y": "mod(0.3+3.5*hash(i*2.3)+t*0.1,4)",
+     "z": "-2+4*hash(i*3.1)",
+     "radius": 0.008,
+     "color": "accent"
+    }
+   ],
+   "overlays": [
+    {
+     "kind": "title",
+     "text": "<headline from the narration>",
+     "anchor": "top",
+     "at": 0.3,
+     "until": 3
+    }
+   ]
+  },
+  {
+   "beat": 2,
+   "intent": "Show a crowd reacting, to convey public energy",
+   "staging": "A crowd of fourteen people cheers with raised arms in front of a waving flag; the camera tracks slowly upward.",
+   "params": {},
+   "camera": {
+    "position": [
+     0,
+     "mix(1.3,1.9,smooth(0,1,p))",
+     8.5
+    ],
+    "target": [
+     0,
+     1.0,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "id": "crowd",
+     "type": "prop",
+     "prefab": "crowd",
+     "params": {
+      "count": 14,
+      "spread": 1.6,
+      "depth": 2,
+      "pose": "cheer"
+     }
+    },
+    {
+     "id": "flag",
+     "type": "prop",
+     "prefab": "flag",
+     "position": [
+      -1.9,
+      0,
+      -1
+     ],
+     "params": {
+      "top": "#8a2a2a",
+      "mid": "#f0e6d0",
+      "bottom": "#2a3f7a"
+     }
+    },
+    {
+     "id": "dust",
+     "type": "particles",
+     "count": 100,
+     "x": "-3+6*hash(i*1.9)",
+     "y": "mod(0.3+3*hash(i*2.3)+t*0.2,3.5)",
+     "z": "-2+3*hash(i*3.7)",
+     "radius": 0.008,
+     "color": "accent"
+    }
+   ],
+   "overlays": [
+    {
+     "kind": "callout",
+     "text": "<one short sentence from the narration>",
+     "anchor": "lower",
+     "at": 1.0,
+     "until": 3.8,
+     "color": "primary"
+    }
+   ]
+  }
+ ]
+}

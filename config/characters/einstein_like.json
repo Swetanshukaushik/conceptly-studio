@@ -1,0 +1,27 @@
+{
+  "name": "einstein_like",
+  "label": "Einstein-like physics narrator",
+  "inspired_by": "a wild-haired, moustached physicist (stylised cartoon archetype, not a likeness)",
+  "subjects": [
+    "physics"
+  ],
+  "voice_hint": "warm, curious, slightly playful",
+  "params": {
+    "skin": "#e2b08c",
+    "hair": "#d4d0c8",
+    "stacheColor": "#d8d4cc",
+    "brow": "#cfcbc3",
+    "top": "#3d4658",
+    "bottom": "#2a2f3a",
+    "forearm": "#3d4658",
+    "headScale": 1.9,
+    "stache": 1.25,
+    "puffs": 14,
+    "wild": 1.0,
+    "hairCap": 0.72,
+    "hairLift": 0.0,
+    "chops": 0,
+    "tieOn": 0,
+    "browTilt": 8
+  }
+}

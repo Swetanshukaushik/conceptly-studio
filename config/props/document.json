@@ -1,0 +1,55 @@
+{
+ "about": "A sheet of paper, letter, notice, constitution page or poster standing upright, with a title and ruled text lines. Faces +z.",
+ "params_doc": {
+  "title": "short heading text drawn on the sheet (1-3 words)",
+  "width": "sheet width",
+  "height": "sheet height",
+  "paper": "paper colour",
+  "ink": "text colour"
+ },
+ "params": {
+  "title": "",
+  "width": 0.9,
+  "height": 1.25,
+  "paper": "#e6dcc3",
+  "ink": "#2a2118"
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    "${height}",
+    0.015
+   ],
+   "bevel": 0.004,
+   "material": {
+    "color": "${paper}",
+    "roughness": 0.95,
+    "metalness": 0,
+    "pattern": {
+     "kind": "lines",
+     "count": 12,
+     "color2": "${ink}"
+    }
+   },
+   "position": [
+    0,
+    "${height}/2",
+    0
+   ]
+  },
+  {
+   "type": "label",
+   "text": "${title}",
+   "size": 0.1,
+   "color": "${ink}",
+   "billboard": false,
+   "position": [
+    0,
+    "${height}-0.14",
+    0.012
+   ]
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "maths",
+  "description": "Maths board: a small section tag, a headline and a one-line question at the top, a large square-ish picture window for the graph, captions below. Best for maths and graph-led explanations.",
+  "background": "#06101f",
+  "window": {
+    "x": 0,
+    "y": 500,
+    "width": 1080,
+    "height": 900
+  },
+  "header": {
+    "centerY": 300,
+    "size": 70,
+    "sizes": [
+      34,
+      72,
+      40
+    ],
+    "weights": [
+      700,
+      800,
+      600
+    ],
+    "uppercaseLines": [
+      true,
+      false,
+      false
+    ],
+    "tracking": [
+      0.14,
+      -0.01,
+      0
+    ],
+    "lineGap": 14,
+    "weight": 800,
+    "uppercase": false,
+    "colors": [
+      "primary",
+      "#ffffff",
+      "muted"
+    ],
+    "maxLines": 3,
+    "hint": "Provide `header`: exactly 3 lines: a section tag of at most 3 words like '01 / Parabolas', a headline of at most 28 characters, and a one-line subtitle of at most 40 characters.",
+    "fit": true
+  },
+  "overlayAnchors": {
+    "top": 0.02,
+    "upper": 0.1,
+    "center": 0.4,
+    "lower": 0.74
+  },
+  "captions": {
+    "bottom": 300,
+    "fontSize": 58,
+    "idleColor": "#ffffff",
+    "strokeColor": "#06101f"
+  },
+  "qa_note": "The top block (section tag, headline, subtitle) and the empty navy band at the bottom (captions are added later) are part of the layout. Judge the graph in the middle window only: clean axes, readable curve, no clutter."
+}

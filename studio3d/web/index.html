@@ -1,0 +1,80 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="/nm/katex/dist/katex.min.css">
+<script type="importmap">{"imports":{
+  "three":"/nm/three/build/three.module.js",
+  "three/addons/":"/nm/three/examples/jsm/",
+  "katex":"/nm/katex/dist/katex.mjs",
+  "katex/contrib/mhchem":"/nm/katex/dist/contrib/mhchem.mjs"}}</script>
+<style>
+  html,body{margin:0;background:#000;overflow:hidden}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+  canvas#gl{position:absolute;left:0;top:0}
+  #overlay-root{position:absolute;inset:0;font-family:"Inter",system-ui,sans-serif;color:var(--ink)}
+  .layer{position:absolute;inset:0;pointer-events:none}
+  .card{position:absolute;box-sizing:border-box;padding:28px 36px;border-radius:28px;background:var(--card-bg);
+    border:2px solid var(--card-border);box-shadow:var(--shadow);backdrop-filter:blur(14px);font-weight:800;
+    text-align:center;line-height:1.12;opacity:0;letter-spacing:-0.01em}
+  .card.title{background:none;border:none;box-shadow:none;backdrop-filter:none;padding:0;text-shadow:0 4px 30px rgba(0,0,0,.45)}
+  .card.callout{text-align:left;border-left:10px solid var(--c);font-weight:600}
+  .card .sub{font-size:0.42em;font-weight:600;color:var(--muted);margin-top:10px}
+  .card.stat .val{font-weight:800;color:var(--c);line-height:1}
+  .card.formula{color:var(--ink)} .card.formula .katex{color:var(--ink)}
+  .card.formula{border-color:var(--c)}
+  .tags .card{position:absolute;left:0;top:0;padding:12px 22px;border-radius:999px;font-weight:700;white-space:nowrap;border-color:var(--c)}
+  .card.pop{background:none;border:none;box-shadow:none;backdrop-filter:none;padding:0;color:var(--accent);font-weight:800;letter-spacing:-0.02em;
+    -webkit-text-stroke:0;paint-order:stroke fill;text-shadow:0 6px 0 rgba(0,0,0,.55),0 0 40px rgba(0,0,0,.55);white-space:nowrap}
+  .card.sticker{left:auto;right:auto;width:max-content;max-width:calc(100% - 112px);margin:0 auto;background:var(--c);color:#0b1020;border:none;border-radius:22px;padding:18px 30px;
+    text-transform:uppercase;font-weight:800;white-space:pre-line;box-shadow:0 10px 0 rgba(0,0,0,.35),0 18px 40px rgba(0,0,0,.35);backdrop-filter:none}
+  .tags .card.pin{border-radius:14px;padding:10px 18px}
+  .tags .card.pin::after{display:none}
+  .pinline{position:absolute;left:50%;top:50%;height:3px;background:var(--c);transform-origin:0 50%;z-index:-1}
+  .pindot{position:absolute;left:50%;top:50%;width:16px;height:16px;border-radius:50%;background:var(--c);box-shadow:0 0 0 4px rgba(255,255,255,.25)}
+  .tags .card::after{content:"";position:absolute;left:50%;bottom:-26px;width:3px;height:26px;background:var(--c);transform:translateX(-50%)}
+  .capbox{position:absolute;left:56px;right:56px;text-align:center;line-height:1.18;letter-spacing:-0.01em;
+    -webkit-text-stroke:0;paint-order:stroke fill;text-shadow:0 3px 0 var(--cap-stroke),0 0 26px var(--cap-stroke),0 0 6px var(--cap-stroke)}
+  .capbox .w{display:inline-block;margin:0 .3em;will-change:transform}
+  .card .dline{margin:8px 0;white-space:nowrap}
+  .fade{opacity:0;inset:auto}
+  .header{position:absolute;left:0;right:0;text-align:center;font-weight:800;letter-spacing:-0.01em;line-height:1;text-shadow:0 6px 26px rgba(0,0,0,.55)}
+  .header .hl{display:block}
+</style></head>
+<body><div id="stage"><canvas id="gl" width="1080" height="1920"></canvas><div id="overlay-root"></div></div>
+<script type="module">
+import { Engine } from '/web/engine.js';
+const cfg = await (await fetch('/config/render.json')).json();
+const looks = await (await fetch('/api/looks')).json();
+const layouts = await (await fetch('/api/layouts')).json();
+for (const f of cfg.typography.fonts) {
+  const ff = new FontFace(cfg.typography.family, `url(/nm/@fontsource/inter/files/${f.file})`, { weight: String(f.weight) });
+  document.fonts.add(await ff.load());
+}
+window.__studio = {
+  engine: null,
+  async init(spec) { const e = new Engine(spec, cfg, looks, layouts); await e.init(document.getElementById('gl')); this.engine = e; return true; },
+  async renderAt(T) { await this.engine.renderAt(T); return true; },
+  warnings() { return [...this.engine.warnings]; },
+  async lint() {
+    // Build every scene and evaluate it at several moments; report anything that throws or warns.
+    const e = this.engine, problems = [];
+    for (const [i, sc] of e.scenes.entries()) {
+      const before = new Set(e.warnings); e.warnings.clear();
+      for (const k of [0.02, 0.35, 0.7, 0.98]) {
+        const T = sc.start + (sc.end - sc.start) * k;
+        try { await e.renderAt(T); } catch (err) { problems.push(`scene ${i + 1} (beat ${sc.beat ?? '?'}) at ${T.toFixed(2)}s: ${err.message}`); break; }
+        const st = e.frameStats();   // (the first moments of a scene may still be empty: the black check skips them)
+        if (k > 0.1 && st.mean < 0.04 && st.bright < 0.0015) { problems.push(`scene ${i + 1} (beat ${sc.beat ?? '?'}) at ${T.toFixed(2)}s renders almost black: objects are missing, off screen or NaN`); break; }
+        if (st.contrast < 0.05 && st.mean > 0.2) { const msg = `scene ${i + 1} (beat ${sc.beat ?? '?'}): the picture is washed out (very low contrast, subjects hard to see): use stronger colours or a darker look, move the camera closer to the subject, or add contrast`; if (!problems.includes(msg)) problems.push(msg); }
+        for (const m of e.layoutReport()) { const msg = `scene ${i + 1} (beat ${sc.beat ?? '?'}): ${m}`; if (!problems.includes(msg)) problems.push(msg); }
+        const lumHex = (x) => { const n = parseInt(x.slice(1), 16); return (0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255; };
+        const bgl = e.current.look.background; const brightBackdrop = lumHex(bgl.top) > 0.6 && lumHex(bgl.bottom) > 0.6; // a white studio backdrop is not an exposure fault
+        if (st.clipped > (brightBackdrop ? 0.85 : 0.25)) { problems.push(`scene ${i + 1} (beat ${sc.beat ?? '?'}) at ${T.toFixed(2)}s is blown out (${Math.round(st.clipped * 100)}% pure white): reduce emissive or bright materials, or move them away from the lights`); break; }
+      }
+      for (const w of e.warnings) problems.push(`scene ${i + 1} (beat ${sc.beat ?? '?'}): ${w}`);
+      before.forEach((w) => e.warnings.add(w));
+    }
+    return problems;
+  },
+};
+window.__ready = true;
+</script></body></html>

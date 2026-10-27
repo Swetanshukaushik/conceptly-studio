@@ -1,0 +1,39 @@
+{
+  "name": "chemistry",
+  "label": "Chemistry",
+  "status": "partial",
+  "summary": "Particle lab with a plunger, coloured particles and a pressure gauge whose counts follow an equilibrium solver (Le Chatelier by construction), true-geometry molecules, \\ce{} equations, and balanced-equation / molar-mass checks.",
+  "subjects": [
+    "chemistry"
+  ],
+  "layout_hint": "explainer_window",
+  "look_hint": "daylight_studio",
+  "requires_sim": false,
+  "kits": [
+    "particle_lab",
+    "molecule_h2o",
+    "molecule_nh3",
+    "molecule_ch4",
+    "molecule_co2",
+    "molecule_diatomic",
+    "chem_formula",
+    "graph",
+    "derivation"
+  ],
+  "verification": [
+    "narrated_numbers"
+  ],
+  "persona": {
+    "archetype": "rutherford_like",
+    "status": "ready"
+  },
+  "tiers": {
+    "free": "partial",
+    "premium": "planned"
+  },
+  "prompt": "packs/chemistry.md",
+  "claims": {
+    "required": false,
+    "coverage": "note"
+  }
+}

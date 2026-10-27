@@ -1,0 +1,41 @@
+{
+  "name": "explainer_window",
+  "description": "Educational explainer: a two-line headline block at the top, the 3D picture in a window in the middle, bold captions below on black. Best for physics, chemistry and maths mechanisms. Needs `header` lines in the plan.",
+  "background": "#000000",
+  "window": {
+    "x": 0,
+    "y": 540,
+    "width": 1080,
+    "height": 850
+  },
+  "header": {
+    "centerY": 400,
+    "size": 88,
+    "lineGap": 12,
+    "weight": 800,
+    "uppercase": true,
+    "colors": [
+      "#ffffff",
+      "accent"
+    ]
+  },
+  "overlayAnchors": {
+    "top": 0.03,
+    "upper": 0.12,
+    "center": 0.4,
+    "lower": 0.74
+  },
+  "captions": {
+    "bottom": 330,
+    "fontSize": 60,
+    "idleColor": "#ffffff",
+    "strokeColor": "#000000"
+  },
+  "qa_note": "The frame has a headline block on top and an empty black area at the bottom (captions are added later); both are part of the layout, not flaws. Judge the 3D picture in the middle window only.",
+  "narrator": {
+    "side": "right",
+    "heightFrac": 0.44,
+    "bottomFrac": -0.05,
+    "marginFrac": 0.05
+  }
+}

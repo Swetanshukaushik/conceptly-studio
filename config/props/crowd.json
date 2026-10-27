@@ -1,0 +1,49 @@
+{
+ "about": "A group of stylised people (uses the humanoid prefab repeated). Use for crowds, marches, audiences, classes, armies.",
+ "params_doc": {
+  "count": "number of people (4-40)",
+  "spread": "half width of the crowd",
+  "depth": "how many units deep it is",
+  "pose": "pose name from the pose list",
+  "speed": "animation speed",
+  "palette": "unused"
+ },
+ "params": {
+  "count": 12,
+  "spread": 3,
+  "depth": 2,
+  "pose": "idle",
+  "speed": 1
+ },
+ "objects": [
+  {
+   "type": "prop",
+   "prefab": "humanoid",
+   "repeat": "${count}",
+   "pose": "${pose}",
+   "position": [
+    "-${spread}+2*${spread}*(${i}+0.5)/${n}+0.35*sin(${i}*12.9)",
+    "0",
+    "-${depth}*mod(${i}*7,5)/5"
+   ],
+   "params": {
+    "top": "${pick:i:#7a3b2e|#3b5b7a|#5e7a3b|#8a6d2f|#4a3b6b|#6b6b6b|#9a4a4a}",
+    "bottom": "${pick:i:#2a2f3a|#3a2a2a|#2e3a2a}",
+    "skin": "${pick:i:#d8a47f|#b9825c|#e8bf9a|#8d5a3b}",
+    "hair": "${pick:i:#1d1a18|#3a2a1d|#555}",
+    "speed": "${speed}*(0.85+0.3*mod(${i}*3,4)/4)",
+    "height": "1.65+0.2*mod(${i}*5,4)/4"
+   }
+  }
+ ],
+ "bounds": {
+  "size": [
+   6,
+   2
+  ],
+  "center": [
+   0,
+   1
+  ]
+ }
+}

@@ -1,0 +1,183 @@
+{
+ "about": "One pulley wheel with groove flanges, hub and spokes that visibly turn. Centre at (cx, cy); `spin` is the rotation in degrees (expression). Use inside pulley systems or on its own.",
+ "params_doc": {
+  "cx": "centre x",
+  "cy": "centre y (number or expression)",
+  "r": "radius",
+  "spin": "rotation in degrees, number or expression",
+  "color": "wheel colour"
+ },
+ "params": {
+  "cx": 0,
+  "cy": 2,
+  "r": 0.4,
+  "spin": 0,
+  "color": "#4f86d6"
+ },
+ "objects": [
+  {
+   "type": "group",
+   "position": [
+    "${cx}",
+    "${cy}",
+    0
+   ],
+   "children": [
+    {
+     "type": "group",
+     "rotation": [
+      0,
+      0,
+      "${spin}"
+     ],
+     "children": [
+      {
+       "type": "cylinder",
+       "radius": "${r}",
+       "height": 0.12,
+       "material": {
+        "color": "${color}",
+        "roughness": 0.45,
+        "metalness": 0.35
+       },
+       "rotation": [
+        90,
+        0,
+        0
+       ]
+      },
+      {
+       "type": "cylinder",
+       "radius": "${r}*1.12",
+       "height": 0.03,
+       "material": {
+        "color": "${color}",
+        "roughness": 0.45,
+        "metalness": 0.35
+       },
+       "position": [
+        0,
+        0,
+        0.07
+       ],
+       "rotation": [
+        90,
+        0,
+        0
+       ]
+      },
+      {
+       "type": "cylinder",
+       "radius": "${r}*1.12",
+       "height": 0.03,
+       "material": {
+        "color": "${color}",
+        "roughness": 0.45,
+        "metalness": 0.35
+       },
+       "position": [
+        0,
+        0,
+        -0.07
+       ],
+       "rotation": [
+        90,
+        0,
+        0
+       ]
+      },
+      {
+       "type": "box",
+       "size": [
+        "${r}*1.5",
+        0.05,
+        0.02
+       ],
+       "material": {
+        "color": "#2d3f66",
+        "roughness": 0.5,
+        "metalness": 0.6
+       },
+       "position": [
+        0,
+        0,
+        0.09
+       ]
+      },
+      {
+       "type": "box",
+       "size": [
+        "${r}*1.5",
+        0.05,
+        0.02
+       ],
+       "material": {
+        "color": "#2d3f66",
+        "roughness": 0.5,
+        "metalness": 0.6
+       },
+       "position": [
+        0,
+        0,
+        0.09
+       ],
+       "rotation": [
+        0,
+        0,
+        60
+       ]
+      },
+      {
+       "type": "box",
+       "size": [
+        "${r}*1.5",
+        0.05,
+        0.02
+       ],
+       "material": {
+        "color": "#2d3f66",
+        "roughness": 0.5,
+        "metalness": 0.6
+       },
+       "position": [
+        0,
+        0,
+        0.09
+       ],
+       "rotation": [
+        0,
+        0,
+        120
+       ]
+      }
+     ]
+    },
+    {
+     "type": "cylinder",
+     "radius": 0.07,
+     "height": 0.3,
+     "material": {
+      "color": "#aeb8c6",
+      "roughness": 0.28,
+      "metalness": 1
+     },
+     "rotation": [
+      90,
+      0,
+      0
+     ]
+    }
+   ]
+  }
+ ],
+ "bounds": {
+  "size": [
+   1.0,
+   1.0
+  ],
+  "center": [
+   0,
+   0
+  ]
+ }
+}

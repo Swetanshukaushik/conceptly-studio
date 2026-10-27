@@ -1,0 +1,248 @@
+{
+ "version": 1,
+ "look": "obsidian_lab",
+ "layout": "explainer_window",
+ "header": [
+  "Action And",
+  "Reaction"
+ ],
+ "duration": 13.6,
+ "fps": 30,
+ "captions": [
+  {
+   "w": "Newton",
+   "t0": 0.3,
+   "t1": 0.8
+  },
+  {
+   "w": "said",
+   "t0": 0.82,
+   "t1": 1.22
+  },
+  {
+   "w": "every",
+   "t0": 1.24,
+   "t1": 1.69
+  },
+  {
+   "w": "action",
+   "t0": 1.71,
+   "t1": 2.21
+  },
+  {
+   "w": "has",
+   "t0": 2.23,
+   "t1": 2.58
+  },
+  {
+   "w": "an",
+   "t0": 2.6,
+   "t1": 2.9
+  },
+  {
+   "w": "equal",
+   "t0": 2.92,
+   "t1": 3.37
+  },
+  {
+   "w": "and",
+   "t0": 3.39,
+   "t1": 3.74
+  },
+  {
+   "w": "opposite",
+   "t0": 3.76,
+   "t1": 4.36
+  },
+  {
+   "w": "reaction.",
+   "t0": 4.38,
+   "t1": 4.98
+  },
+  {
+   "w": "Push",
+   "t0": 5.23,
+   "t1": 5.63
+  },
+  {
+   "w": "a",
+   "t0": 5.65,
+   "t1": 5.9
+  },
+  {
+   "w": "wall",
+   "t0": 5.92,
+   "t1": 6.32
+  },
+  {
+   "w": "and",
+   "t0": 6.34,
+   "t1": 6.69
+  },
+  {
+   "w": "the",
+   "t0": 6.71,
+   "t1": 7.06
+  },
+  {
+   "w": "wall",
+   "t0": 7.08,
+   "t1": 7.48
+  },
+  {
+   "w": "pushes",
+   "t0": 7.5,
+   "t1": 8.0
+  },
+  {
+   "w": "back",
+   "t0": 8.02,
+   "t1": 8.42
+  },
+  {
+   "w": "with",
+   "t0": 8.44,
+   "t1": 8.84
+  },
+  {
+   "w": "the",
+   "t0": 8.86,
+   "t1": 9.21
+  },
+  {
+   "w": "same",
+   "t0": 9.23,
+   "t1": 9.63
+  },
+  {
+   "w": "force.",
+   "t0": 9.65,
+   "t1": 10.1
+  },
+  {
+   "w": "That",
+   "t0": 10.35,
+   "t1": 10.75
+  },
+  {
+   "w": "is",
+   "t0": 10.77,
+   "t1": 11.07
+  },
+  {
+   "w": "why",
+   "t0": 11.09,
+   "t1": 11.44
+  },
+  {
+   "w": "your",
+   "t0": 11.46,
+   "t1": 11.86
+  },
+  {
+   "w": "hand",
+   "t0": 11.88,
+   "t1": 12.28
+  },
+  {
+   "w": "hurts.",
+   "t0": 12.3,
+   "t1": 12.75
+  }
+ ],
+ "narrator": {
+  "enabled": true,
+  "distance": 2.4,
+  "yaw_degrees": -14,
+  "default_pose": "speak",
+  "pose_by_overlay": {
+   "formula": "point_up",
+   "sticker": "point"
+  },
+  "voice": {
+   "lettersPerSyllable": 3,
+   "restOpen": 0,
+   "sharpness": 0.7
+  },
+  "name": "einstein_like",
+  "params": {
+   "skin": "#e2b08c",
+   "hair": "#d4d0c8",
+   "stacheColor": "#d8d4cc",
+   "brow": "#cfcbc3",
+   "top": "#3d4658",
+   "bottom": "#2a2f3a",
+   "forearm": "#3d4658",
+   "headScale": 1.9,
+   "stache": 1.25,
+   "puffs": 14,
+   "wild": 1.0,
+   "hairCap": 0.72,
+   "hairLift": 0.0,
+   "chops": 0,
+   "tieOn": 0,
+   "browTilt": 8
+  },
+  "last_scene_pose": "cheer"
+ },
+ "scenes": [
+  {
+   "id": "a",
+   "start": 0,
+   "end": 13.6,
+   "floor": true,
+   "camera": {
+    "position": [
+     0,
+     1.4,
+     7.5
+    ],
+    "target": [
+     0,
+     1.0,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "type": "box",
+     "size": [
+      1.2,
+      1.4,
+      0.5
+     ],
+     "material": "metal",
+     "position": [
+      -2.0,
+      0.7,
+      0
+     ]
+    },
+    {
+     "type": "sphere",
+     "radius": 0.5,
+     "material": {
+      "color": "accent",
+      "emissive": "accent",
+      "emissiveIntensity": 0.4
+     },
+     "position": [
+      "-0.4+0.2*sin(t*2)",
+      0.5,
+      0
+     ]
+    }
+   ],
+   "overlays": [
+    {
+     "kind": "formula",
+     "latex": "F_{12} = -F_{21}",
+     "anchor": "top",
+     "at": 3,
+     "until": 6.5
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+{
+  "name": "maths",
+  "label": "Mathematics",
+  "status": "partial",
+  "summary": "Clean maths board: axes, curves that draw themselves with a moving point, value tables that fill in step by step, formulas and an animated coefficient. Matches the parabola reference style.",
+  "subjects": [
+    "maths",
+    "math",
+    "mathematics"
+  ],
+  "layout_hint": "maths",
+  "look_hint": "maths_navy",
+  "requires_sim": false,
+  "kits": [
+    "cartesian",
+    "value_table",
+    "mascot_m",
+    "derivation",
+    "formula_cards",
+    "graph",
+    "pop",
+    "sticker"
+  ],
+  "verification": [
+    "narrated_numbers"
+  ],
+  "persona": null,
+  "tiers": {
+    "free": "partial",
+    "premium": "not_needed"
+  },
+  "prompt": "packs/maths.md",
+  "claims": {
+    "required": true,
+    "coverage": "note"
+  }
+}

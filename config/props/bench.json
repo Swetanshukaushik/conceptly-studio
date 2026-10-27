@@ -1,0 +1,93 @@
+{
+ "about": "Wooden bench (seat and back). Seen from the front; use repeat for rows.",
+ "params_doc": {
+  "width": "bench width",
+  "wood": "wood colour"
+ },
+ "params": {
+  "width": 1.6,
+  "wood": "#6b4a2f"
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    0.06,
+    0.45
+   ],
+   "bevel": 0.015,
+   "material": {
+    "color": "${wood}",
+    "roughness": 0.6,
+    "metalness": 0,
+    "pattern": {
+     "kind": "planks",
+     "count": 4
+    }
+   },
+   "position": [
+    0,
+    0.45,
+    0
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    0.4,
+    0.05
+   ],
+   "bevel": 0.015,
+   "material": {
+    "color": "${wood}",
+    "roughness": 0.6,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    0.75,
+    -0.22
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    0.06,
+    0.45,
+    0.4
+   ],
+   "bevel": 0.01,
+   "material": {
+    "color": "${wood}",
+    "roughness": 0.6,
+    "metalness": 0
+   },
+   "position": [
+    "-${width}/2+0.08",
+    0.22,
+    0
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    0.06,
+    0.45,
+    0.4
+   ],
+   "bevel": 0.01,
+   "material": {
+    "color": "${wood}",
+    "roughness": 0.6,
+    "metalness": 0
+   },
+   "position": [
+    "${width}/2-0.08",
+    0.22,
+    0
+   ]
+  }
+ ]
+}

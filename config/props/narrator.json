@@ -1,0 +1,814 @@
+{
+ "about": "Expressive stylised narrator (big head, moustache, eyebrows, blinking eyes, a mouth that opens with the narration through voice(T)), built on the humanoid body and poses. Used by the Free tier narrator layer; not for the director to place.",
+ "params_doc": {
+  "skin": "skin colour hex",
+  "hair": "hair colour hex",
+  "top": "shirt/jacket colour hex",
+  "bottom": "trousers colour hex",
+  "shoes": "shoe colour hex",
+  "forearm": "forearm colour (use the top colour for long sleeves)",
+  "speed": "animation speed multiplier",
+  "hat": "1 = brimmed hat",
+  "cap": "1 = cap with visor",
+  "turban": "1 = turban",
+  "glasses": "1 = round glasses",
+  "beard": "1 = beard",
+  "hatColor": "hat/cap colour",
+  "turbanColor": "turban colour",
+  "height": "overall height, default 1.8",
+  "headScale": "head size multiplier (1.9 = cartoon)",
+  "stache": "moustache width multiplier",
+  "stacheColor": "moustache colour",
+  "brow": "eyebrow colour",
+  "browTilt": "resting eyebrow angle in degrees",
+  "look": "-1..1 where the eyes look",
+  "blinkExpr": "expression 0.1..1 for the eyelid scale",
+  "hairLift": "raise the hair",
+  "hairCap": "hair cap height scale",
+  "puffs": "number of hair tufts",
+  "wild": "tuft size (0 = neat)",
+  "chops": "1 = mutton-chop sideburns",
+  "tie": "bow tie colour",
+  "tieOn": "1 = bow tie"
+ },
+ "params": {
+  "skin": "#d8a47f",
+  "hair": "#1d1a18",
+  "top": "#3b5b92",
+  "bottom": "#2a2f3a",
+  "shoes": "#1a1a1a",
+  "forearm": "#d8a47f",
+  "height": 1.8,
+  "speed": 1,
+  "hat": 0,
+  "cap": 0,
+  "turban": 0,
+  "glasses": 0,
+  "beard": 0,
+  "hatColor": "#3a2f26",
+  "turbanColor": "#e2dccb",
+  "pose": "speak",
+  "bodyX": 0,
+  "bodyY": 0,
+  "bodyZ": 0,
+  "bob": 0,
+  "headX": 0,
+  "headY": 0,
+  "headZ": 0,
+  "lShX": 0,
+  "lShY": 0,
+  "lShZ": 0,
+  "lElb": 0,
+  "rShX": 0,
+  "rShY": 0,
+  "rShZ": 0,
+  "rElb": 0,
+  "lHipX": 0,
+  "lHipZ": 0,
+  "lKnee": 0,
+  "rHipX": 0,
+  "rHipZ": 0,
+  "rKnee": 0,
+  "headScale": 1.9,
+  "stache": 1.0,
+  "stacheColor": "#e8e4dc",
+  "brow": "#d9d5cd",
+  "browTilt": 6,
+  "look": 0,
+  "blinkExpr": "if(mod(t+0.9,3.6)<0.13,0.12,1)",
+  "hairLift": 0,
+  "hairCap": 0.72,
+  "puffs": 12,
+  "wild": 1,
+  "chops": 0,
+  "tie": "#7a1f2b",
+  "tieOn": 0
+ },
+ "objects": [
+  {
+   "type": "group",
+   "scale": "${height}/1.8",
+   "children": [
+    {
+     "type": "group",
+     "id": "hips",
+     "position": [
+      0,
+      "0.91+${bob}",
+      0
+     ],
+     "rotation": [
+      "${bodyX}",
+      "${bodyY}",
+      "${bodyZ}"
+     ],
+     "children": [
+      {
+       "type": "box",
+       "size": [
+        0.44,
+        0.55,
+        0.25
+       ],
+       "bevel": 0.1,
+       "material": {
+        "color": "${top}",
+        "roughness": 0.7,
+        "metalness": 0
+       },
+       "position": [
+        0,
+        0.36,
+        0
+       ]
+      },
+      {
+       "type": "box",
+       "size": [
+        0.4,
+        0.2,
+        0.23
+       ],
+       "bevel": 0.08,
+       "material": {
+        "color": "${bottom}",
+        "roughness": 0.75,
+        "metalness": 0
+       },
+       "position": [
+        0,
+        0.05,
+        0
+       ]
+      },
+      {
+       "type": "group",
+       "id": "larm",
+       "position": [
+        0.3,
+        0.6,
+        0
+       ],
+       "rotation": [
+        "${lShX}",
+        "${lShY}",
+        "${lShZ}"
+       ],
+       "children": [
+        {
+         "type": "sphere",
+         "radius": 0.07,
+         "material": {
+          "color": "${top}",
+          "roughness": 0.7,
+          "metalness": 0
+         }
+        },
+        {
+         "type": "capsule",
+         "radius": 0.055,
+         "length": 0.2,
+         "material": {
+          "color": "${top}",
+          "roughness": 0.7,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          -0.17,
+          0
+         ]
+        },
+        {
+         "type": "group",
+         "position": [
+          0,
+          -0.32,
+          0
+         ],
+         "rotation": [
+          "${lElb}",
+          0,
+          0
+         ],
+         "children": [
+          {
+           "type": "capsule",
+           "radius": 0.05,
+           "length": 0.18,
+           "material": {
+            "color": "${forearm}",
+            "roughness": 0.6,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.15,
+            0
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.05,
+           "material": {
+            "color": "${skin}",
+            "roughness": 0.6,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.3,
+            0
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "group",
+       "id": "rarm",
+       "position": [
+        -0.3,
+        0.6,
+        0
+       ],
+       "rotation": [
+        "${rShX}",
+        "${rShY}",
+        "${rShZ}"
+       ],
+       "children": [
+        {
+         "type": "sphere",
+         "radius": 0.07,
+         "material": {
+          "color": "${top}",
+          "roughness": 0.7,
+          "metalness": 0
+         }
+        },
+        {
+         "type": "capsule",
+         "radius": 0.055,
+         "length": 0.2,
+         "material": {
+          "color": "${top}",
+          "roughness": 0.7,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          -0.17,
+          0
+         ]
+        },
+        {
+         "type": "group",
+         "position": [
+          0,
+          -0.32,
+          0
+         ],
+         "rotation": [
+          "${rElb}",
+          0,
+          0
+         ],
+         "children": [
+          {
+           "type": "capsule",
+           "radius": 0.05,
+           "length": 0.18,
+           "material": {
+            "color": "${forearm}",
+            "roughness": 0.6,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.15,
+            0
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.05,
+           "material": {
+            "color": "${skin}",
+            "roughness": 0.6,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.3,
+            0
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "group",
+       "id": "head",
+       "position": [
+        0,
+        0.66,
+        0
+       ],
+       "rotation": [
+        "${headX}",
+        "${headY}",
+        "${headZ}"
+       ],
+       "children": [
+        {
+         "type": "cylinder",
+         "radius": 0.05,
+         "height": 0.1,
+         "material": {
+          "color": "${skin}",
+          "roughness": 0.6,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.02,
+          0
+         ]
+        },
+        {
+         "type": "group",
+         "id": "face",
+         "position": [
+          0,
+          0.02,
+          0
+         ],
+         "scale": "${headScale}",
+         "children": [
+          {
+           "type": "sphere",
+           "radius": 0.125,
+           "material": {
+            "color": "${skin}",
+            "roughness": 0.55,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            0.16,
+            0
+           ],
+           "scale": [
+            0.95,
+            1.06,
+            1
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.03,
+           "material": {
+            "color": "${skin}",
+            "roughness": 0.55,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            0.145,
+            0.122
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.026,
+           "material": {
+            "color": "#ffffff",
+            "roughness": 0.3,
+            "metalness": 0
+           },
+           "position": [
+            -0.05,
+            0.18,
+            0.1
+           ],
+           "scale": [
+            1,
+            "${blinkExpr}",
+            0.7
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.026,
+           "material": {
+            "color": "#ffffff",
+            "roughness": 0.3,
+            "metalness": 0
+           },
+           "position": [
+            0.05,
+            0.18,
+            0.1
+           ],
+           "scale": [
+            1,
+            "${blinkExpr}",
+            0.7
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.013,
+           "material": {
+            "color": "#15110e",
+            "roughness": 0.3,
+            "metalness": 0
+           },
+           "position": [
+            "-0.05+${look}*0.008",
+            0.18,
+            0.122
+           ],
+           "scale": [
+            1,
+            "${blinkExpr}",
+            0.5
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.013,
+           "material": {
+            "color": "#15110e",
+            "roughness": 0.3,
+            "metalness": 0
+           },
+           "position": [
+            "0.05+${look}*0.008",
+            0.18,
+            0.122
+           ],
+           "scale": [
+            1,
+            "${blinkExpr}",
+            0.5
+           ]
+          },
+          {
+           "type": "box",
+           "size": [
+            0.06,
+            0.011,
+            0.012
+           ],
+           "bevel": 0.004,
+           "material": {
+            "color": "${brow}",
+            "roughness": 0.8,
+            "metalness": 0
+           },
+           "position": [
+            -0.05,
+            "0.216+0.01*voice(T)",
+            0.112
+           ],
+           "rotation": [
+            0,
+            0,
+            "${browTilt}+8*voice(T)"
+           ]
+          },
+          {
+           "type": "box",
+           "size": [
+            0.06,
+            0.011,
+            0.012
+           ],
+           "bevel": 0.004,
+           "material": {
+            "color": "${brow}",
+            "roughness": 0.8,
+            "metalness": 0
+           },
+           "position": [
+            0.05,
+            "0.216+0.01*voice(T)",
+            0.112
+           ],
+           "rotation": [
+            0,
+            0,
+            "-(${browTilt}+8*voice(T))"
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.034,
+           "material": {
+            "color": "#3a0f12",
+            "roughness": 0.5,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            0.085,
+            0.108
+           ],
+           "scale": [
+            1.25,
+            "0.14+0.9*voice(T)",
+            0.55
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.03,
+           "material": {
+            "color": "${stacheColor}",
+            "roughness": 0.9,
+            "metalness": 0
+           },
+           "position": [
+            "-0.03*${stache}",
+            "0.118-0.004*voice(T)",
+            0.122
+           ],
+           "scale": [
+            1.15,
+            0.62,
+            0.75
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.03,
+           "material": {
+            "color": "${stacheColor}",
+            "roughness": 0.9,
+            "metalness": 0
+           },
+           "position": [
+            "0.03*${stache}",
+            "0.118-0.004*voice(T)",
+            0.122
+           ],
+           "scale": [
+            1.15,
+            0.62,
+            0.75
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.14,
+           "material": {
+            "color": "${hair}",
+            "roughness": 0.95,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            "0.235+${hairLift}",
+            -0.055
+           ],
+           "scale": [
+            1.0,
+            "${hairCap}",
+            1.0
+           ]
+          },
+          {
+           "repeat": "${puffs}",
+           "type": "sphere",
+           "radius": "0.045*${wild}",
+           "material": {
+            "color": "${hair}",
+            "roughness": 0.95,
+            "metalness": 0
+           },
+           "position": [
+            "0.135*sin(${i}*0.95+0.4)",
+            "0.255+0.055*cos(${i}*1.9)+${hairLift}",
+            "-0.045+0.085*cos(${i}*0.95+0.4)"
+           ]
+          },
+          {
+           "repeat": 2,
+           "type": "sphere",
+           "radius": "0.05*${chops}",
+           "material": {
+            "color": "${hair}",
+            "roughness": 0.95,
+            "metalness": 0
+           },
+           "position": [
+            "(${i}*2-1)*0.108",
+            0.12,
+            0.045
+           ],
+           "scale": [
+            0.7,
+            1.5,
+            0.8
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "group",
+       "id": "lleg",
+       "position": [
+        0.105,
+        0,
+        0
+       ],
+       "rotation": [
+        "${lHipX}",
+        0,
+        "${lHipZ}"
+       ],
+       "children": [
+        {
+         "type": "capsule",
+         "radius": 0.085,
+         "length": 0.26,
+         "material": {
+          "color": "${bottom}",
+          "roughness": 0.75,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          -0.2,
+          0
+         ]
+        },
+        {
+         "type": "group",
+         "position": [
+          0,
+          -0.42,
+          0
+         ],
+         "rotation": [
+          "${lKnee}",
+          0,
+          0
+         ],
+         "children": [
+          {
+           "type": "capsule",
+           "radius": 0.07,
+           "length": 0.26,
+           "material": {
+            "color": "${bottom}",
+            "roughness": 0.75,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.2,
+            0
+           ]
+          },
+          {
+           "type": "box",
+           "size": [
+            0.1,
+            0.07,
+            0.24
+           ],
+           "bevel": 0.03,
+           "material": {
+            "color": "${shoes}",
+            "roughness": 0.5,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.45,
+            0.05
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "group",
+       "id": "rleg",
+       "position": [
+        -0.105,
+        0,
+        0
+       ],
+       "rotation": [
+        "${rHipX}",
+        0,
+        "${rHipZ}"
+       ],
+       "children": [
+        {
+         "type": "capsule",
+         "radius": 0.085,
+         "length": 0.26,
+         "material": {
+          "color": "${bottom}",
+          "roughness": 0.75,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          -0.2,
+          0
+         ]
+        },
+        {
+         "type": "group",
+         "position": [
+          0,
+          -0.42,
+          0
+         ],
+         "rotation": [
+          "${rKnee}",
+          0,
+          0
+         ],
+         "children": [
+          {
+           "type": "capsule",
+           "radius": 0.07,
+           "length": 0.26,
+           "material": {
+            "color": "${bottom}",
+            "roughness": 0.75,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.2,
+            0
+           ]
+          },
+          {
+           "type": "box",
+           "size": [
+            0.1,
+            0.07,
+            0.24
+           ],
+           "bevel": 0.03,
+           "material": {
+            "color": "${shoes}",
+            "roughness": 0.5,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.45,
+            0.05
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "box",
+       "size": [
+        0.07,
+        0.045,
+        0.03
+       ],
+       "bevel": 0.012,
+       "material": {
+        "color": "${tie}",
+        "roughness": 0.6,
+        "metalness": 0
+       },
+       "position": [
+        0,
+        0.58,
+        0.135
+       ],
+       "scale": [
+        "${tieOn}",
+        "${tieOn}",
+        "${tieOn}"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "poseable": true,
+ "helper": true
+}

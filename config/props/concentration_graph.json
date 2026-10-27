@@ -1,0 +1,209 @@
+{
+ "about": "Live concentration-versus-time graph for the same two-species equilibrium as reaction_chamber: curve A falls and curve B rises and both level off at their equilibrium values (dashed lines); a disturbance at `tS` shows the curves moving and relaxing again. Draws itself in sync with the scene time. Use the SAME kf, kr, fA0, k, t0, tS, bump, span as the chamber. Origin at the graph's lower-left corner.",
+ "params_doc": {
+  "kf": "forward rate constant (A to B)",
+  "kr": "reverse rate constant (B to A); equilibrium fraction of A = kr/(kf+kr)",
+  "fA0": "starting fraction of species A (0..1)",
+  "k": "how fast the system relaxes to equilibrium",
+  "t0": "scene time (s) when the reaction starts",
+  "tS": "scene time (s) of a disturbance (99 = none)",
+  "bump": "how much the fraction of A jumps up at tS (adding reactant, Le Chatelier); negative removes it",
+  "span": "graph time span in seconds (use the scene duration)",
+  "nameA": "label for curve A",
+  "nameB": "label for curve B",
+  "colA": "colour of A",
+  "colB": "colour of B",
+  "gw": "graph width",
+  "gh": "graph height"
+ },
+ "bounds": {
+  "size": [
+   2.8,
+   2.0
+  ],
+  "center": [
+   1.2,
+   0.8
+  ]
+ },
+ "params": {
+  "kf": 0.8,
+  "kr": 0.4,
+  "fA0": 0.95,
+  "k": 0.55,
+  "t0": 0.6,
+  "tS": 99,
+  "bump": 0,
+  "span": 8,
+  "fAeq": "${kr}/(${kf}+${kr})",
+  "fA1": "${fAeq}+(${fA0}-${fAeq})*exp(-${k}*max(0,t-${t0}))",
+  "fAs": "${fAeq}+(${fA0}-${fAeq})*exp(-${k}*max(0,${tS}-${t0}))",
+  "fA2": "${fAeq}+(min(1,${fAs}+${bump})-${fAeq})*exp(-${k}*(t-${tS}))",
+  "fA": "if(t<${tS},${fA1},${fA2})",
+  "fAu": "if((u*${span})<${tS},${fAeq}+(${fA0}-${fAeq})*exp(-${k}*max(0,(u*${span})-${t0})),${fAeq}+(min(1,${fAs}+${bump})-${fAeq})*exp(-${k}*((u*${span})-${tS})))",
+  "gw": 2.2,
+  "gh": 1.5,
+  "colA": "#ff8a3d",
+  "colB": "#2f6fe0",
+  "nameA": "A",
+  "nameB": "B"
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${gw}",
+    0.03,
+    0.03
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.3,
+    "metalness": 0.3
+   },
+   "position": [
+    "${gw}/2",
+    0,
+    0
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    0.03,
+    "${gh}",
+    0.03
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.3,
+    "metalness": 0.3
+   },
+   "position": [
+    0,
+    "${gh}/2",
+    0
+   ]
+  },
+  {
+   "type": "curve",
+   "x": "u*${gw}",
+   "y": "${gh}*(${fAu})",
+   "z": 0,
+   "samples": 120,
+   "width": 6,
+   "draw": "clamp(t/${span},0,1)",
+   "color": "${colA}"
+  },
+  {
+   "type": "curve",
+   "x": "u*${gw}",
+   "y": "${gh}*(1-(${fAu}))",
+   "z": 0,
+   "samples": 120,
+   "width": 6,
+   "draw": "clamp(t/${span},0,1)",
+   "color": "${colB}"
+  },
+  {
+   "type": "curve",
+   "x": "u*${gw}",
+   "y": "${gh}*${fAeq}",
+   "z": 0,
+   "samples": 2,
+   "width": 2,
+   "dashed": true,
+   "opacity": 0.6,
+   "color": "${colA}",
+   "draw": "clamp((t-${t0})/1,0,1)"
+  },
+  {
+   "type": "curve",
+   "x": "u*${gw}",
+   "y": "${gh}*(1-${fAeq})",
+   "z": 0,
+   "samples": 2,
+   "width": 2,
+   "dashed": true,
+   "opacity": 0.6,
+   "color": "${colB}",
+   "draw": "clamp((t-${t0})/1,0,1)"
+  },
+  {
+   "type": "sphere",
+   "radius": 0.05,
+   "material": {
+    "color": "${colA}",
+    "roughness": 0.4,
+    "metalness": 0,
+    "emissive": "${colA}",
+    "emissiveIntensity": 1.0
+   },
+   "position": [
+    "${gw}*clamp(t/${span},0,1)",
+    "${gh}*(${fA})",
+    0
+   ]
+  },
+  {
+   "type": "sphere",
+   "radius": 0.05,
+   "material": {
+    "color": "${colB}",
+    "roughness": 0.4,
+    "metalness": 0,
+    "emissive": "${colB}",
+    "emissiveIntensity": 1.0
+   },
+   "position": [
+    "${gw}*clamp(t/${span},0,1)",
+    "${gh}*(1-(${fA}))",
+    0
+   ]
+  },
+  {
+   "type": "label",
+   "text": "${nameA}",
+   "size": 0.15,
+   "color": "${colA}",
+   "position": [
+    "${gw}+0.2",
+    "${gh}*${fAeq}+0.02",
+    0
+   ]
+  },
+  {
+   "type": "label",
+   "text": "${nameB}",
+   "size": 0.15,
+   "color": "${colB}",
+   "position": [
+    "${gw}+0.2",
+    "${gh}*(1-${fAeq})-0.02",
+    0
+   ]
+  },
+  {
+   "type": "label",
+   "text": "time",
+   "size": 0.14,
+   "color": "muted",
+   "position": [
+    "${gw}/2",
+    -0.2,
+    0
+   ]
+  },
+  {
+   "type": "label",
+   "text": "concentration",
+   "size": 0.14,
+   "color": "muted",
+   "position": [
+    0.35,
+    "${gh}+0.2",
+    0
+   ]
+  }
+ ]
+}

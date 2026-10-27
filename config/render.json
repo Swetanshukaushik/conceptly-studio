@@ -1,0 +1,111 @@
+{
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "safeZone": {
+    "top": 150,
+    "bottom": 360,
+    "side": 56
+  },
+  "typography": {
+    "family": "Inter",
+    "fonts": [
+      {
+        "weight": 600,
+        "file": "inter-latin-600-normal.woff2"
+      },
+      {
+        "weight": 800,
+        "file": "inter-latin-800-normal.woff2"
+      }
+    ]
+  },
+  "captions": {
+    "wordsPerChunk": 4,
+    "bottomOffsetFromSafe": 40,
+    "fontSize": 66,
+    "weight": 800,
+    "activeScale": 1.08,
+    "popSeconds": 0.14,
+    "activeColor": "accent",
+    "idleColor": "ink"
+  },
+  "overlays": {
+    "inSeconds": 0.35,
+    "outSeconds": 0.25,
+    "cardRadius": 28,
+    "titleSize": 76,
+    "formulaSize": 56,
+    "calloutSize": 44,
+    "statSize": 72,
+    "tagSize": 34,
+    "anchors": {
+      "top": 0.0,
+      "upper": 0.15,
+      "center": 0.38,
+      "lower": 0.62
+    },
+    "popSize": 170,
+    "popHold": 0.9,
+    "stickerSize": 54,
+    "pinDistance": 150
+  },
+  "transitions": {
+    "default": {
+      "type": "dip",
+      "duration": 0.2
+    }
+  },
+  "renderer": {
+    "pixelRatio": 1,
+    "msaaSamples": 4,
+    "shadowMapSize": 2048,
+    "labelResolution": 2
+  },
+  "encode": {
+    "codec": "libx264",
+    "crf": 22,
+    "preset": "medium",
+    "pixFmt": "yuv420p",
+    "screenshotQuality": 94,
+    "maxrate": "9M",
+    "bufsize": "18M"
+  },
+  "materialAliases": {
+    "steel": "metal",
+    "iron": "metal",
+    "silver": "metal",
+    "chrome": "metal",
+    "aluminium": "brushed_metal",
+    "aluminum": "brushed_metal",
+    "titanium": "brushed_metal",
+    "bronze": "copper",
+    "brass": "copper",
+    "gold": "copper",
+    "wood": "matte",
+    "stone": "matte",
+    "concrete": "matte",
+    "paper": "matte",
+    "cloth": "matte",
+    "fabric": "matte",
+    "leather": "rubber",
+    "tyre": "rubber",
+    "tire": "rubber",
+    "glass": "glass",
+    "crystal": "glass",
+    "water": "glass",
+    "neon": "glow",
+    "light": "glow",
+    "plasma": "glow",
+    "hologram": "hologram",
+    "ghost": "hologram",
+    "plastic": "plastic",
+    "ceramic": "plastic"
+  },
+  "layoutChecks": {
+    "minSubjectShare": 0.06,
+    "narratorOverlap": 0.3
+  }
+}

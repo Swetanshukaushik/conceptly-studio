@@ -1,0 +1,21 @@
+{
+ "topic": "Chemical Equilibrium",
+ "subject": "Chemistry",
+ "class_level": 11,
+ "exam_type": "SCHOOL",
+ "tier": "FREE",
+ "job_id": "5910b880-18e8-4fb9-9ad5-d43ead9fa734",
+ "created_utc": "2026-10-26T16:28:21.740033",
+ "status": "test render, not published, not reviewed",
+ "layout": "explainer_window",
+ "look": "daylight_studio",
+ "qa_notes": [
+  "scene 1 (beat 1): the title \"Why does it look frozen?\" sits on a bright area (white text is hard to read): move the camera/subject or use another anchor"
+ ],
+ "narration": [
+  "If a reaction never truly stops... why does everything look completely frozen? Observe... carefully!",
+  "We are taught that reactions end when chemicals run out... but in a closed system, something wild happens. The reactants transform into products... and products instantly transform right back into reactants!",
+  "This is dynamic equilibrium! The rate of the forward reaction equals the rate of the reverse reaction. It is like two people running on a moving walkway at the exact same speed—moving frantically, yet staying in the exact same spot.",
+  "So remember—equilibrium is not a dead stop... it is a fierce balance! Let us test your insight in the quiz right now!"
+ ]
+}

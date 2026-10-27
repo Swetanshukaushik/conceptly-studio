@@ -1,0 +1,5 @@
+{
+  "words_per_second": 2.6,
+  "beat_seconds": { "min": 3.0, "target": 5.5, "max": 8.5 },
+  "lint_repair_attempts": 1
+}

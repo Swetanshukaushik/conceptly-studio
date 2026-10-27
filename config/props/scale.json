@@ -1,0 +1,166 @@
+{
+ "about": "Balance scale (justice, equilibrium, comparison): beam tilts with `tilt` degrees (number or expression).",
+ "params_doc": {
+  "tilt": "beam tilt in degrees, positive tips the right pan down",
+  "metal": "metal colour"
+ },
+ "params": {
+  "tilt": 0,
+  "metal": "#e8b84a"
+ },
+ "objects": [
+  {
+   "type": "cylinder",
+   "radius": 0.04,
+   "height": 1.4,
+   "material": {
+    "color": "${metal}",
+    "roughness": 0.3,
+    "metalness": 1
+   },
+   "position": [
+    0,
+    0.7,
+    0
+   ]
+  },
+  {
+   "type": "cylinder",
+   "radius": 0.25,
+   "height": 0.06,
+   "material": {
+    "color": "${metal}",
+    "roughness": 0.3,
+    "metalness": 1
+   },
+   "position": [
+    0,
+    0.03,
+    0
+   ]
+  },
+  {
+   "type": "group",
+   "position": [
+    0,
+    1.4,
+    0
+   ],
+   "rotation": [
+    0,
+    0,
+    "-(${tilt})"
+   ],
+   "children": [
+    {
+     "type": "box",
+     "size": [
+      1.6,
+      0.05,
+      0.05
+     ],
+     "bevel": 0.01,
+     "material": {
+      "color": "${metal}",
+      "roughness": 0.3,
+      "metalness": 1
+     }
+    },
+    {
+     "type": "group",
+     "position": [
+      -0.75,
+      0,
+      0
+     ],
+     "rotation": [
+      0,
+      0,
+      "${tilt}"
+     ],
+     "children": [
+      {
+       "type": "cylinder",
+       "radius": 0.01,
+       "height": 0.5,
+       "material": {
+        "color": "${metal}",
+        "roughness": 0.3,
+        "metalness": 1
+       },
+       "position": [
+        0,
+        -0.25,
+        0
+       ]
+      },
+      {
+       "type": "cylinder",
+       "radiusTop": 1,
+       "radiusBottom": 0.6,
+       "radius": 0.25,
+       "height": 0.08,
+       "material": {
+        "color": "${metal}",
+        "roughness": 0.3,
+        "metalness": 1
+       },
+       "position": [
+        0,
+        -0.52,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "type": "group",
+     "position": [
+      0.75,
+      0,
+      0
+     ],
+     "rotation": [
+      0,
+      0,
+      "${tilt}"
+     ],
+     "children": [
+      {
+       "type": "cylinder",
+       "radius": 0.01,
+       "height": 0.5,
+       "material": {
+        "color": "${metal}",
+        "roughness": 0.3,
+        "metalness": 1
+       },
+       "position": [
+        0,
+        -0.25,
+        0
+       ]
+      },
+      {
+       "type": "cylinder",
+       "radiusTop": 1,
+       "radiusBottom": 0.6,
+       "radius": 0.25,
+       "height": 0.08,
+       "material": {
+        "color": "${metal}",
+        "roughness": 0.3,
+        "metalness": 1
+       },
+       "position": [
+        0,
+        -0.52,
+        0
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

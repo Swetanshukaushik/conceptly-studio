@@ -1,0 +1,42 @@
+{
+  "name": "history_civics",
+  "label": "History and Civics",
+  "status": "planned",
+  "summary": "Story-led scenes about people, places and events with archival photographs and timelines. Photoreal generation is a Premium feature.",
+  "subjects": [
+    "history",
+    "civics",
+    "polity",
+    "indian polity",
+    "political science",
+    "geography",
+    "economics",
+    "current affairs",
+    "upsc",
+    "ancient history",
+    "modern history",
+    "medieval history"
+  ],
+  "layout_hint": "full",
+  "look_hint": "warm_archive",
+  "requires_sim": false,
+  "kits": [
+    "humanoid",
+    "hall",
+    "crowd",
+    "document",
+    "flag",
+    "image_resolver",
+    "timeline"
+  ],
+  "verification": [
+    "source_retrieval_planned",
+    "date_check_planned"
+  ],
+  "persona": null,
+  "tiers": {
+    "free": "partial",
+    "premium": "planned"
+  },
+  "prompt": "packs/history_civics.md"
+}

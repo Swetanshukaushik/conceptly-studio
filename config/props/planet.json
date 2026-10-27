@@ -1,0 +1,65 @@
+{
+ "about": "A planet or moon with optional ring and atmosphere glow.",
+ "params_doc": {
+  "radius": "planet radius",
+  "color": "surface colour",
+  "ring": "1 = add ring",
+  "atmosphere": "atmosphere glow colour",
+  "spin": "spin speed deg/s"
+ },
+ "params": {
+  "radius": 1,
+  "color": "#3d6fb5",
+  "ring": 0,
+  "atmosphere": "primary",
+  "spin": 12
+ },
+ "objects": [
+  {
+   "type": "group",
+   "rotation": [
+    0,
+    "${spin}*t",
+    0
+   ],
+   "children": [
+    {
+     "type": "sphere",
+     "radius": "${radius}",
+     "material": {
+      "color": "${color}",
+      "roughness": 0.7,
+      "metalness": 0,
+      "pattern": {
+       "kind": "noise"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "type": "glow",
+   "color": "${atmosphere}",
+   "size": "${radius}*3.4",
+   "intensity": 0.35
+  },
+  {
+   "type": "ring",
+   "inner": 1.5,
+   "outer": 2.3,
+   "material": {
+    "color": "#cdbf9f",
+    "roughness": 0.8,
+    "metalness": 0,
+    "opacity": 0.7
+   },
+   "scale": "${radius}",
+   "rotation": [
+    75,
+    0,
+    0
+   ],
+   "visible": "${ring}"
+  }
+ ]
+}

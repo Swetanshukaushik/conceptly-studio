@@ -1,0 +1,127 @@
+{
+ "idle": {
+  "bob": "0.006*sin(2.2*${speed}*t)",
+  "lShZ": 4,
+  "rShZ": -4,
+  "lElb": -8,
+  "rElb": -8,
+  "headY": "6*sin(0.7*t)"
+ },
+ "speak": {
+  "bob": "0.005*sin(2*t)",
+  "rShX": "-50-14*sin(3*t)",
+  "rElb": "-60-12*sin(3*t+1)",
+  "lShX": -15,
+  "lShZ": 6,
+  "lElb": -30,
+  "headY": "8*sin(1.3*t)",
+  "headX": "3*sin(2.1*t)"
+ },
+ "point": {
+  "rShX": -90,
+  "rElb": -4,
+  "lShZ": 4,
+  "lElb": -8,
+  "headY": -6,
+  "bob": "0.004*sin(2*t)"
+ },
+ "point_up": {
+  "rShZ": -165,
+  "rElb": -6,
+  "lShZ": 4,
+  "lElb": -8,
+  "headX": -12
+ },
+ "wave": {
+  "rShZ": -140,
+  "rShX": -10,
+  "rElb": "-35+25*sin(8*${speed}*t)",
+  "lShZ": 4,
+  "headZ": "4*sin(2*t)",
+  "bob": "0.005*sin(2*t)"
+ },
+ "walk": {
+  "lHipX": "-28*sin(6.28*${speed}*t)",
+  "rHipX": "28*sin(6.28*${speed}*t)",
+  "lKnee": "max(0,55*cos(6.28*${speed}*t))",
+  "rKnee": "max(0,-55*cos(6.28*${speed}*t))",
+  "lShX": "24*sin(6.28*${speed}*t)",
+  "rShX": "-24*sin(6.28*${speed}*t)",
+  "lElb": -18,
+  "rElb": -18,
+  "bob": "0.025*cos(12.56*${speed}*t)",
+  "bodyY": "4*sin(6.28*${speed}*t)"
+ },
+ "march": {
+  "lHipX": "-42*sin(6.28*${speed}*t)",
+  "rHipX": "42*sin(6.28*${speed}*t)",
+  "lKnee": "max(0,85*cos(6.28*${speed}*t))",
+  "rKnee": "max(0,-85*cos(6.28*${speed}*t))",
+  "lShX": "38*sin(6.28*${speed}*t)",
+  "rShX": "-38*sin(6.28*${speed}*t)",
+  "lElb": -80,
+  "rElb": -80,
+  "bob": "0.03*cos(12.56*${speed}*t)"
+ },
+ "run": {
+  "lHipX": "-55*sin(9.4*${speed}*t)",
+  "rHipX": "55*sin(9.4*${speed}*t)",
+  "lKnee": "max(0,100*cos(9.4*${speed}*t))",
+  "rKnee": "max(0,-100*cos(9.4*${speed}*t))",
+  "lShX": "50*sin(9.4*${speed}*t)",
+  "rShX": "-50*sin(9.4*${speed}*t)",
+  "lElb": -95,
+  "rElb": -95,
+  "bodyX": 14,
+  "bob": "0.05*cos(18.8*${speed}*t)"
+ },
+ "sit": {
+  "bob": -0.45,
+  "lHipX": -90,
+  "rHipX": -90,
+  "lKnee": 90,
+  "rKnee": 90,
+  "lShX": -35,
+  "rShX": -35,
+  "lElb": -65,
+  "rElb": -65,
+  "headY": "10*sin(0.5*t)"
+ },
+ "bow": {
+  "bodyX": "mix(0,38,smooth(0,1.2,t))",
+  "headX": "mix(0,14,smooth(0,1.2,t))",
+  "lShX": 8,
+  "rShX": 8
+ },
+ "raise_fist": {
+  "rShZ": -165,
+  "rElb": -12,
+  "lShZ": 4,
+  "lElb": -8,
+  "headX": -10,
+  "bob": "0.01*sin(5*t)"
+ },
+ "cheer": {
+  "lShZ": 160,
+  "rShZ": -160,
+  "lElb": "-15*sin(8*t)",
+  "rElb": "-15*sin(8*t+1)",
+  "bob": "0.03*abs(sin(6*t))",
+  "headX": -8
+ },
+ "think": {
+  "rShX": -55,
+  "rElb": -125,
+  "lShX": -10,
+  "lElb": -60,
+  "headX": 8,
+  "headY": -8
+ },
+ "hold": {
+  "lShX": -60,
+  "rShX": -60,
+  "lElb": -70,
+  "rElb": -70,
+  "bob": "0.004*sin(2*t)"
+ }
+}

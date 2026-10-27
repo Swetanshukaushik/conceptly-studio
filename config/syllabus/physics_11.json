@@ -1,0 +1,268 @@
+{
+ "edition": "NCERT Class 11 Physics, rationalised edition (2023 onwards), 14 chapters in two parts. Chapter and topic names are from my knowledge of the book; verify against your copy.",
+ "capability_key": {
+  "sim": "motion simulator (bodies, forces, contacts, joints)",
+  "graph": "general graph (plot)",
+  "derivation": "step-by-step derivation card",
+  "expr": "equation-driven motion/surfaces/particles in the scene plan",
+  "prefab": "existing or planned prefab",
+  "fields": "field tool (planned for Class 12)"
+ },
+ "chapters": [
+  {
+   "no": 1,
+   "title": "Units and Measurement",
+   "topics": [
+    "SI units and fundamental quantities",
+    "Dimensional analysis and its uses",
+    "Significant figures",
+    "Errors in measurement (absolute, relative, percentage)",
+    "Least count: vernier callipers and screw gauge"
+   ],
+   "tools": [
+    "derivation",
+    "expr",
+    "prefab: measuring instrument (planned)"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 2,
+   "title": "Motion in a Straight Line",
+   "topics": [
+    "Position, displacement, average and instantaneous velocity",
+    "Acceleration and motion graphs (x-t, v-t, a-t)",
+    "Equations of uniformly accelerated motion",
+    "Free fall",
+    "Relative velocity in one dimension"
+   ],
+   "tools": [
+    "sim",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 3,
+   "title": "Motion in a Plane",
+   "topics": [
+    "Scalars and vectors, addition and resolution",
+    "Projectile motion",
+    "Relative velocity in two dimensions",
+    "Uniform circular motion and centripetal acceleration"
+   ],
+   "tools": [
+    "sim",
+    "graph",
+    "expr",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 4,
+   "title": "Laws of Motion",
+   "topics": [
+    "Newton's first law and inertia",
+    "Newton's second law and momentum",
+    "Newton's third law",
+    "Conservation of momentum",
+    "Friction: static, kinetic, rolling",
+    "Circular motion dynamics and banking of roads",
+    "Free body diagrams"
+   ],
+   "tools": [
+    "sim",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 5,
+   "title": "Work, Energy and Power",
+   "topics": [
+    "Work and the work-energy theorem",
+    "Kinetic energy",
+    "Potential energy and conservative forces",
+    "Conservation of mechanical energy",
+    "Spring potential energy",
+    "Power",
+    "Collisions: elastic and inelastic"
+   ],
+   "tools": [
+    "sim",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 6,
+   "title": "System of Particles and Rotational Motion",
+   "topics": [
+    "Centre of mass and its motion",
+    "Torque and angular momentum",
+    "Conservation of angular momentum",
+    "Moment of inertia and theorems",
+    "Rolling motion",
+    "Equilibrium of a rigid body"
+   ],
+   "tools": [
+    "sim",
+    "graph",
+    "derivation",
+    "prefab: lever (planned)"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 7,
+   "title": "Gravitation",
+   "topics": [
+    "Universal law of gravitation",
+    "Acceleration due to gravity and its variation",
+    "Gravitational potential energy",
+    "Escape speed",
+    "Orbital speed and satellites",
+    "Kepler's laws"
+   ],
+   "tools": [
+    "sim (n-body gravity)",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 8,
+   "title": "Mechanical Properties of Solids",
+   "topics": [
+    "Stress and strain",
+    "Hooke's law and stress-strain curve",
+    "Elastic moduli: Young's, bulk, shear",
+    "Poisson's ratio",
+    "Elastic potential energy"
+   ],
+   "tools": [
+    "graph",
+    "expr",
+    "prefab: wire under load (planned)"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 9,
+   "title": "Mechanical Properties of Fluids",
+   "topics": [
+    "Pressure and Pascal's law",
+    "Archimedes' principle and buoyancy",
+    "Streamline flow and equation of continuity",
+    "Bernoulli's principle and applications",
+    "Viscosity and terminal velocity",
+    "Surface tension, angle of contact, capillarity"
+   ],
+   "tools": [
+    "sim",
+    "expr",
+    "graph",
+    "prefab: fluid tank / venturi (planned)"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 10,
+   "title": "Thermal Properties of Matter",
+   "topics": [
+    "Temperature scales and thermal expansion",
+    "Specific heat and calorimetry",
+    "Change of state and latent heat",
+    "Heat transfer: conduction, convection, radiation",
+    "Newton's law of cooling"
+   ],
+   "tools": [
+    "expr",
+    "graph",
+    "prefab: heating curve (planned)"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 11,
+   "title": "Thermodynamics",
+   "topics": [
+    "Thermal equilibrium and the zeroth law",
+    "First law of thermodynamics",
+    "Specific heat capacities of gases",
+    "Thermodynamic processes: isothermal, adiabatic, isochoric, isobaric",
+    "Second law, heat engines and Carnot cycle",
+    "Refrigerators"
+   ],
+   "tools": [
+    "expr",
+    "graph (P-V)",
+    "prefab: piston and gas box (planned)",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 12,
+   "title": "Kinetic Theory",
+   "topics": [
+    "Molecular nature of matter",
+    "Kinetic theory of an ideal gas and pressure",
+    "Kinetic interpretation of temperature",
+    "Degrees of freedom and law of equipartition",
+    "Specific heat capacity from kinetic theory",
+    "Mean free path"
+   ],
+   "tools": [
+    "expr (particle gas)",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 13,
+   "title": "Oscillations",
+   "topics": [
+    "Periodic and oscillatory motion",
+    "Simple harmonic motion and its equations",
+    "SHM and uniform circular motion",
+    "Energy in SHM",
+    "Spring-mass system",
+    "Simple pendulum",
+    "Damped and forced oscillations, resonance"
+   ],
+   "tools": [
+    "sim",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 14,
+   "title": "Waves",
+   "topics": [
+    "Transverse and longitudinal waves",
+    "Displacement relation of a progressive wave",
+    "Speed of waves on a string and in a medium",
+    "Principle of superposition and reflection",
+    "Standing waves and normal modes",
+    "Beats",
+    "Doppler effect"
+   ],
+   "tools": [
+    "expr (travelling and standing waves)",
+    "graph",
+    "prefab: wave string (planned)",
+    "derivation"
+   ],
+   "status": "todo"
+  }
+ ]
+}

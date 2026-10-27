@@ -1,0 +1,140 @@
+{
+  "name": "daylight_studio",
+  "description": "Bright, clean, friendly studio: soft white-to-sky backdrop, soft shadows, saturated pastel accents. Best for biology, chemistry, everyday-science and younger audiences.",
+  "palette": {
+    "ink": "#16213a",
+    "muted": "#3d5a80",
+    "primary": "#2f7bff",
+    "secondary": "#ff6aa2",
+    "accent": "#ffb02e",
+    "warn": "#ff4d4d",
+    "good": "#17b978",
+    "surface": "#ffffff"
+  },
+  "background": {
+    "top": "#a9c9ec",
+    "bottom": "#dcebf8"
+  },
+  "fog": {
+    "color": "#cfe2f5",
+    "near": 30,
+    "far": 90
+  },
+  "exposure": 0.82,
+  "environment": {
+    "intensity": 0.5
+  },
+  "lights": [
+    {
+      "type": "ambient",
+      "color": "#ffffff",
+      "intensity": 0.45
+    },
+    {
+      "type": "directional",
+      "color": "#fff4e0",
+      "intensity": 2.0,
+      "position": [
+        6,
+        10,
+        5
+      ],
+      "castShadow": true
+    },
+    {
+      "type": "directional",
+      "color": "#cfe4ff",
+      "intensity": 0.8,
+      "position": [
+        -6,
+        5,
+        -3
+      ]
+    }
+  ],
+  "floor": {
+    "enabled": true,
+    "y": 0,
+    "color": "#e7eef7",
+    "roughness": 0.55,
+    "metalness": 0,
+    "grid": {
+      "color": "#2f7bff",
+      "spacing": 1,
+      "opacity": 0.18,
+      "size": 80
+    },
+    "size": 60
+  },
+  "post": {
+    "bloom": {
+      "strength": 0.05,
+      "radius": 0.4,
+      "threshold": 0.98
+    },
+    "vignette": 0.28,
+    "grain": 0.012,
+    "chromatic": 0.0003,
+    "contrast": 1.12,
+    "saturation": 1.2
+  },
+  "materials": {
+    "metal": {
+      "color": "#cfd6df",
+      "metalness": 1,
+      "roughness": 0.25
+    },
+    "copper": {
+      "color": "#d9824f",
+      "metalness": 1,
+      "roughness": 0.3
+    },
+    "glass": {
+      "color": "#eef8ff",
+      "metalness": 0,
+      "roughness": 0.03,
+      "transmission": 1,
+      "thickness": 0.5,
+      "ior": 1.45,
+      "opacity": 1
+    },
+    "matte": {
+      "color": "#b8c4d6",
+      "metalness": 0,
+      "roughness": 0.8
+    },
+    "plastic": {
+      "color": "#ffffff",
+      "metalness": 0,
+      "roughness": 0.3,
+      "clearcoat": 0.8
+    },
+    "rubber": {
+      "color": "#2a3140",
+      "metalness": 0,
+      "roughness": 0.95
+    },
+    "glow": {
+      "color": "#ffb02e",
+      "emissive": "#ffb02e",
+      "emissiveIntensity": 1.6,
+      "metalness": 0,
+      "roughness": 0.5
+    },
+    "organic": {
+      "color": "#ff8fb1",
+      "metalness": 0,
+      "roughness": 0.45,
+      "clearcoat": 0.4,
+      "sheen": 0.6
+    },
+    "hologram": {
+      "color": "#2f7bff",
+      "emissive": "#2f7bff",
+      "emissiveIntensity": 0.5,
+      "metalness": 0,
+      "roughness": 0.2,
+      "opacity": 0.4
+    }
+  }
+}

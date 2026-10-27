@@ -4,7 +4,7 @@ import random
 import urllib.request
 import urllib.parse
 import json
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 from src.core.config import settings
@@ -14,9 +14,10 @@ class VisualAssetFactory:
     """
     Visual Asset & Cinematic Scene Generator:
     Produces 1080x1920 (9:16) vertical imagery matching each scene beat:
-    - Priority 1: OpenAI DALL-E 3 (when tier is PREMIUM and OPENAI_API_KEY is set)
-    - Priority 2: Authentic Public Domain & Historical Archive Media Resolver (Wikimedia / Wikipedia)
-    - Priority 3: High-Yield Procedural Vector Schematics (zero debug text overlays)
+    - 100% Dynamic Neural Generation (Fal.ai FLUX.1 / DALL-E 3 / Hugging Face FLUX.1 / Pollinations FLUX.1)
+    - Dynamic Living World & 3D Presenter Avatar Compositor
+    - Dynamic Public Domain Scientific Archive Resolver (Wikimedia Commons)
+    Zero hardcoded keyword dispatchers or deterministic procedural fallback simulations.
     """
 
     WIDTH = 1080
@@ -27,9 +28,128 @@ class VisualAssetFactory:
         cls,
         scene: SceneBeat,
         output_image_path: str,
-        tier: ReelGenerationTier = ReelGenerationTier.DEFAULT
+        tier: ReelGenerationTier = ReelGenerationTier.DEFAULT,
+        avatar: Optional[Any] = None
     ) -> str:
+        """
+        Synthesizes the complete visual frame using strict layer separation:
+        1. Layer 1 (GEN): Clean, photorealistic neural base visual plate conditioned on the reel's style bible.
+        2. Layer 2 (OVERLAY): High-precision, deterministic frosted-glass scientific HUD card (when hud_overlay is defined).
+        """
         os.makedirs(os.path.dirname(os.path.abspath(output_image_path)), exist_ok=True)
+
+        # 1. Base Visual Plate Generation
+        generated = cls._generate_base_visual_plate(scene, output_image_path, tier=tier, avatar=avatar)
+        if not generated or not os.path.exists(output_image_path):
+            raise RuntimeError(f"Visual asset generation failed for scene {scene.scene_number}: All dynamic neural image providers failed. Please check network connectivity.")
+
+        # 2. Layer 2: Deterministic Scientific HUD Card Compositing
+        hud = getattr(scene, "hud_overlay", None)
+        if hud:
+            cls._apply_hud_overlay(output_image_path, hud)
+
+        return output_image_path
+
+    @classmethod
+    def _apply_hud_overlay(cls, image_path: str, hud: Any) -> None:
+        """
+        Renders a razor-sharp mathematical frosted-glass HUD card onto the upper-third
+        of the image. Strictly decouples mathematical accuracy from the AI diffusion model.
+        """
+        if not hud:
+            return
+
+        formula = getattr(hud, "formula", None) or (hud.get("formula") if isinstance(hud, dict) else None)
+        label = getattr(hud, "label", None) or (hud.get("label") if isinstance(hud, dict) else None)
+        units = getattr(hud, "units", None) or (hud.get("units") if isinstance(hud, dict) else None)
+        concept_tag = getattr(hud, "concept_tag", None) or (hud.get("concept_tag") if isinstance(hud, dict) else None)
+
+        if not formula and not label:
+            return
+
+        try:
+            with Image.open(image_path) as base_img:
+                canvas = base_img.convert("RGBA")
+                overlay_layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+                draw = ImageDraw.Draw(overlay_layer)
+
+                W, H = cls.WIDTH, cls.HEIGHT
+                card_w = 940
+                card_h = 220 if (units and formula) else 175
+                card_x = (W - card_w) // 2
+                card_y = 230  # Safely below status bar (0-160px) and well above subtitles (1360-1490px)
+
+                # Frosted glass card body: Deep midnight obsidian with alpha
+                draw.rounded_rectangle(
+                    [(card_x, card_y), (card_x + card_w, card_y + card_h)],
+                    radius=28,
+                    fill=(10, 15, 29, 215),
+                    outline=(6, 182, 212, 240),  # Glowing cyan accent border
+                    width=3
+                )
+
+                # Top Category Pill
+                tag_text = (concept_tag or label or "SCIENTIFIC CORE").upper()
+                font_tag = cls._get_font(22, bold=True)
+                draw.text((card_x + 36, card_y + 24), f"⚡ {tag_text}", fill=(6, 182, 212), font=font_tag)
+
+                # Main Hero Formula
+                if formula:
+                    font_formula = cls._get_font(42, bold=True)
+                    draw.text((card_x + 36, card_y + 66), formula, fill=(248, 250, 252), font=font_formula)
+
+                # Units / Context Description
+                sub_label = units or label or ""
+                if sub_label and sub_label != tag_text:
+                    font_sub = cls._get_font(22, bold=False)
+                    draw.text((card_x + 36, card_y + (142 if formula else 75)), f"SI Unit / Rule: {sub_label}", fill=(148, 163, 184), font=font_sub)
+
+                final_im = Image.alpha_composite(canvas, overlay_layer).convert("RGB")
+                final_im.save(image_path, "PNG")
+                print(f"📐 Mathematical HUD card composited onto {image_path}: {formula or label}")
+        except Exception as e:
+            print(f"⚠️ HUD overlay composition note: {e}")
+
+    @classmethod
+    def _generate_base_visual_plate(
+        cls,
+        scene: SceneBeat,
+        output_image_path: str,
+        tier: ReelGenerationTier = ReelGenerationTier.DEFAULT,
+        avatar: Optional[Any] = None
+    ) -> Optional[str]:
+        # Style Bible & Negative Prompting (Guarantees visual continuity and zero text hallucination)
+        style_bible = getattr(scene, "style_bible", None) or "Cinematic 35mm vertical photography, volumetric lighting, dark atmospheric studio, 9:16 portrait, photorealistic, clean plate, zero text watermarks, no letters"
+        negative_rules = "Strictly clean background plate, no text, no words, no letters, no labels, no watermark, no logos, no typography, no equations."
+
+        # 0. Character Avatar Scene Compositing (when scene features the teacher in their 3D world)
+        prompt_text = (scene.visual_prompt or "").lower()
+        avatar_name = (getattr(avatar, "name", "") or (avatar.get("name", "") if isinstance(avatar, dict) else "")).lower()
+        if avatar and (getattr(scene, "scene_number", 1) in (1, 3) or (avatar_name and avatar_name in prompt_text)):
+            avatar_id = getattr(avatar, "id", None) or (avatar.get("id") if isinstance(avatar, dict) else None)
+            if avatar_id:
+                char_dir = os.path.join(settings.LOCAL_STORAGE_DIR, "character_store", avatar_id)
+                avatar_img_path = os.path.join(char_dir, "avatar_3d.png")
+                world_img_path = os.path.join(char_dir, "world_scene_3d.png")
+                if os.path.exists(avatar_img_path):
+                    try:
+                        base_canvas = Image.new("RGB", (cls.WIDTH, cls.HEIGHT), (10, 15, 26))
+                        if os.path.exists(world_img_path):
+                            with Image.open(world_img_path) as w_img:
+                                base_canvas = w_img.convert("RGB").resize((cls.WIDTH, cls.HEIGHT), Image.LANCZOS)
+                        with Image.open(avatar_img_path) as a_img:
+                            a_rgba = a_img.convert("RGBA")
+                            a_w = int(cls.WIDTH * 0.90)
+                            a_h = int(a_rgba.height * (a_w / float(a_rgba.width)))
+                            a_resized = a_rgba.resize((a_w, a_h), Image.LANCZOS)
+                            paste_x = (cls.WIDTH - a_w) // 2
+                            paste_y = max(180, cls.HEIGHT - a_h - 220)
+                            base_canvas.paste(a_resized, (paste_x, paste_y), a_resized)
+                        base_canvas.save(output_image_path, "PNG")
+                        print(f"🎭 Composed 3D Character Avatar frame: {output_image_path}")
+                        return output_image_path
+                    except Exception as e_av:
+                        print(f"⚠️ Avatar compositing note: {e_av}")
 
         # 1. External Visual Tool: Fal.ai FLUX.1 Schnell (Fastest 9:16 vertical graphics)
         if settings.FAL_KEY:
@@ -41,7 +161,7 @@ class VisualAssetFactory:
                 }
                 endpoint = "https://fal.run/fal-ai/flux/schnell"
                 payload = {
-                    "prompt": f"{scene.visual_prompt}, high resolution, 9:16 vertical aspect ratio, clear focal point, vibrant colors, cinematic lighting, sharp focus, no text watermarks",
+                    "prompt": f"{scene.visual_prompt}. Aesthetic Style: {style_bible}. {negative_rules}",
                     "image_size": {"width": 1080, "height": 1920},
                     "num_inference_steps": 4,
                     "enable_safety_checker": False
@@ -67,7 +187,7 @@ class VisualAssetFactory:
             try:
                 from openai import OpenAI
                 client = OpenAI(api_key=settings.OPENAI_API_KEY)
-                prompt_9_16 = f"{scene.visual_prompt}. Extremely high quality, detailed, vertical 9:16 composition, cinematic lighting, sharp focus, no text watermarks."
+                prompt_9_16 = f"{scene.visual_prompt}. Style Bible: {style_bible}. {negative_rules}"
                 
                 response = client.images.generate(
                     model="dall-e-3",
@@ -97,7 +217,7 @@ class VisualAssetFactory:
                 import io
                 hf_url = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
                 hf_headers = {"Authorization": f"Bearer {settings.HF_TOKEN}"}
-                hf_payload = {"inputs": f"{scene.visual_prompt}, vibrant educational illustration, 9:16 vertical aspect ratio, clear focal point, cinematic lighting, sharp focus, no text watermarks"}
+                hf_payload = {"inputs": f"{scene.visual_prompt}. Aesthetic Style: {style_bible}. {negative_rules}"}
                 with httpx.Client(timeout=45.0) as client:
                     hf_res = client.post(hf_url, headers=hf_headers, json=hf_payload)
                     if hf_res.status_code == 200 and len(hf_res.content) > 5000:
@@ -111,14 +231,14 @@ class VisualAssetFactory:
             except Exception as e:
                 print(f"⚠️ Hugging Face FLUX generation failed: {e}")
 
-        # 4. Free External Visual Tool: Pollinations.ai FLUX.1 (Supports POLLEN_KEY or keyless)
+        # 4. Neural Diffusion Visual Tool: Pollinations.ai FLUX.1 (Zero cost, high-res 3D CGI)
         try:
             import httpx
             import urllib.parse
             import io
             
             clean_prompt = scene.visual_prompt.strip()
-            enhanced_prompt = f"{clean_prompt}, clean educational graphic illustration, Kurzgesagt vibrant scientific art style, flat vector aesthetic, high contrast, crisp details, 9:16 vertical composition, no text watermarks, 4k"
+            enhanced_prompt = f"{clean_prompt}. Aesthetic Style: {style_bible}. {negative_rules}"
             encoded_prompt = urllib.parse.quote(enhanced_prompt)
             seed = getattr(scene, "scene_number", 1) * 137 + 42
             url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=576&height=1024&model=flux&nologo=true&seed={seed}"
@@ -134,61 +254,79 @@ class VisualAssetFactory:
                         if im.size != (cls.WIDTH, cls.HEIGHT):
                             im = im.resize((cls.WIDTH, cls.HEIGHT), Image.LANCZOS)
                         im.save(output_image_path, "PNG")
-                    print(f"🎨 External FLUX image generated via Pollinations: {output_image_path}")
+                    print(f"🎨 Dynamic FLUX image generated via Pollinations: {output_image_path}")
                     return output_image_path
                 else:
                     print(f"⚠️ Pollinations FLUX status ({res.status_code}): {res.text[:200]}")
         except Exception as e:
             print(f"⚠️ Pollinations FLUX generation error: {e}")
 
-        # STRICTLY NO FALLBACK: If external tools are not configured or failed, throw explicit error
-        raise RuntimeError(
-            "Missing External Visual Generation Tool: Generating authentic, prompt-accurate graphics "
-            "for arbitrary curriculum topics requires an external visual model. "
-            "Please configure FAL_KEY (recommended for Fal.ai FLUX & Kling), OPENAI_API_KEY, HF_TOKEN, or POLLEN_KEY in your .env file. "
-            "Internal geometric fallbacks have been permanently disabled per your strict requirement."
-        )
+        # 5. Dynamic Public Domain & Scientific Archive Media Resolver (Wikimedia Commons)
+        try:
+            if cls._resolve_archive_visual(scene, output_image_path):
+                print(f"🏛️ Authentic scientific archive image resolved: {output_image_path}")
+                return output_image_path
+        except Exception as e:
+            print(f"⚠️ Archive media resolver failed: {e}")
+
+        return None
 
     _ARCHIVE_URL_CACHE: dict = {}
+    _USED_ARCHIVE_URLS: set = set()
+
+    @classmethod
+    def reset_job_session(cls):
+        """Clears per-job used URLs so every scene gets a fresh, unique visual."""
+        cls._USED_ARCHIVE_URLS.clear()
 
     @classmethod
     def _extract_candidate_queries(cls, scene: SceneBeat) -> List[str]:
         """
-        Dynamically derives 2 to 4 concise search keywords from the scene's prompt
+        Dynamically derives concise, scene-specific search keywords from the scene's prompt
         and spoken line to query Wikimedia Commons for ANY topic in the world.
+        Zero hardcoded keyword dispatchers or pre-programmed topic switches.
         """
         import re
         queries: List[str] = []
-        prompt = scene.visual_prompt.lower()
-        
-        # Strip AI prompt boilerplate
+        prompt = scene.visual_prompt
+        spoken = scene.spoken_line
+
+        # 1. Extract proper nouns, capitalized scientific laws, and quoted terms dynamically
+        scientific_terms = re.findall(r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b", spoken)
+        for term in scientific_terms:
+            t_clean = term.strip().lower()
+            if len(t_clean) > 4 and t_clean not in ["conceptly studio", "scene beat"]:
+                queries.append(t_clean)
+
+        # 2. Strip AI prompt boilerplate, rendering buzzwords, mascot names, and visual fluff
         cleaned = re.sub(
             r"(?i)\b(photorealistic|vertical 9:16|cinematic lighting|sharp focus|macro close-up|hyper-detailed|"
             r"dark background|no text watermarks|8k resolution|unreal engine|volumetric light|high-contrast|illustration|"
             r"ultra realistic|studio lighting|dramatic lighting|shot on 35mm|close up|view of|diagram of|render of|"
-            r"detailed|extreme close-up|cross section|vector diagram|white background)\b",
-            "",
-            prompt
+            r"detailed|extreme close-up|cross section|vector diagram|white background|bright neon|glowing neon|"
+            r"kurzgesagt|studio|signature|cartoon|scientist|duck|mascot|quarks|dr quarks|einstein|kalam|franklin|arya|"
+            r"pointing|enthusiastically|smiling|wearing|standing|holding|glowing|bright|neon|vibrant|cosmic|space|"
+            r"3d avatar|avatar|pixar|cyberpunk|tech-noir|octane render|turnaround|isolated|flat vector|style)\b",
+            " ",
+            prompt.lower()
         )
         cleaned = re.sub(r"[,\.\(\)\"\:\-\_\/\#]", " ", cleaned)
         words = [w.strip() for w in cleaned.split() if len(w.strip()) > 3]
 
-        # Candidate 1: First 2 substantive words (e.g. "triangular prism", "mrna vaccine")
         if len(words) >= 2:
             queries.append(f"{words[0]} {words[1]}")
-        # Candidate 2: First 3 substantive words (e.g. "prism dispersion spectrum", "bastille storming 1789")
         if len(words) >= 3:
             queries.append(f"{words[0]} {words[1]} {words[2]}")
-        # Candidate 3: Secondary focus words
         if len(words) >= 4:
             queries.append(f"{words[1]} {words[2]}")
 
-        # Extract substantive terms from spoken line as well
-        spoken_cleaned = re.sub(r"[,\.\(\)\"\:\-\_\?\!]", " ", scene.spoken_line.lower())
+        # 3. Substantive spoken terms
+        spoken_cleaned = re.sub(r"[,\.\(\)\"\:\-\_\?\!]", " ", spoken.lower())
         stop_words = {
             "does", "what", "when", "where", "which", "actually", "inside", "looking",
             "right", "there", "about", "their", "these", "those", "because", "every",
-            "first", "second", "third", "think", "never", "always", "would", "could", "should"
+            "first", "second", "third", "think", "never", "always", "would", "could", "should",
+            "just", "make", "once", "this", "exact", "like"
         }
         s_words = [w.strip() for w in spoken_cleaned.split() if len(w.strip()) > 3 and w not in stop_words]
         if len(s_words) >= 2:
@@ -196,7 +334,6 @@ class VisualAssetFactory:
         if len(s_words) >= 3:
             queries.append(f"{s_words[0]} {s_words[1]} {s_words[2]}")
 
-        # De-duplicate while preserving prioritization
         return list(dict.fromkeys(queries))
 
     @classmethod
@@ -205,6 +342,7 @@ class VisualAssetFactory:
         Dynamically queries Wikimedia Commons / Wikipedia for authentic public-domain
         scientific diagrams, medical illustrations, museum archives, and historical photography
         for ANY of millions of topics in the world, then composites into a 9:16 vertical cinema frame.
+        Strictly enforces de-duplication: no two scenes in the same reel can ever use the same image.
         """
         candidates = cls._extract_candidate_queries(scene)
         if not candidates:
@@ -215,28 +353,38 @@ class VisualAssetFactory:
 
         for query in candidates:
             if query in cls._ARCHIVE_URL_CACHE:
-                found_img_url = cls._ARCHIVE_URL_CACHE[query]
-                break
+                cached_url = cls._ARCHIVE_URL_CACHE[query]
+                if cached_url not in cls._USED_ARCHIVE_URLS:
+                    found_img_url = cached_url
+                    cls._USED_ARCHIVE_URLS.add(cached_url)
+                    break
 
             try:
                 # Use iiurlwidth=1280 to automatically render SVGs and large files into high-res PNG thumbnails
                 url = (
                     f"https://commons.wikimedia.org/w/api.php?action=query&generator=search"
-                    f"&gsrsearch={urllib.parse.quote(query)}&gsrnamespace=6&gsrlimit=3"
+                    f"&gsrsearch={urllib.parse.quote(query)}&gsrnamespace=6&gsrlimit=8"
                     f"&prop=imageinfo&iiprop=url&iiurlwidth=1280&format=json"
                 )
                 req = urllib.request.Request(url, headers=headers)
-                with urllib.request.urlopen(req, timeout=3.0) as r:
+                with urllib.request.urlopen(req, timeout=4.0) as r:
                     data = json.loads(r.read())
                     pages = data.get("query", {}).get("pages", {})
                     for pid, page in pages.items():
+                        title = page.get("title", "")
+                        # Filter out PDF document titles which only render book cover pages
+                        if title.lower().endswith(".pdf"):
+                            continue
                         infos = page.get("imageinfo", [])
                         if infos:
                             thumb = infos[0].get("thumburl") or infos[0].get("url")
                             if thumb:
                                 clean_u = thumb.split("?")[0]
                                 if clean_u.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+                                    if thumb in cls._USED_ARCHIVE_URLS:
+                                        continue  # Never repeat an image across scenes
                                     found_img_url = thumb
+                                    cls._USED_ARCHIVE_URLS.add(thumb)
                                     cls._ARCHIVE_URL_CACHE[query] = found_img_url
                                     break
                 if found_img_url:
@@ -254,7 +402,16 @@ class VisualAssetFactory:
                 f.write(resp.read())
 
             with Image.open(temp_raw) as raw_im:
-                im = raw_im.convert("RGB")
+                # Preserve light background for transparent PNG/SVG diagrams to prevent black-on-black silhouette
+                if raw_im.mode in ("RGBA", "LA") or (raw_im.mode == "P" and "transparency" in raw_im.info):
+                    alpha_im = raw_im.convert("RGBA")
+                    # Clean high-contrast white base for technical diagrams
+                    white_base = Image.new("RGB", alpha_im.size, (250, 250, 252))
+                    white_base.paste(alpha_im, mask=alpha_im.split()[3])
+                    im = white_base
+                else:
+                    im = raw_im.convert("RGB")
+
             if os.path.exists(temp_raw):
                 os.remove(temp_raw)
 
@@ -325,190 +482,6 @@ class VisualAssetFactory:
         canvas.save(output_path, "PNG")
 
     @classmethod
-    def _render_procedural_cinematic(cls, scene: SceneBeat, output_path: str) -> str:
-        """
-        Renders clean, domain-themed 1080x1920 graphical visual frames with atmospheric
-        lighting and vector schematics (NEVER printing raw prompt debug text on screen).
-        """
-        img = Image.new("RGB", (cls.WIDTH, cls.HEIGHT), (10, 15, 26))
-        draw = ImageDraw.Draw(img)
-
-        prompt_lower = scene.visual_prompt.lower()
-        spoken_lower = scene.spoken_line.lower()
-        full_text = f"{prompt_lower} {spoken_lower}"
-
-        is_history = scene.visual_modality == VisualModality.CINEMATIC_SCENE and any(
-            w in full_text for w in ["bhagat", "history", "court", "assembly", "jail", "flag", "revolution", "freedom", "war"]
-        )
-        is_optics = any(w in full_text for w in ["prism", "light", "refraction", "reflection", "spectrum", "dispersion", "lens", "wavelength", "rainbow", "optics"])
-        is_bio = any(w in full_text for w in ["chloroplast", "photosynthesis", "cell", "dna", "mitosis", "organ", "plant", "heart", "gene"])
-        is_chemistry = any(w in full_text for w in ["reaction", "molecule", "atom", "magnesium", "acid", "bond", "electron", "compound", "oxide", "element"])
-        is_electricity = any(w in full_text for w in ["ohm", "resistance", "current", "voltage", "circuit", "amperes", "resistor"])
-        is_magnetism = any(w in full_text for w in ["magnet", "lorentz", "magnetic field", "f=ilb", "tesla", "solenoid"])
-        is_rocket = any(w in full_text for w in ["rocket", "exhaust", "propulsion", "thrust"])
-
-        if is_history:
-            bg_start = (28, 20, 14)
-            bg_end = (15, 10, 8)
-            accent_glow = (245, 158, 11)
-            hero_title = "HISTORICAL ARCHIVE & CHRONICLE"
-        elif is_optics:
-            bg_start = (10, 18, 32)
-            bg_end = (6, 12, 22)
-            accent_glow = (56, 189, 248)
-            hero_title = "OPTICS & WAVE DISPERSION"
-        elif is_bio:
-            bg_start = (6, 32, 24)
-            bg_end = (4, 18, 14)
-            accent_glow = (16, 185, 129)
-            hero_title = "CELLULAR MOLECULAR BIOLOGY"
-        elif is_chemistry:
-            bg_start = (30, 20, 12)
-            bg_end = (18, 10, 6)
-            accent_glow = (251, 146, 60)
-            hero_title = "CHEMICAL MOLECULAR DYNAMICS"
-        elif is_electricity:
-            bg_start = (26, 24, 10)
-            bg_end = (16, 14, 6)
-            accent_glow = (234, 179, 8)
-            hero_title = "ELECTRICITY & CIRCUIT LAWS"
-        elif is_magnetism:
-            bg_start = (8, 24, 34)
-            bg_end = (4, 14, 22)
-            accent_glow = (0, 240, 255)
-            hero_title = "ELECTROMAGNETIC FORCES"
-        elif is_rocket:
-            bg_start = (26, 12, 12)
-            bg_end = (16, 8, 8)
-            accent_glow = (239, 68, 68)
-            hero_title = "NEWTONIAN PROPULSION"
-        else:
-            bg_start = (18, 14, 30)
-            bg_end = (10, 8, 18)
-            accent_glow = (168, 85, 247)
-            hero_title = "CONCEPTUAL SCIENTIFIC PRINCIPLE"
-
-        # 1. Vertical background gradient
-        steps = 120
-        step_h = cls.HEIGHT // steps
-        for i in range(steps):
-            ratio = i / float(steps)
-            r = int(bg_start[0] * (1 - ratio) + bg_end[0] * ratio)
-            g = int(bg_start[1] * (1 - ratio) + bg_end[1] * ratio)
-            b = int(bg_start[2] * (1 - ratio) + bg_end[2] * ratio)
-            draw.rectangle([(0, i * step_h), (cls.WIDTH, (i + 1) * step_h)], fill=(r, g, b))
-
-        # 2. Radial glow spotlight in center
-        center_x, center_y = cls.WIDTH // 2, 650
-        for radius in range(400, 50, -30):
-            alpha_ratio = (400 - radius) / 400.0
-            glow_r = int(bg_start[0] + (accent_glow[0] - bg_start[0]) * 0.25 * alpha_ratio)
-            glow_g = int(bg_start[1] + (accent_glow[1] - bg_start[1]) * 0.25 * alpha_ratio)
-            glow_b = int(bg_start[2] + (accent_glow[2] - bg_start[2]) * 0.25 * alpha_ratio)
-            draw.ellipse(
-                [(center_x - radius, center_y - radius), (center_x + radius, center_y + radius)],
-                fill=(glow_r, glow_g, glow_b)
-            )
-
-        font_badge = cls._get_font(26, bold=True)
-        font_hero = cls._get_font(44, bold=True)
-
-        # Header Badge
-        draw.rounded_rectangle([(80, 160), (520, 215)], radius=18, fill=(20, 28, 48), outline=accent_glow, width=2)
-        draw.text((105, 173), hero_title, fill=accent_glow, font=font_badge)
-        draw.text((cls.WIDTH - 220, 173), f"SCENE {scene.scene_number:02d}", fill=(148, 163, 184), font=font_badge)
-
-        # Hero Center Graphic Canvas
-        card_box = [(80, 260), (cls.WIDTH - 80, 1260)]
-        draw.rounded_rectangle(card_box, radius=32, fill=(17, 24, 39, 230), outline=(40, 54, 80), width=3)
-
-        cx, cy = cls.WIDTH // 2, 620
-
-        if is_history:
-            draw.ellipse([(cx - 240, 360), (cx + 240, 840)], outline=accent_glow, width=4)
-            words = [w for w in scene.spoken_line.split() if len(w) > 2]
-            title_text = " ".join(words[:5]) if words else "Historical Chronicle"
-            draw.text((cx - 190, 560), "HISTORIC CHRONICLE", fill=accent_glow, font=font_hero)
-            draw.text((120, 940), f"{title_text}...", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
-        elif is_optics:
-            # Triangular Glass Prism & Rainbow Spectrum
-            apex = (cx - 40, cy - 200)
-            p_left = (cx - 260, cy + 180)
-            p_right = (cx + 180, cy + 180)
-            draw.polygon([apex, p_left, p_right], fill=(22, 36, 58), outline=accent_glow, width=4)
-
-            # Incident White Light Ray
-            src_x, src_y = 120, cy - 40
-            hit_x, hit_y = cx - 150, cy - 10
-            draw.line([(src_x, src_y), (hit_x, hit_y)], fill=(255, 255, 255), width=8)
-            draw.text((120, cy - 90), "White Light", fill=(255, 255, 255), font=cls._get_font(26, bold=True))
-
-            # 7 Rainbow Rays Emerging
-            spectrum_cols = [
-                ("Red", (255, 59, 48), -50),
-                ("Orange", (255, 149, 0), -25),
-                ("Yellow", (255, 204, 0), 0),
-                ("Green", (52, 199, 89), 25),
-                ("Blue", (0, 199, 255), 50),
-                ("Violet", (175, 82, 222), 75)
-            ]
-            scr_x = cls.WIDTH - 140
-            for c_name, c_rgb, dev in spectrum_cols:
-                ex_x = cx + 80
-                ex_y = cy - 10 + dev // 3
-                draw.line([(hit_x, hit_y), (ex_x, ex_y)], fill=c_rgb, width=3)
-                draw.line([(ex_x, ex_y), (scr_x, cy + dev * 3)], fill=c_rgb, width=5)
-
-            # Screen
-            draw.rounded_rectangle([(scr_x - 6, cy - 180), (scr_x + 16, cy + 250)], radius=6, fill=(240, 245, 255))
-            draw.text((120, 940), "Prism Dispersion: Red Bends Least, Violet Most", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
-        elif is_bio:
-            for r in [200, 140, 80]:
-                draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], outline=accent_glow, width=3)
-            draw.text((cx - 170, cy - 20), "CELLULAR NANO-ENGINE", fill=accent_glow, font=font_hero)
-            draw.text((120, 940), "Biochemical Energy Synthesis & Thylakoids", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
-        elif is_chemistry:
-            for r in [180, 120, 60]:
-                draw.ellipse([(cx - r, cy - r), (cx + r, cy + r)], outline=(80, 60, 40), width=2)
-            draw.ellipse([(cx - 30, cy - 30), (cx + 30, cy + 30)], fill=accent_glow)
-            draw.text((cx - 180, cy - 30), "MOLECULAR REACTION", fill=accent_glow, font=font_hero)
-            draw.text((120, 940), "Oxidation & Synthesis: Energy Redistribution", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
-        elif is_electricity:
-            draw.rectangle([(cx - 240, cy - 100), (cx + 240, cy + 100)], outline=accent_glow, width=4)
-            draw.text((cx - 160, cy - 30), "CIRCUIT: V = I · R", fill=accent_glow, font=font_hero)
-            draw.text((120, 940), "Ohm's Law: Current Proportional to Voltage", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
-        elif is_magnetism:
-            draw.rectangle([(cx - 280, cy - 120), (cx - 120, cy + 120)], fill=(220, 38, 38), outline=(255, 255, 255), width=2)
-            draw.text((cx - 220, cy - 25), "N", fill=(255, 255, 255), font=font_hero)
-            draw.rectangle([(cx + 120, cy - 120), (cx + 280, cy + 120)], fill=(37, 99, 235), outline=(255, 255, 255), width=2)
-            draw.text((cx + 180, cy - 25), "S", fill=(255, 255, 255), font=font_hero)
-            draw.line([(cx - 120, cy), (cx + 120, cy)], fill=(0, 240, 255), width=6)
-            draw.text((120, 940), "Magnetic Force: F = I · L · B", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
-        elif is_rocket:
-            draw.line([(cx - 280, cy), (cx - 40, cy)], fill=(245, 158, 11), width=10)
-            draw.polygon([(cx - 300, cy), (cx - 270, cy - 18), (cx - 270, cy + 18)], fill=(245, 158, 11))
-            draw.text((cx - 240, cy - 60), "F_action", fill=(245, 158, 11), font=cls._get_font(36, bold=True))
-            draw.line([(cx + 40, cy), (cx + 280, cy)], fill=(56, 189, 248), width=10)
-            draw.polygon([(cx + 300, cy), (cx + 270, cy - 18), (cx + 270, cy + 18)], fill=(56, 189, 248))
-            draw.text((cx + 120, cy - 60), "F_reaction", fill=(56, 189, 248), font=cls._get_font(36, bold=True))
-            draw.line([(cx, cy - 100), (cx, cy + 100)], fill=(255, 255, 255), width=4)
-            draw.text((120, 940), "Newton 3: Action-Reaction on Different Bodies", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
-        else:
-            # Universal Conceptual Schematic
-            for i in range(8):
-                rad = 140 + i * 20
-                draw.ellipse([(cx - rad, cy - rad), (cx + rad, cy + rad)], outline=(40, 32, 60), width=1)
-            draw.ellipse([(cx - 100, cy - 100), (cx + 100, cy + 100)], fill=(24, 18, 42), outline=accent_glow, width=3)
-            words = [w for w in scene.spoken_line.split() if len(w) > 3]
-            summary_snippet = " ".join(words[:6]) if words else "Core Fundamental Principle"
-            draw.text((cx - 170, cy - 25), "CORE PRINCIPLE", fill=accent_glow, font=font_hero)
-            draw.text((120, 940), f"{summary_snippet}...", fill=(248, 250, 252), font=cls._get_font(34, bold=True))
-
-        # Subtitles are dynamically burned in by ASS Compositor with word-level chronometry
-        img.save(output_path, "PNG")
-        return output_path
-
-    @classmethod
     def _wrap_text(cls, text: str, max_chars: int = 40):
         words = text.split()
         lines = []
@@ -529,9 +502,9 @@ class VisualAssetFactory:
     @classmethod
     def _get_font(cls, size: int, bold: bool = False):
         font_candidates = [
+            "/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold else "/System/Library/Fonts/Supplemental/Arial.ttf",
             "/System/Library/Fonts/Helvetica.ttc",
             "/System/Library/Fonts/SFPro.ttf",
-            "/System/Library/Fonts/Supplemental/Arial.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         ]
         for path in font_candidates:

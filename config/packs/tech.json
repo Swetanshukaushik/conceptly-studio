@@ -1,0 +1,33 @@
+{
+  "name": "tech",
+  "label": "Product, Software and System Design",
+  "status": "planned",
+  "summary": "Diagrams of components, flows and trade-offs, plus code walkthroughs.",
+  "subjects": [
+    "product management",
+    "software development",
+    "software engineering",
+    "system design",
+    "computer science",
+    "programming",
+    "coding"
+  ],
+  "layout_hint": "explainer_window",
+  "look_hint": "workshop_blue",
+  "requires_sim": false,
+  "kits": [
+    "flow_diagram",
+    "boxes_and_arrows",
+    "code_walkthrough",
+    "stat_cards"
+  ],
+  "verification": [
+    "code_execution_planned"
+  ],
+  "persona": null,
+  "tiers": {
+    "free": "partial",
+    "premium": "not_needed"
+  },
+  "prompt": "packs/tech.md"
+}

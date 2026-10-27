@@ -1,0 +1,19 @@
+{
+ "topic": "How Pulley Systems Work",
+ "subject": "Physics",
+ "class_level": 9,
+ "exam_type": "SCHOOL",
+ "tier": "FREE",
+ "job_id": "74a7de45-6c9a-4c30-b89b-446f3c87c050",
+ "created_utc": "2026-10-26T16:27:16.620442",
+ "status": "test render, not published, not reviewed",
+ "layout": "explainer_window",
+ "look": "workshop_blue",
+ "qa_notes": null,
+ "narration": [
+  "Observe... carefully! Pulling half as hard to lift a heavy load sounds wondrous—until you realize... you are pulling twice as much rope!",
+  "Let us reason together. Many believe a movable pulley magically lessens the burden of work—thinking force reduction means energy saved. But nature is far more clever than that!",
+  "The mechanical advantage is clear! The effort force is halved... yet the displacement of the rope is doubled. Force multiplied by distance remains constant, satisfying the conservation of energy!",
+  "And behold! Pulleys never cheat the cosmos—they merely trade distance for force. Test your mastery in the checkpoint quiz below!"
+ ]
+}

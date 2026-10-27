@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "distance": 2.4,
+  "yaw_degrees": -14,
+  "default_pose": "speak",
+  "pose_by_overlay": {
+    "formula": "point_up",
+    "derivation": "point",
+    "stat": "point",
+    "sticker": "point",
+    "callout": "speak",
+    "pop": "speak",
+    "title": "speak"
+  },
+  "last_scene_pose": "cheer",
+  "voice": {
+    "lettersPerSyllable": 3,
+    "restOpen": 0,
+    "sharpness": 0.7
+  }
+}

@@ -1,0 +1,223 @@
+{
+ "look": "maths_navy",
+ "layout": "maths",
+ "header": [
+  "01 / <Topic>",
+  "<Headline of at most 6 words>",
+  "<One-line subtitle>"
+ ],
+ "physics_plan": [],
+ "scenes": [
+  {
+   "beat": 1,
+   "intent": "The viewer sees the curve being built and wants to know why it has this shape.",
+   "staging": "The axes appear, the curve draws itself from left to right with an amber point travelling along it and thin lines dropping to both axes; the mascot waits in the corner; the key word pops when it is spoken.",
+   "camera": {
+    "position": [
+     0,
+     0,
+     8.4
+    ],
+    "target": [
+     0,
+     0.1,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "type": "prop",
+     "prefab": "cartesian",
+     "params": {
+      "w": 3.0,
+      "h": 3.4,
+      "xmin": -3,
+      "xmax": 3,
+      "ymin": -1,
+      "ymax": 9,
+      "nx": 7,
+      "ny": 11,
+      "t0": 0.6,
+      "dur": 4.5,
+      "cursor": 1
+     },
+     "position": [
+      0,
+      0.1,
+      0
+     ]
+    },
+    {
+     "type": "prop",
+     "prefab": "mascot_m",
+     "params": {
+      "color": "primary",
+      "size": 1.0,
+      "look": "sin(t)"
+     },
+     "position": [
+      "2.4+0.1*sin(t)",
+      -1.5,
+      0
+     ]
+    }
+   ],
+   "overlays": [
+    {
+     "kind": "pop",
+     "word": "squaring",
+     "at": 0
+    }
+   ]
+  },
+  {
+   "beat": 2,
+   "intent": "The viewer sees that each chosen x gives exactly one y, and that the points lie on the curve.",
+   "staging": "The value table fills column by column as each x is spoken, with a permanent highlighted point and its coordinates labelled; the y values are computed from the function.",
+   "camera": {
+    "position": [
+     0,
+     0,
+     8.4
+    ],
+    "target": [
+     0,
+     0.1,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "type": "prop",
+     "prefab": "cartesian",
+     "params": {
+      "w": 3.0,
+      "h": 3.4,
+      "xmin": -3,
+      "xmax": 3,
+      "ymin": -1,
+      "ymax": 9,
+      "nx": 7,
+      "ny": 11,
+      "t0": 0.3,
+      "dur": 0.1,
+      "cursor": 0,
+      "ps": 1,
+      "px": 2,
+      "py": 4,
+      "pt": 9.58,
+      "plabel": "(2, 4)"
+     },
+     "position": [
+      0,
+      0.65,
+      0
+     ]
+    },
+    {
+     "type": "prop",
+     "prefab": "value_table",
+     "params": {
+      "t0": 3.44,
+      "step": 1.9,
+      "n": 3,
+      "x1": "-2",
+      "y1": "4",
+      "x2": "0",
+      "y2": "0",
+      "x3": "2",
+      "y3": "4"
+     },
+     "position": [
+      0,
+      -2.35,
+      0
+     ],
+     "scale": 1.0
+    },
+    {
+     "type": "prop",
+     "prefab": "mascot_m",
+     "params": {
+      "color": "primary",
+      "size": 1.0,
+      "look": "sin(t)"
+     },
+     "position": [
+      2.6,
+      -1.5,
+      0
+     ]
+    }
+   ],
+   "overlays": []
+  },
+  {
+   "beat": 5,
+   "intent": "The viewer sees what the sign of the coefficient does to the whole curve.",
+   "staging": "The coefficient is animated with an expression of t inside the curve, so the parabola flips smoothly while the card shows the new value; the axis range covers both orientations.",
+   "camera": {
+    "position": [
+     0,
+     0.9,
+     8.6
+    ],
+    "target": [
+     0,
+     0.9,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "type": "prop",
+     "prefab": "cartesian",
+     "params": {
+      "w": 3.0,
+      "h": 3.4,
+      "xmin": -3,
+      "xmax": 3,
+      "ymin": -9,
+      "ymax": 9,
+      "nx": 7,
+      "ny": 19,
+      "y1": "mix(1,-1,smooth(0.6,3.2,t))*X^2",
+      "t0": 0.2,
+      "dur": 0.1,
+      "cursor": 0
+     },
+     "position": [
+      0,
+      0.1,
+      0
+     ]
+    },
+    {
+     "type": "prop",
+     "prefab": "mascot_m",
+     "params": {
+      "color": "accent",
+      "size": 1.0,
+      "look": "sin(t)"
+     },
+     "position": [
+      2.6,
+      -1.5,
+      0
+     ]
+    }
+   ],
+   "overlays": [
+    {
+     "kind": "formula",
+     "latex": "a=-1",
+     "anchor": "top",
+     "at": 3.87
+    }
+   ]
+  }
+ ]
+}

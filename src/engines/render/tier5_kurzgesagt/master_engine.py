@@ -71,7 +71,8 @@ class KurzgesagtMasterEngine:
         cls,
         scene: SceneBeat,
         output_clip_path: str,
-        duration: float = 3.5
+        duration: float = 3.5,
+        avatar: Optional[Any] = None
     ) -> str:
         os.makedirs(os.path.dirname(os.path.abspath(output_clip_path)), exist_ok=True)
         ffmpeg_bin = cls._find_ffmpeg()
@@ -88,6 +89,34 @@ class KurzgesagtMasterEngine:
             sim_type = "CELL_BIO"
         else:
             sim_type = "PHYSICS_SHM"
+
+        # Resolve 3D CGI Avatar Portrait Bust from Character Store
+        avatar_img = None
+        avatar_id = None
+        if avatar:
+            avatar_id = getattr(avatar, "id", None) or (avatar.get("id") if isinstance(avatar, dict) else None)
+        if not avatar_id:
+            vp = (getattr(scene, "visual_prompt", "") + " " + getattr(scene, "spoken_line", "")).lower()
+            if "einstein" in vp:
+                avatar_id = "einstein_cyber"
+            elif "curie" in vp:
+                avatar_id = "curie_radium"
+            elif "kalam" in vp:
+                avatar_id = "kalam_statesman"
+            elif "bose" in vp:
+                avatar_id = "bose_patriot"
+            else:
+                avatar_id = "kabir_student"
+
+        from src.services.avatar_catalog import AvatarCatalog
+        avatar_path = AvatarCatalog.ensure_3d_avatar_asset(avatar_id)
+        if avatar_path and os.path.exists(avatar_path):
+            try:
+                raw_av = Image.open(avatar_path).convert("RGBA")
+                # Scale to sleek 480x480 bust for Kurzgesagt scientist corner
+                avatar_img = raw_av.resize((480, 480), Image.LANCZOS)
+            except Exception:
+                avatar_img = None
 
         cmd = [
             ffmpeg_bin, "-y",
@@ -113,7 +142,7 @@ class KurzgesagtMasterEngine:
         for frame_idx in range(total_frames):
             time_sec = frame_idx / cls.FPS
             progress = frame_idx / total_frames
-            im = cls._render_composite_frame(scene, time_sec, progress, frame_idx, sim_type, stars)
+            im = cls._render_composite_frame(scene, time_sec, progress, frame_idx, sim_type, stars, avatar_img)
             proc.stdin.write(im.tobytes())
 
         proc.stdin.close()
@@ -128,7 +157,8 @@ class KurzgesagtMasterEngine:
         progress: float,
         frame_idx: int,
         sim_type: str,
-        stars: List[Tuple[int, int, float]]
+        stars: List[Tuple[int, int, float]],
+        avatar_img: Optional[Image.Image] = None
     ) -> Image.Image:
         im = Image.new("RGB", (cls.WIDTH, cls.HEIGHT), cls.BG_OBSIDIAN)
         draw = ImageDraw.Draw(im, "RGBA")
@@ -165,8 +195,8 @@ class KurzgesagtMasterEngine:
         else:
             cls._draw_sim_shm(draw, time_sec, progress)
 
-        # 4. Foreground Kurzgesagt Rigged Character (The Duck Explorer)
-        cls._draw_kurzgesagt_duck(draw, time_sec, frame_idx)
+        # 4. Foreground 3D CGI Scientist Persona (No flat PIL cartoon duck!)
+        cls._draw_scientist_mascot(im, draw, time_sec, frame_idx, avatar_img)
 
         return im
 
@@ -243,86 +273,43 @@ class KurzgesagtMasterEngine:
             draw.ellipse([x - 8, cy + 40 + wave - 8, x + 8, cy + 40 + wave + 8], fill=cls.CYAN)
             draw.line([x, cy + 40 + wave, x, cy + 10 + wave], fill=(96, 165, 250), width=2)
 
-    # ================= 4. RIGGED KURZGESAGT DUCK CHARACTER =================
+    # ================= 4. COMPOSITED 3D CGI SCIENTIST PERSONA =================
     @classmethod
-    def _draw_kurzgesagt_duck(cls, draw: ImageDraw.ImageDraw, time_sec: float, frame_idx: int):
+    def _draw_scientist_mascot(
+        cls,
+        im: Image.Image,
+        draw: ImageDraw.ImageDraw,
+        time_sec: float,
+        frame_idx: int,
+        avatar_img: Optional[Image.Image] = None
+    ):
         """
-        Renders the signature iconic Kurzgesagt Duck Mascot in lab coat:
-        - Idle breathing bounce
-        - Big round eye with blinking cycle
-        - Talking beak
-        - Lab coat with scientist badge
-        - Laser pointer aimed at the formula
+        Composites a high-fidelity 3D CGI scientist bust from the Character Store:
+        - Floating breathing respiration
+        - Sleek neon frosted glass podium card
+        - Targeting laser line aimed at the simulation
+        - Completely avoids flat 2D cartoon drawings.
         """
-        # Character Placement (Bottom Right / Center)
-        char_x = cls.WIDTH - 300
-        bounce = math.sin(time_sec * 3.5) * 8
-        head_nod = math.sin(time_sec * 7.0) * 4
-        char_y = 1380 + int(bounce)
+        if avatar_img:
+            bounce = int(math.sin(time_sec * 3.5) * 6)
+            char_x = cls.WIDTH - 490
+            char_y = 1420 + bounce
 
-        # Lab Coat Body (Rounded Egg Shape)
-        body_w, body_h = 240, 320
-        draw.rounded_rectangle(
-            [char_x - body_w//2, char_y - 20, char_x + body_w//2, char_y + body_h],
-            radius=90, fill=cls.LAB_COAT, outline=(203, 213, 225), width=4
-        )
-        # Lapel Collar & Blue Tie
-        draw.polygon([(char_x - 30, char_y - 10), (char_x + 30, char_y - 10), (char_x, char_y + 80)], fill=cls.COBALT)
-        draw.line([char_x, char_y + 80, char_x, char_y + 240], fill=(203, 213, 225), width=3)
-        # Scientist ID Badge
-        draw.rounded_rectangle([char_x + 40, char_y + 60, char_x + 90, char_y + 110], radius=8, fill=cls.CYAN)
+            # Frosted glass podium card behind scientist bust
+            podium_w, podium_h = 420, 460
+            podium_x = char_x + 30
+            podium_y = char_y + 40
+            draw.rounded_rectangle(
+                [podium_x, podium_y, podium_x + podium_w, podium_y + podium_h],
+                radius=32, fill=(18, 24, 43, 220), outline=cls.CYAN, width=2
+            )
 
-        # Duck Head (Vibrant Solar Gold)
-        head_cx = char_x - 30
-        head_cy = char_y - 110 + int(head_nod)
-        head_rad = 110
-        draw.ellipse([head_cx - head_rad, head_cy - head_rad, head_cx + head_rad, head_cy + head_rad], fill=cls.GOLD, outline=(245, 158, 11), width=3)
+            # Composite 3D CGI avatar bust onto scene
+            im.paste(avatar_img, (char_x, char_y), avatar_img)
 
-        # Iconic Cute Duck Beak (Orange)
-        beak_cycle = int(time_sec * 8.0) % 3
-        beak_base_y = head_cy + 15
-        beak_tip_x = head_cx - 160
-        
-        # Upper Beak
-        draw.polygon([(head_cx - 60, beak_base_y - 20), (beak_tip_x, beak_base_y), (head_cx - 50, beak_base_y + 10)], fill=cls.ORANGE_BEAK)
-        # Lower Beak (Animates open/shut with speech)
-        beak_open = 14 if beak_cycle != 0 else 2
-        draw.polygon([(head_cx - 55, beak_base_y + 5), (beak_tip_x + 20, beak_base_y + beak_open), (head_cx - 45, beak_base_y + 25 + beak_open)], fill=(234, 88, 12))
-
-        # Big Cartoon Eye
-        eye_cx = head_cx - 15
-        eye_cy = head_cy - 25
-        eye_rad = 32
-        
-        # Blinking Cycle (Every 3s for 4 frames)
-        is_blinking = (frame_idx % (cls.FPS * 3)) < 4
-        if is_blinking:
-            draw.arc([eye_cx - eye_rad, eye_cy - 10, eye_cx + eye_rad, eye_cy + 10], 0, 180, fill=(30, 41, 59), width=6)
-        else:
-            # White Sclera
-            draw.ellipse([eye_cx - eye_rad, eye_cy - eye_rad, eye_cx + eye_rad, eye_cy + eye_rad], fill=cls.WHITE, outline=(30, 41, 59), width=3)
-            # Pupil looking toward the left (toward the simulation!)
-            pupil_x = eye_cx - 12
-            pupil_y = eye_cy - 4
-            draw.ellipse([pupil_x - 14, pupil_y - 14, pupil_x + 14, pupil_y + 14], fill=(15, 23, 42))
-            # Catchlight Glint
-            draw.ellipse([pupil_x - 7, pupil_y - 9, pupil_x, pupil_y - 2], fill=cls.WHITE)
-
-        # Cute Scientist Glasses Rim (Round Gold Frame)
-        draw.ellipse([eye_cx - eye_rad - 6, eye_cy - eye_rad - 6, eye_cx + eye_rad + 6, eye_cy + eye_rad + 6], outline=(15, 23, 42), width=5)
-        draw.line([eye_cx + eye_rad + 6, eye_cy - 5, eye_cx + eye_rad + 45, eye_cy - 15], fill=(15, 23, 42), width=4)
-
-        # Extended Hand Holding Glowing Laser Pointer (Aimed at the simulation)
-        arm_x = char_x - 90
-        arm_y = char_y + 120
-        pointer_tip_x = cls.WIDTH // 2 - 120
-        pointer_tip_y = 740
-
-        # Laser beam
-        draw.line([arm_x - 40, arm_y - 80, pointer_tip_x, pointer_tip_y], fill=(0, 245, 212, 160), width=3)
-        # Laser pointer stick
-        draw.line([arm_x, arm_y, arm_x - 50, arm_y - 90], fill=(71, 85, 105), width=8)
-        # Tip spark
-        draw.ellipse([pointer_tip_x - 10, pointer_tip_y - 10, pointer_tip_x + 10, pointer_tip_y + 10], fill=(255, 255, 255), outline=cls.CYAN, width=3)
-        # Wing / Hand
-        draw.ellipse([arm_x - 25, arm_y - 25, arm_x + 25, arm_y + 25], fill=cls.GOLD, outline=(245, 158, 11), width=3)
+            # Sleek glowing cyan laser pointer aimed at the simulation
+            pointer_start = (char_x + 60, char_y + 180)
+            target_pt = (cls.WIDTH // 2 - 120, 740)
+            draw.line([pointer_start, target_pt], fill=(0, 245, 212, 140), width=3)
+            # Tip focal glow
+            draw.ellipse([target_pt[0] - 8, target_pt[1] - 8, target_pt[0] + 8, target_pt[1] + 8], fill=(255, 255, 255), outline=cls.CYAN, width=2)

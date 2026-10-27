@@ -1,0 +1,212 @@
+{
+ "about": "Classical front facade seen from the front: steps, row of columns, entablature and a triangular pediment (or dome). Use for parliaments, courts, forts, temples, banks, universities. Origin at ground centre of the front; faces +z.",
+ "params_doc": {
+  "width": "facade width",
+  "height": "column height",
+  "columns": "number of columns",
+  "stone": "stone colour",
+  "dome": "1 = add a dome on top"
+ },
+ "params": {
+  "width": 5,
+  "height": 2.6,
+  "columns": 6,
+  "stone": "#c9bfa8",
+  "dome": 0
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${width}+0.6",
+    0.16,
+    1.6
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "${stone}",
+    "roughness": 0.85,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    0.08,
+    0.4
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    "${width}+0.3",
+    0.16,
+    1.3
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "${stone}",
+    "roughness": 0.85,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    0.24,
+    0.35
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    0.2,
+    1.0
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "${stone}",
+    "roughness": 0.85,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    0.42,
+    0.3
+   ]
+  },
+  {
+   "repeat": "${columns}",
+   "type": "cylinder",
+   "radius": 0.15,
+   "height": "${height}",
+   "material": {
+    "color": "${stone}",
+    "roughness": 0.8,
+    "metalness": 0
+   },
+   "position": [
+    "-${width}/2+0.4+(${width}-0.8)*${i}/(${n}-0.999)",
+    "0.52+${height}/2",
+    0.55
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    0.35,
+    1.0
+   ],
+   "bevel": 0.04,
+   "material": {
+    "color": "${stone}",
+    "roughness": 0.8,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "0.52+${height}+0.175",
+    0.3
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    "${width}-0.2",
+    0.9,
+    0.3
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "${stone}",
+    "roughness": 0.85,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "0.52+${height}+0.35+0.45",
+    0.2
+   ],
+   "visible": "1-${dome}"
+  },
+  {
+   "type": "extrude",
+   "shape": [
+    [
+     -2.4,
+     0
+    ],
+    [
+     2.4,
+     0
+    ],
+    [
+     0,
+     0.9
+    ]
+   ],
+   "depth": 0.25,
+   "bevel": 0.02,
+   "material": {
+    "color": "${stone}",
+    "roughness": 0.85,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "0.52+${height}+0.35",
+    0.55
+   ],
+   "scale": [
+    "${width}/4.8",
+    1,
+    1
+   ],
+   "visible": "1-${dome}"
+  },
+  {
+   "type": "sphere",
+   "radius": 1.0,
+   "material": {
+    "color": "${stone}",
+    "roughness": 0.6,
+    "metalness": 0.2
+   },
+   "position": [
+    0,
+    "0.52+${height}+0.35",
+    0.1
+   ],
+   "scale": [
+    1.1,
+    0.85,
+    1.1
+   ],
+   "visible": "${dome}"
+  },
+  {
+   "type": "cylinder",
+   "radius": 0.9,
+   "height": 0.3,
+   "material": {
+    "color": "${stone}",
+    "roughness": 0.8,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "0.52+${height}+0.5",
+    0.1
+   ],
+   "visible": "${dome}"
+  }
+ ],
+ "bounds": {
+  "size": [
+   5,
+   4.5
+  ],
+  "center": [
+   0,
+   2.3
+  ]
+ }
+}

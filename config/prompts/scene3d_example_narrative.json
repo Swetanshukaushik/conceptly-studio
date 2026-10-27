@@ -1,0 +1,370 @@
+{
+ "look": "warm_archive",
+ "scenes": [
+  {
+   "beat": 1,
+   "intent": "Show the place and moment as a real photograph inside a dimly lit hall, to anchor the viewer in time",
+   "staging": "Framed archival photo hangs centre between two stone columns; dust drifts through a warm light; camera pushes in slowly",
+   "params": {},
+   "camera": {
+    "position": [
+     "mix(0.5,-0.2,smooth(0,1,p))",
+     1.6,
+     "mix(10,7.6,smooth(0,1,p))"
+    ],
+    "target": [
+     0,
+     1.5,
+     0
+    ],
+    "fov": 38
+   },
+   "objects": [
+    {
+     "id": "frame",
+     "type": "box",
+     "size": [
+      2.6,
+      2.1,
+      0.12
+     ],
+     "bevel": 0.05,
+     "material": "wood",
+     "position": [
+      0,
+      1.9,
+      0
+     ],
+     "appear": {
+      "at": 0.1,
+      "style": "pop"
+     }
+    },
+    {
+     "id": "photo",
+     "type": "image",
+     "query": "<precise photo search phrase taken from the narration>",
+     "size": [
+      2.3,
+      1.8
+     ],
+     "position": [
+      0,
+      1.9,
+      0.07
+     ],
+     "appear": {
+      "at": 0.3,
+      "duration": 0.8,
+      "style": "fade"
+     }
+    },
+    {
+     "id": "colL",
+     "type": "cylinder",
+     "radius": 0.2,
+     "height": 5,
+     "material": "stone",
+     "position": [
+      -1.9,
+      2.5,
+      -0.9
+     ]
+    },
+    {
+     "id": "colR",
+     "type": "cylinder",
+     "radius": 0.2,
+     "height": 5,
+     "material": "stone",
+     "position": [
+      1.9,
+      2.5,
+      -0.9
+     ]
+    },
+    {
+     "id": "plinth",
+     "type": "box",
+     "size": [
+      3.6,
+      0.22,
+      1.2
+     ],
+     "bevel": 0.05,
+     "material": "stone",
+     "position": [
+      0,
+      0.11,
+      0.3
+     ]
+    },
+    {
+     "id": "halo",
+     "type": "glow",
+     "color": "accent",
+     "size": 4.5,
+     "intensity": 0.28,
+     "position": [
+      0,
+      1.9,
+      -0.6
+     ]
+    },
+    {
+     "id": "lamp",
+     "type": "light",
+     "kind": "point",
+     "color": "accent",
+     "intensity": 14,
+     "position": [
+      0,
+      3.0,
+      2.2
+     ]
+    },
+    {
+     "id": "dust",
+     "type": "particles",
+     "count": 160,
+     "x": "-2.6+5.2*hash(i*1.3)",
+     "y": "mod(0.3+4.2*hash(i*2.7)+t*0.15*(0.4+hash(i)),4.4)",
+     "z": "-1+3*hash(i*4.1)",
+     "radius": 0.008,
+     "color": "accent"
+    }
+   ],
+   "overlays": [
+    {
+     "kind": "title",
+     "text": "<short headline, max 7 words>",
+     "anchor": "top",
+     "at": 0.3,
+     "until": 3.2
+    }
+   ]
+  },
+  {
+   "beat": 2,
+   "intent": "Show a cause that leads to a consequence as a glowing path that draws itself, with a marker for each step",
+   "staging": "A luminous line draws left to right; a sphere pops at each step with a floating label; camera tracks along the line",
+   "params": {},
+   "camera": {
+    "position": [
+     "mix(-0.6,0.6,smooth(0,1,p))",
+     1.5,
+     "mix(8.2,7.2,smooth(0,1,p))"
+    ],
+    "target": [
+     "mix(-0.4,0.4,smooth(0,1,p))",
+     1.0,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "id": "path",
+     "type": "curve",
+     "x": "mix(-1.1,1.1,u)",
+     "y": "1.2+0.3*sin(u*6)",
+     "z": 0,
+     "color": "primary",
+     "width": 7,
+     "draw": "clamp((t-0.2)/2.6,0,1)"
+    },
+    {
+     "id": "n1",
+     "type": "sphere",
+     "radius": 0.11,
+     "material": "glow",
+     "position": [
+      -1.1,
+      1.2,
+      0
+     ],
+     "appear": {
+      "at": 0.3
+     }
+    },
+    {
+     "id": "n2",
+     "type": "sphere",
+     "radius": 0.11,
+     "material": "glow",
+     "position": [
+      0,
+      1.242,
+      0
+     ],
+     "appear": {
+      "at": 1.5
+     }
+    },
+    {
+     "id": "n3",
+     "type": "sphere",
+     "radius": 0.11,
+     "material": "glow",
+     "position": [
+      1.1,
+      1.115,
+      0
+     ],
+     "appear": {
+      "at": 2.7
+     }
+    },
+    {
+     "id": "l1",
+     "type": "label",
+     "text": "Before",
+     "size": 0.22,
+     "color": "ink",
+     "position": [
+      -1.1,
+      1.6,
+      0
+     ],
+     "appear": {
+      "at": 0.5
+     }
+    },
+    {
+     "id": "l2",
+     "type": "label",
+     "text": "Event",
+     "size": 0.22,
+     "color": "accent",
+     "position": [
+      0,
+      1.65,
+      0
+     ],
+     "appear": {
+      "at": 1.7
+     }
+    },
+    {
+     "id": "l3",
+     "type": "label",
+     "text": "After",
+     "size": 0.22,
+     "color": "ink",
+     "position": [
+      1.1,
+      1.52,
+      0
+     ],
+     "appear": {
+      "at": 2.9
+     }
+    },
+    {
+     "id": "r1",
+     "type": "torus",
+     "radius": 0.3,
+     "tube": 0.015,
+     "material": "glow",
+     "position": [
+      -1.1,
+      1.2,
+      0
+     ],
+     "rotation": [
+      "80+10*sin(t)",
+      0,
+      "t*40"
+     ],
+     "appear": {
+      "at": 0.4
+     }
+    },
+    {
+     "id": "r2",
+     "type": "torus",
+     "radius": 0.34,
+     "tube": 0.015,
+     "material": "glow",
+     "position": [
+      0,
+      1.242,
+      0
+     ],
+     "rotation": [
+      "80+10*sin(t)",
+      0,
+      "t*40"
+     ],
+     "appear": {
+      "at": 1.6
+     }
+    },
+    {
+     "id": "r3",
+     "type": "torus",
+     "radius": 0.3,
+     "tube": 0.015,
+     "material": "glow",
+     "position": [
+      1.1,
+      1.115,
+      0
+     ],
+     "rotation": [
+      "80+10*sin(t)",
+      0,
+      "t*40"
+     ],
+     "appear": {
+      "at": 2.8
+     }
+    },
+    {
+     "id": "backL",
+     "type": "cylinder",
+     "radius": 0.25,
+     "height": 6,
+     "material": "stone",
+     "position": [
+      -2.6,
+      3,
+      -3.5
+     ]
+    },
+    {
+     "id": "backR",
+     "type": "cylinder",
+     "radius": 0.25,
+     "height": 6,
+     "material": "stone",
+     "position": [
+      2.6,
+      3,
+      -3.5
+     ]
+    },
+    {
+     "id": "dust",
+     "type": "particles",
+     "count": 120,
+     "x": "-3+6*hash(i*1.9)",
+     "y": "mod(0.3+3*hash(i*2.3)+t*0.2,3.4)",
+     "z": "-1.5+2.5*hash(i*3.7)",
+     "radius": 0.008,
+     "color": "accent"
+    }
+   ],
+   "overlays": [
+    {
+     "kind": "callout",
+     "text": "<one short sentence, max 12 words>",
+     "anchor": "lower",
+     "at": 1.2,
+     "until": 4.5,
+     "color": "primary"
+    }
+   ]
+  }
+ ]
+}

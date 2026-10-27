@@ -1,0 +1,53 @@
+{
+ "levels": {
+  "reel": "full reel rendered (voice, captions, 3D, quiz)",
+  "plan": "scene plan and Gate 1 frames only",
+  "todo": "not started",
+  "approved": "reviewed and approved by you"
+ },
+ "topics": {
+  "c11:3:Projectile motion": {
+   "status": "reel",
+   "job": "21db1a62",
+   "reel": "reels/projectile_motion.mp4",
+   "poster": "reels/projectile_motion.jpg",
+   "title": "Projectile Motion",
+   "model": "gemini-3.5-flash-lite",
+   "notes": "Simulator in 5 of 6 beats; dropped vs thrown ball demo; no graph card; floor too bright.",
+   "date": "2026-10-26"
+  },
+  "c11:13:Simple harmonic motion and its equations": {
+   "status": "reel",
+   "job": "24b6ed75",
+   "reel": "reels/simple_harmonic_motion.mp4",
+   "poster": "reels/simple_harmonic_motion.jpg",
+   "title": "Simple Harmonic Motion",
+   "model": "gemini-3.5-flash-lite",
+   "notes": "Mass on spring simulated; spring was not drawn in the original render (now automatic); small graph.",
+   "date": "2026-10-26"
+  }
+ },
+ "pilots": [
+  {
+   "title": "Pulley systems (fixed and compound)",
+   "subject": "Physics (mechanism demo)",
+   "status": "reel",
+   "job": "74a7de45",
+   "reel": "reels/pulley.mp4",
+   "poster": "reels/pulley.jpg",
+   "model": "not logged at the time",
+   "notes": "First full reel; headline block, forces 1000 N and 500 N, caption fix applied on re-render."
+  },
+  {
+   "title": "Chemical equilibrium",
+   "subject": "Chemistry (pilot)",
+   "status": "reel",
+   "job": "5910b880",
+   "reel": "reels/chemical_equilibrium.mp4",
+   "poster": "reels/chemical_equilibrium.jpg",
+   "model": "not logged at the time",
+   "notes": "Daylight look; chamber, graph, analogy scenes; chamber and graph overlap in beat 4."
+  }
+ ],
+ "library": "reels_library/ (full quality copies with metadata)"
+}

@@ -1,0 +1,98 @@
+{
+ "version": 1,
+ "look": "workshop_blue",
+ "layout": "explainer_window",
+ "header": [
+  "Pulleys Made",
+  "Super Simple"
+ ],
+ "duration": 12,
+ "scenes": [
+  {
+   "id": "a",
+   "start": 0,
+   "end": 6,
+   "floor": false,
+   "camera": {
+    "position": [
+     0.3,
+     2.15,
+     7.6
+    ],
+    "target": [
+     0.3,
+     2.1,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "type": "prop",
+     "prefab": "workshop_wall"
+    },
+    {
+     "type": "prop",
+     "prefab": "ceiling_beam",
+     "params": {
+      "y": 4.2
+     }
+    },
+    {
+     "type": "prop",
+     "prefab": "base_slab"
+    },
+    {
+     "type": "prop",
+     "prefab": "pulley_compound",
+     "params": {
+      "cxm": -0.4
+     }
+    }
+   ]
+  },
+  {
+   "id": "b",
+   "start": 6,
+   "end": 12,
+   "floor": false,
+   "camera": {
+    "position": [
+     "mix(0.4,-0.2,p)",
+     2.15,
+     7.6
+    ],
+    "target": [
+     0,
+     2.1,
+     0
+    ],
+    "fov": 40
+   },
+   "objects": [
+    {
+     "type": "prop",
+     "prefab": "workshop_wall"
+    },
+    {
+     "type": "prop",
+     "prefab": "ceiling_beam",
+     "params": {
+      "y": 4.2
+     }
+    },
+    {
+     "type": "prop",
+     "prefab": "base_slab"
+    },
+    {
+     "type": "prop",
+     "prefab": "pulley_fixed",
+     "params": {
+      "cxf": -0.2
+     }
+    }
+   ]
+  }
+ ]
+}

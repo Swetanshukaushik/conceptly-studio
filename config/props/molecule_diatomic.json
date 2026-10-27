@@ -1,0 +1,82 @@
+{
+ "about": "Diatomic molecule such as H2, N2, O2, HCl, CO: two touching atoms. Set the colours (CPK: H white #f2f2f2, N blue #3050f8, O red #ff2a2a, Cl green #1ff01f, C grey #4a4f57) and radii.",
+ "params_doc": {
+  "c1": "colour of atom 1",
+  "c2": "colour of atom 2",
+  "r1": "radius of atom 1",
+  "r2": "radius of atom 2",
+  "bond": "centre distance",
+  "size": "scale",
+  "spin": "degrees per second"
+ },
+ "bounds": {
+  "size": [
+   1.2,
+   1.2
+  ],
+  "center": [
+   0,
+   0
+  ]
+ },
+ "params": {
+  "c1": "#3050f8",
+  "c2": "#3050f8",
+  "r1": 0.19,
+  "r2": 0.19,
+  "bond": 0.4,
+  "size": 1,
+  "spin": 25
+ },
+ "objects": [
+  {
+   "type": "group",
+   "scale": "${size}",
+   "rotation": [
+    0,
+    "${spin}*t",
+    0
+   ],
+   "children": [
+    {
+     "type": "sphere",
+     "radius": "${r1}",
+     "material": {
+      "color": "${c1}",
+      "roughness": 0.35
+     },
+     "position": [
+      "-${bond}/2",
+      0,
+      0
+     ]
+    },
+    {
+     "type": "sphere",
+     "radius": "${r2}",
+     "material": {
+      "color": "${c2}",
+      "roughness": 0.35
+     },
+     "position": [
+      "${bond}/2",
+      0,
+      0
+     ]
+    },
+    {
+     "type": "box",
+     "size": [
+      "${bond}",
+      0.07,
+      0.07
+     ],
+     "material": {
+      "color": "#c9ced8",
+      "roughness": 0.5
+     }
+    }
+   ]
+  }
+ ]
+}

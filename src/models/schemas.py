@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from enum import Enum
 from datetime import datetime
 from pydantic import BaseModel, Field
@@ -61,6 +61,12 @@ class CameraMotion(str, Enum):
     PAN_LEFT = "PAN_LEFT"
     PULL_BACK = "PULL_BACK"   # Reveals wider context
 
+class HudOverlay(BaseModel):
+    formula: Optional[str] = None       # e.g. "L = I · ω" or "ΔU = Q - W"
+    label: Optional[str] = None         # e.g. "CONSERVATION OF ANGULAR MOMENTUM"
+    units: Optional[str] = None         # e.g. "kg · m² / s"
+    concept_tag: Optional[str] = None   # e.g. "CLASS 11 PHYSICS"
+
 class SceneBeat(BaseModel):
     scene_number: int
     act_number: int
@@ -68,17 +74,26 @@ class SceneBeat(BaseModel):
     end_sec: float
     spoken_line: str
     visual_modality: VisualModality = VisualModality.CINEMATIC_SCENE
-    visual_prompt: str = Field(..., description="Photorealistic or diagrammatic prompt for 9:16 vertical render")
+    shot_type: str = "GEN"  # "GEN" (photorealistic background visual) or "OVERLAY" (formula / diagram spotlight)
+    visual_prompt: str = Field(..., description="Photorealistic prompt for 9:16 vertical render (NO text/words)")
+    hud_overlay: Optional[HudOverlay] = None
+    style_bible: Optional[str] = None
     camera_motion: CameraMotion = CameraMotion.ZOOM_IN
     sound_effect: str = "WHOOSH"  # "BASS_BOOM", "WHOOSH", "SPARK_CHIME", "NONE"
     image_path: Optional[str] = None
     image_url: Optional[str] = None
     video_clip_path: Optional[str] = None
     video_clip_url: Optional[str] = None
+    scene3d: Optional[Dict[str, Any]] = None  # Free tier: declarative 3D scene plan (see models/scene3d.py)
 
 class Storyboard(BaseModel):
     topic_title: str
     total_scenes: int
+    style_bible: Optional[str] = "Cinematic 35mm vertical photography, volumetric lighting, dark atmospheric studio, 9:16 portrait, photorealistic, clean plate, zero text watermarks, no letters"
+    layout: Optional[str] = None  # Free tier: layout preset name (config/layouts)
+    header: Optional[List[str]] = None  # Free tier: headline lines for header layouts
+    qa: Optional[List[str]] = None  # Free tier: unresolved layout / vision QA findings after the auto-retry
+    route: Optional[Dict[str, Any]] = None  # Concept Router decision (domain pack, method, kits); see services/concept_router.py
     scenes: List[SceneBeat]
 
 class ActScript(BaseModel):
@@ -101,6 +116,10 @@ class ReelScript(BaseModel):
     total_word_count: int
     estimated_duration_sec: int = 45
     storyboard: Optional[Storyboard] = None
+    script_generator: Optional[str] = "AUTO"
+    tts_vocal_direction: Optional[str] = None
+    math_claims: Optional[List[Dict[str, Any]]] = None  # checkable statements the writer listed (see services/math_verifier.py)
+    math_verification: Optional[Dict[str, Any]] = None  # {status, attempts, notes}: result of the deterministic check
 
 # ================= Quiz Schemas (Matching CONTRACT.md) =================
 class QuizOption(BaseModel):
@@ -119,16 +138,75 @@ class QuizPayload(BaseModel):
     topicTitle: str
     questions: List[QuizQuestion]
 
+# ================= Stage 0: Domain & Pedagogical Intelligence Dossier =================
+class DomainPedagogyDossier(BaseModel):
+    canonical_topic: str
+    domain_field: str
+    exam_track: str
+    target_class_level: str
+    core_misconception: str
+    root_flaw: str
+    counter_intuitive_hook: str
+    curiosity_gap: str
+    must_include_concept: str
+    strictly_excluded_topics: List[str] = Field(default_factory=list)
+    concrete_visual_metaphor: str
+    visual_transformation_beat: str
+    atomic_takeaway: str
+    marking_scheme_keywords: List[str] = Field(default_factory=list)
+    diagnostic_question: Optional[str] = None
+    correct_answer: Optional[str] = None
+    distractor_misconception_answer: Optional[str] = None
+    avatar_delivery_tone: Optional[str] = None
+    # Dynamic AI Persona Decision & Character Store
+    chosen_character_name: Optional[str] = None
+    character_type: Optional[str] = "HISTORICAL_OR_STEM" # "HISTORICAL", "STEM_PIONEER", "STUDENT_PEER", "PHENOMENA_ONLY"
+    character_visual_brief_3d: Optional[str] = None
+    character_voice_persona: Optional[str] = None
+    provider_used: str = "OpenAI-ChatGPT (GPT-4o)"
+
+# ================= Character Avatar Schemas =================
+class CharacterAvatarRead(BaseModel):
+    id: str
+    name: str
+    title: str
+    exam_track: str
+    subject: str
+    style_badge: str
+    avatar_icon: str = "🎭"
+    accent_color: str = "from-blue-600 to-indigo-600"
+    voice_id: str
+    voice_rate: str = "+0%"
+    voice_pitch: str = "+0Hz"
+    prompt: str
+    neutral_prompt: str
+    is_builtin: bool = True
+    preview_url: Optional[str] = None
+
+class CreateCustomAvatarRequest(BaseModel):
+    name: str
+    title: str
+    exam_track: str = "ALL"
+    subject: str = "Science"
+    style_badge: str = "PIXAR_CYBERPUNK"
+    prompt: str
+    voice_id: Optional[str] = "en-US-ChristopherNeural"
+    voice_rate: Optional[str] = "+0%"
+    voice_pitch: Optional[str] = "+0Hz"
+
 # ================= Reel Job Ingestion Schemas =================
 class CreateReelRequest(BaseModel):
     topic_title: str
     exam_type: str = "SCHOOL"  # "SCHOOL", "IIT_JEE", "NEET", "UPSC"
-    class_level: Optional[int] = 9
+    class_level: Optional[Union[int, str]] = 9
     subject: str = "Physics"
     topic_id: Optional[str] = None
     generation_tier: ReelGenerationTier = ReelGenerationTier.DEFAULT
+    script_generator: Optional[str] = "AUTO"  # "AUTO", "GEMINI", "OPENAI"
     voice_id: Optional[str] = None
     custom_prompt: Optional[str] = None
+    avatar_id: Optional[str] = "AUTO"  # Persona selection or AUTO-match by curriculum
+    direct_synthesis: Optional[bool] = True  # When True, directly synthesizes final video without intermediate HITL pauses
 
 class SceneRegenerateRequest(BaseModel):
     visual_prompt: Optional[str] = None
@@ -170,14 +248,17 @@ class ReelJobRead(BaseModel):
     id: str
     user_id: Optional[str] = None
     generation_tier: str
+    script_generator: Optional[str] = "AUTO"
     exam_type: str
-    class_level: Optional[int] = None
+    class_level: Optional[Union[int, str]] = None
     subject: str
     topic_title: str
     topic_id: Optional[str] = None
     status: str
     script_data: Optional[Dict[str, Any]] = None
     quiz_data: Optional[Dict[str, Any]] = None
+    avatar: Optional[Dict[str, Any]] = None
+    domain_dossier: Optional[Dict[str, Any]] = None
     video_url: Optional[str] = None
     local_video_path: Optional[str] = None
     duration_sec: int

@@ -1,0 +1,31 @@
+{
+ "about": "A concrete slab on the ground (top at y=0) that a load rests on.",
+ "params_doc": {
+  "width": "slab width"
+ },
+ "params": {
+  "width": 2.6
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    0.2,
+    1.4
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "#d9dde3",
+    "roughness": 0.8,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    -0.1,
+    0
+   ]
+  }
+ ],
+ "background": true
+}

@@ -1,0 +1,139 @@
+{
+  "name": "maths_navy",
+  "description": "Clean maths board: flat deep-navy background, no floor, light-blue curves, amber points, restrained glow. For maths and any graph-led explanation; vector-clean rather than cinematic.",
+  "palette": {
+    "ink": "#f2f6fb",
+    "muted": "#7f93ab",
+    "primary": "#8fd3ff",
+    "secondary": "#b79bff",
+    "accent": "#ffb454",
+    "warn": "#ff7b9c",
+    "good": "#6fe3a4",
+    "surface": "#0b1a2e"
+  },
+  "background": {
+    "top": "#06101f",
+    "bottom": "#08162a"
+  },
+  "fog": {
+    "color": "#06101f",
+    "near": 30,
+    "far": 90
+  },
+  "exposure": 1.05,
+  "environment": {
+    "intensity": 0.35
+  },
+  "lights": [
+    {
+      "type": "ambient",
+      "color": "#7f8fc4",
+      "intensity": 0.35
+    },
+    {
+      "type": "directional",
+      "color": "#ffffff",
+      "intensity": 2.6,
+      "position": [
+        5,
+        9,
+        6
+      ],
+      "castShadow": true
+    },
+    {
+      "type": "directional",
+      "color": "#4fa8ff",
+      "intensity": 1.1,
+      "position": [
+        -7,
+        4,
+        -4
+      ]
+    }
+  ],
+  "floor": {
+    "enabled": false,
+    "y": 0,
+    "color": "#0b1124",
+    "roughness": 0.3,
+    "metalness": 0.6,
+    "reflectMix": 1.0,
+    "grid": {
+      "color": "#35d0ff",
+      "spacing": 1,
+      "opacity": 0.5,
+      "size": 80
+    },
+    "size": 60
+  },
+  "post": {
+    "bloom": {
+      "strength": 0.22,
+      "radius": 0.4,
+      "threshold": 0.9
+    },
+    "vignette": 0.18,
+    "grain": 0.008,
+    "chromatic": 0.0,
+    "contrast": 1.03,
+    "saturation": 1.05
+  },
+  "materials": {
+    "metal": {
+      "color": "#c3ccd6",
+      "metalness": 1,
+      "roughness": 0.22
+    },
+    "brushed_metal": {
+      "color": "#aab4c0",
+      "metalness": 1,
+      "roughness": 0.42
+    },
+    "copper": {
+      "color": "#d9824f",
+      "metalness": 1,
+      "roughness": 0.28
+    },
+    "glass": {
+      "color": "#dff3ff",
+      "metalness": 0,
+      "roughness": 0.04,
+      "transmission": 1,
+      "thickness": 0.6,
+      "ior": 1.45,
+      "opacity": 1
+    },
+    "matte": {
+      "color": "#8794a8",
+      "metalness": 0,
+      "roughness": 0.85
+    },
+    "plastic": {
+      "color": "#e8edf5",
+      "metalness": 0,
+      "roughness": 0.35,
+      "clearcoat": 0.6
+    },
+    "rubber": {
+      "color": "#1c2230",
+      "metalness": 0,
+      "roughness": 0.95
+    },
+    "glow": {
+      "color": "#35d0ff",
+      "emissive": "#35d0ff",
+      "emissiveIntensity": 1.5,
+      "metalness": 0,
+      "roughness": 0.5
+    },
+    "hologram": {
+      "color": "#35d0ff",
+      "emissive": "#35d0ff",
+      "emissiveIntensity": 0.9,
+      "metalness": 0,
+      "roughness": 0.2,
+      "opacity": 0.45
+    }
+  }
+}

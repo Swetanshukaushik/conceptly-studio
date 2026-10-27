@@ -1,0 +1,18 @@
+{
+  "name": "full",
+  "description": "Full-bleed 3D picture over the whole 9:16 frame. Captions and cards sit inside the safe zones. Best for cinematic and story-driven reels.",
+  "background": "#000000",
+  "window": {
+    "x": 0,
+    "y": 0,
+    "width": 1080,
+    "height": 1920
+  },
+  "qa_note": "The whole frame is the 3D picture; captions are added later at the bottom, so leave the lowest fifth free of important content.",
+  "narrator": {
+    "side": "right",
+    "heightFrac": 0.28,
+    "bottomFrac": 0.2,
+    "marginFrac": 0.05
+  }
+}

@@ -1,0 +1,64 @@
+{
+ "about": "Double helix (DNA-like) made of two strands and rungs, slowly rotating.",
+ "params_doc": {
+  "turns": "number of turns",
+  "height": "total height",
+  "a": "strand 1 colour",
+  "b": "strand 2 colour"
+ },
+ "params": {
+  "turns": 3,
+  "height": 3,
+  "a": "primary",
+  "b": "secondary"
+ },
+ "objects": [
+  {
+   "type": "group",
+   "rotation": [
+    0,
+    "20*t",
+    0
+   ],
+   "children": [
+    {
+     "type": "particles",
+     "count": 120,
+     "x": "0.45*cos(f*${turns}*6.2832)",
+     "y": "f*${height}",
+     "z": "0.45*sin(f*${turns}*6.2832)",
+     "radius": 0.05,
+     "material": {
+      "color": "${a}",
+      "emissive": "${a}",
+      "emissiveIntensity": 1.0,
+      "roughness": 0.4
+     }
+    },
+    {
+     "type": "particles",
+     "count": 120,
+     "x": "-0.45*cos(f*${turns}*6.2832)",
+     "y": "f*${height}",
+     "z": "-0.45*sin(f*${turns}*6.2832)",
+     "radius": 0.05,
+     "material": {
+      "color": "${b}",
+      "emissive": "${b}",
+      "emissiveIntensity": 1.0,
+      "roughness": 0.4
+     }
+    },
+    {
+     "type": "particles",
+     "count": 40,
+     "x": "0.4*cos(floor(f*39)/39*${turns}*6.2832)*(2*mod(i,9)/8-1)",
+     "y": "floor(f*39)/39*${height}",
+     "z": "0.4*sin(floor(f*39)/39*${turns}*6.2832)*(2*mod(i,9)/8-1)",
+     "radius": 0.025,
+     "color": "muted"
+    }
+   ]
+  }
+ ]
+}

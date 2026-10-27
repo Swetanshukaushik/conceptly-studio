@@ -1,0 +1,23 @@
+{
+ "topic": "Newton's Third Law",
+ "subject": "Physics",
+ "class_level": 11,
+ "exam_type": "SCHOOL",
+ "tier": "FREE",
+ "job_id": "4cf9f1d3-a199-49cf-92ac-d6dc2d437642",
+ "created_utc": "2026-10-27T08:50:38.827556",
+ "status": "test render, not published, not reviewed",
+ "layout": "explainer_window",
+ "look": "obsidian_lab",
+ "qa_notes": [
+  "scene 2 (beat 2): \"left_force\" is cropped by the edge of the 3D window (26% visible): move the camera back or re-target it",
+  "scene 2 (beat 2): \"right_force\" is cropped by the edge of the 3D window (26% visible): move the camera back or re-target it",
+  "scene 4 (beat 4): \"wall\" and \"humanoid\" overlap each other on screen: move them apart or re-frame"
+ ],
+ "narration": [
+  "Observe... carefully! If every action has an equal and opposite reaction... how can anything ever move forward?",
+  "Most scholars assume that if forces are equal and opposite, they must cancel out to zero — leaving the universe completely motionless. But listen closely...",
+  "Nature does not permit cancellation here! Why? Because the action and the reaction act upon two distinct bodies... never upon the same object. When a skater pushes a wall, the wall pushes the skater.",
+  "And behold! Motion is born not of unbalanced forces... but of forces acting on separate partners in nature's grand dance! Test your understanding in the quiz below."
+ ]
+}

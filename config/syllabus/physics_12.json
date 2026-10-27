@@ -1,0 +1,239 @@
+{
+ "edition": "NCERT Class 12 Physics, rationalised edition (2023 onwards), 14 chapters in two parts. Chapter and topic names are from my knowledge of the book; verify against your copy (logic gates and some topics were removed or moved in recent editions).",
+ "chapters": [
+  {
+   "no": 1,
+   "title": "Electric Charges and Fields",
+   "topics": [
+    "Electric charge and its properties",
+    "Coulomb's law",
+    "Electric field and field lines",
+    "Electric dipole",
+    "Gauss's law and applications"
+   ],
+   "tools": [
+    "fields (planned)",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 2,
+   "title": "Electrostatic Potential and Capacitance",
+   "topics": [
+    "Electric potential and potential energy",
+    "Equipotential surfaces",
+    "Dipole in an electric field",
+    "Capacitors and capacitance",
+    "Combination of capacitors",
+    "Energy stored in a capacitor",
+    "Dielectrics"
+   ],
+   "tools": [
+    "fields (planned)",
+    "circuit (planned)",
+    "graph"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 3,
+   "title": "Current Electricity",
+   "topics": [
+    "Electric current and drift velocity",
+    "Ohm's law and resistivity",
+    "Combination of resistors",
+    "Cells, emf and internal resistance",
+    "Kirchhoff's laws",
+    "Wheatstone bridge and metre bridge",
+    "Potentiometer"
+   ],
+   "tools": [
+    "circuit (planned)",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 4,
+   "title": "Moving Charges and Magnetism",
+   "topics": [
+    "Magnetic force and the Lorentz force",
+    "Motion of a charge in a magnetic field",
+    "Biot-Savart law",
+    "Ampere's law and the solenoid",
+    "Force between parallel currents",
+    "Torque on a current loop",
+    "Moving coil galvanometer"
+   ],
+   "tools": [
+    "sim (charge in B)",
+    "fields (planned)",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 5,
+   "title": "Magnetism and Matter",
+   "topics": [
+    "Bar magnet and magnetic dipole",
+    "Earth's magnetism",
+    "Magnetisation and magnetic intensity",
+    "Para-, dia- and ferromagnetism"
+   ],
+   "tools": [
+    "fields (planned)",
+    "graph"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 6,
+   "title": "Electromagnetic Induction",
+   "topics": [
+    "Faraday's law and Lenz's law",
+    "Motional emf",
+    "Eddy currents",
+    "Self and mutual inductance",
+    "AC generator"
+   ],
+   "tools": [
+    "fields (planned)",
+    "circuit (planned)",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 7,
+   "title": "Alternating Current",
+   "topics": [
+    "AC through resistor, inductor and capacitor",
+    "Phasors and the series LCR circuit",
+    "Resonance",
+    "Power in AC and power factor",
+    "Transformers"
+   ],
+   "tools": [
+    "circuit (planned)",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 8,
+   "title": "Electromagnetic Waves",
+   "topics": [
+    "Displacement current",
+    "Properties of electromagnetic waves",
+    "The electromagnetic spectrum"
+   ],
+   "tools": [
+    "expr (waves)",
+    "graph"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 9,
+   "title": "Ray Optics and Optical Instruments",
+   "topics": [
+    "Reflection and spherical mirrors",
+    "Refraction and total internal reflection",
+    "Lenses and the lens maker's formula",
+    "Prism and dispersion",
+    "Microscope and telescope"
+   ],
+   "tools": [
+    "ray optics (planned)",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 10,
+   "title": "Wave Optics",
+   "topics": [
+    "Huygens principle",
+    "Interference and Young's double slit",
+    "Diffraction at a single slit",
+    "Polarisation"
+   ],
+   "tools": [
+    "expr (waves)",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 11,
+   "title": "Dual Nature of Radiation and Matter",
+   "topics": [
+    "Photoelectric effect",
+    "Einstein's photoelectric equation",
+    "de Broglie wavelength",
+    "Davisson-Germer experiment"
+   ],
+   "tools": [
+    "expr",
+    "graph",
+    "prefab (planned)"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 12,
+   "title": "Atoms",
+   "topics": [
+    "Rutherford's model",
+    "Bohr model of the hydrogen atom",
+    "Hydrogen spectrum"
+   ],
+   "tools": [
+    "prefab: atom",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 13,
+   "title": "Nuclei",
+   "topics": [
+    "Nuclear size and composition",
+    "Binding energy",
+    "Radioactivity and the decay law",
+    "Nuclear fission and fusion"
+   ],
+   "tools": [
+    "expr (decay)",
+    "graph",
+    "derivation"
+   ],
+   "status": "todo"
+  },
+  {
+   "no": 14,
+   "title": "Semiconductor Electronics",
+   "topics": [
+    "Energy bands in solids",
+    "p-n junction and diode",
+    "Rectifiers",
+    "Zener diode, LED and solar cell"
+   ],
+   "tools": [
+    "prefab (planned)",
+    "graph",
+    "circuit (planned)"
+   ],
+   "status": "todo"
+  }
+ ]
+}

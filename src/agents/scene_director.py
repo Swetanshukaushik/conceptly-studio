@@ -1,32 +1,45 @@
 import re
-from typing import List, Optional
-from src.models.schemas import ReelScript, Storyboard, SceneBeat, VisualModality, CameraMotion, ReelGenerationTier
+from typing import List, Optional, Any, Dict
+from src.models.schemas import ReelScript, Storyboard, SceneBeat, VisualModality, CameraMotion, ReelGenerationTier, HudOverlay
 from src.services.llm_factory import LLMFactory
 
 class SceneDirectorAgent:
     """
     Scene Director & Storyboard Visualizer Agent:
-    Transforms a 45-second screenplay into an immersive visual storyboard of
-    8 to 12 time-coded visual cuts (one dynamic visual every 3-4 seconds),
-    with domain-adaptive prompt engineering:
-    - History / Civics: 35mm cinematic photorealistic film stills
-    - Physics / Engineering: Neon glowing vector schematics & physical phenomena
-    - Biology: 3D anatomical and cellular molecular cross-sections
-    - Economics: 3D currency networks and animated market shifts
+    Transforms a 45-second screenplay into a structured Reel Plan:
+    1. STYLE BIBLE: Anchors visual aesthetic, lighting, palette, and camera across all cuts.
+    2. STRICT LAYER SEPARATION:
+       - 'GEN' shots: Pure photorealistic 3D cinematic visual plate (ZERO text / words / glyphs).
+       - 'OVERLAY' shots: Crisp deterministic code-rendered mathematical HUD card (formula, label, units).
+    3. TIMED BEATS: 6 to 10 sequential cuts lasting 3 to 6 seconds each.
     """
 
-    SYSTEM_PROMPT = """You are Conceptly's Master Cinematic Director.
-You transform educational scripts into micro-cinematic visual journeys.
+    SYSTEM_PROMPT = """You are Conceptly's Master Cinematic Visual Director.
+You transform educational scripts into a structured Reel Plan with distinct visual cuts and razor-sharp scientific precision.
 
-CRITICAL DIRECTING RULES:
-1. THE 3-SECOND CUT RULE: Break the screenplay into 8 to 12 distinct scenes (each lasting 3 to 5 seconds). Never let a single visual linger longer than 4.5 seconds!
-2. DOMAIN-SPECIFIC VISUAL MODALITIES:
-   - For History, UPSC, Literature: Use 'CINEMATIC_SCENE'. Describe dramatic film stills, period clothing, historic architecture (e.g., 1929 Central Assembly, Lahore, Delhi Durbar, Taj Mahal), 35mm anamorphic lens, atmospheric smoke, volumetric lighting, vertical 9:16 composition.
-   - For Physics, Chemistry, Math: Use 'SCIENTIFIC_DIAGRAM'. Describe glowing neon force vectors, orbital mechanics, atomic shells, rocket engine combustion cross-sections in space vacuum.
-   - For Biology (NEET): Use 'ANATOMICAL_3D'. Describe photorealistic 3D cellular cross-sections, chloroplasts splitting water, beating heart valves, glowing DNA double helix.
-   - For Finance / Economics: Use 'DATA_INFOGRAPHIC'. Describe 3D currency flows, supply/demand curve shifts, stock tickers.
-3. CAMERA MOTION: Assign one of 'ZOOM_IN' (slow push-in), 'PAN_RIGHT', 'PAN_LEFT', 'PULL_BACK' to every scene so no frame is static!
-4. SOUND DESIGN: Assign 'BASS_BOOM' to Scene 1 hook, 'WHOOSH' to dynamic scene transitions, 'SPARK_CHIME' to key formula reveals.
+CORE PRINCIPLES OF THE REEL PLAN:
+1. UNIFIED STYLE BIBLE:
+   Define a 'style_bible' that anchors the visual identity of the entire reel (e.g. "35mm anamorphic photography, warm tungsten laboratory lighting, dark slate and amber palette, shallow depth of field, 9:16 vertical cinematography, photorealistic, clean background plate, zero text watermarks, no letters").
+
+2. STRICT LAYER SEPARATION (GEN VS OVERLAY):
+   - AI diffusion models can NEVER be trusted with text, equations, numbers, or labels.
+   - For every shot:
+     * 'shot_type': "GEN" (cinematic visual background / physical phenomena) or "OVERLAY" (concept / formula focus).
+     * 'visual_prompt': Describe ONLY the physical visual elements, lighting, camera angle, and atmosphere. STRICT NEGATIVE RULE: NEVER write letters, text, equations, or labels in 'visual_prompt'. Diffusion models must generate pure, clean visual imagery.
+     * 'hud_overlay': When a scientific principle, equation, or law is introduced, specify it in 'hud_overlay' with:
+       - 'formula': exact mathematical equation (e.g. "L = I · ω", "ΔU = Q - W", "F = I · L · B · sin(θ)", "E = h · ν")
+       - 'label': uppercase concept title (e.g. "ANGULAR MOMENTUM CONSERVATION")
+       - 'units': standard SI units (e.g. "kg · m² / s")
+       - 'concept_tag': curriculum tag (e.g. "NCERT CLASS 11")
+
+3. 3-SECOND CUT CADENCE:
+   Break the screenplay into 6 to 10 sequential visual cuts (each lasting 3 to 6 seconds).
+
+4. 3D CAMERA TRAJECTORIES:
+   Assign purposeful camera motion: 'ZOOM_IN' (macro dive into atomic depth), 'PAN_RIGHT' (sweeping perspective), 'PAN_LEFT', 'PULL_BACK' (revealing wider scale).
+
+5. SOUND DESIGN:
+   Assign 'BASS_BOOM' for Scene 1 hook, 'WHOOSH' for camera pushes, 'SPARK_CHIME' for formula HUD reveals.
 
 Output strictly structured JSON conforming to the Storyboard schema."""
 
@@ -37,20 +50,37 @@ Output strictly structured JSON conforming to the Storyboard schema."""
         subject: str = "Physics",
         class_level: Optional[int] = 9,
         exam_type: str = "SCHOOL",
-        tier: ReelGenerationTier = ReelGenerationTier.DEFAULT
+        tier: ReelGenerationTier = ReelGenerationTier.DEFAULT,
+        avatar: Optional[Any] = None
     ) -> Storyboard:
         """
         Generates 8-12 time-coded visual beats for the entire script.
+        Integrates character avatar persona tokens for seamless cross-scene visual consistency.
         """
+        avatar_section = ""
+        avatar_style_bible = ""
+        if avatar:
+            av_name = getattr(avatar, 'name', '')
+            av_prompt = getattr(avatar, 'prompt', '')
+            avatar_section = (
+                f"\n\nPRESENTER AVATAR PERSONA: {av_name} ({getattr(avatar, 'title', '')})\n"
+                f"STYLE REFERENCE TOKENS: {av_prompt}\n"
+                "CRITICAL CONTINUITY DIRECTIVE: Seamlessly feature or anchor this specific presenter in key visual cuts "
+                "(especially Scene 1 Hook and Scene 4 Takeaway / Formula Spotlight), maintaining their signature clothing, props, and lighting for 100% visual consistency!"
+            )
+            avatar_style_bible = f"Featured presenter: {av_name}. Signature setting: {av_prompt}. "
+
         user_prompt = f"""Target Curriculum Topic: {script.topic_title}
 Subject: {subject} | Class Level: {class_level or 'General'} | Exam: {exam_type}
 Hook: {script.hook}
-Key Takeaway: {script.key_takeaway}
+Key Takeaway: {script.key_takeaway}{avatar_section}
 
-Screenplay Dialogue to Visualize (Break into 8-12 visual beats):
+Screenplay Dialogue to Visualize (Break into 6-10 visual beats):
 {chr(10).join(f'Act {act.act_number} ({act.title}): {act.spoken_text}' for act in script.acts)}
 
-Create 8 to 12 sequential visual beats. For each beat, provide the spoken line, start/end timestamps, visual modality, camera motion, sound effect, and a hyper-detailed visual prompt optimized for vertical 9:16 aspect ratio!"""
+Create 6 to 10 sequential visual beats conforming to the Reel Plan.
+Define a unified 'style_bible' for the entire reel.
+For every beat, provide spoken_line, start/end timestamps, visual_modality, shot_type ("GEN" or "OVERLAY"), visual_prompt (ZERO text/words/letters!), hud_overlay (exact formula and label), camera_motion, and sound_effect."""
 
         # If LLM key is available, use LLMFactory
         try:
@@ -60,13 +90,24 @@ Create 8 to 12 sequential visual beats. For each beat, provide the spoken line, 
                 response_model=Storyboard,
                 tier=tier
             )
-            if storyboard and len(storyboard.scenes) >= 6:
+            if storyboard and len(storyboard.scenes) >= 4:
+                # Guarantee style_bible propagation
+                default_style = f"{avatar_style_bible}Cinematic 35mm vertical photography, volumetric lighting, dark atmospheric studio, 9:16 portrait, photorealistic, clean plate, zero text watermarks, no letters".strip()
+                if not storyboard.style_bible:
+                    storyboard.style_bible = default_style
+                for sc in storyboard.scenes:
+                    if not sc.style_bible:
+                        sc.style_bible = storyboard.style_bible
+                    if sc.hud_overlay and (sc.hud_overlay.formula or sc.hud_overlay.label):
+                        sc.shot_type = "OVERLAY"
                 return storyboard
         except Exception as e:
-            print(f"⚠️ Scene director LLM note: {e}. Generating deterministic cinematic storyboard...")
+            print(f"⚠️ Scene director LLM note: {e}.")
+            if not settings.ALLOW_OFFLINE_DEV_FALLBACK:
+                raise RuntimeError(f"Credits Finished: Storyboard generation failed for '{script.topic_title}': {e}. Please recharge credits or configure a valid API key.")
 
-        # Fallback Deterministic Cinematic Storyboard Generator
-        return cls._generate_heuristic_storyboard(script, subject, class_level, exam_type)
+        # Fallback Deterministic Cinematic Storyboard Generator (Only when ALLOW_OFFLINE_DEV_FALLBACK is enabled)
+        return cls._generate_heuristic_storyboard(script, subject, class_level, exam_type, avatar=avatar)
 
     @classmethod
     def _generate_heuristic_storyboard(
@@ -75,7 +116,8 @@ Create 8 to 12 sequential visual beats. For each beat, provide the spoken line, 
         subject: str = "Physics",
         class_level: Optional[int] = 9,
         exam_type: str = "SCHOOL",
-        topic_override: Optional[str] = None
+        topic_override: Optional[str] = None,
+        avatar: Optional[Any] = None
     ) -> Storyboard:
         title = topic_override or (script.topic_title if script else "Core Principle")
         topic_lower = (subject.lower() + " " + title.lower())
@@ -357,8 +399,14 @@ Create 8 to 12 sequential visual beats. For each beat, provide the spoken line, 
                 )
             ]
 
+        style_bible = "Cinematic 35mm vertical photography, volumetric lighting, dark atmospheric studio, 9:16 portrait, photorealistic, clean plate, zero text watermarks, no letters"
+        for sc in scenes:
+            if not sc.style_bible:
+                sc.style_bible = style_bible
+
         return Storyboard(
             topic_title=title,
             total_scenes=len(scenes),
+            style_bible=style_bible,
             scenes=scenes
         )

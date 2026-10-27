@@ -1,0 +1,17 @@
+{"version":1,"look":"warm_archive","duration":16,"scenes":[
+{"id":"a","start":0,"end":4,"camera":{"position":["mix(-1.5,1.5,smooth(0,1,p))",1.9,8.5],"target":[0,1.2,0],"fov":40},"floor":false,
+ "objects":[{"type":"prop","prefab":"hall","params":{"width":6,"depth":6,"columns":3}},
+  {"type":"prop","id":"speaker","prefab":"humanoid","pose":"speak","position":[0,0,0.5],"params":{"top":"#2b4c7e","hat":0,"glasses":1}},
+  {"type":"prop","prefab":"podium","position":[0,0,1.2]},
+  {"type":"prop","prefab":"lamp","position":[-1.6,0,0.5]}]},
+{"id":"b","start":4,"end":8,"camera":{"position":[0,1.6,8],"target":[0,1.0,0],"fov":40},
+ "objects":[{"type":"prop","prefab":"crowd","params":{"count":14,"spread":1.6,"depth":2,"pose":"cheer"},"position":[0,0,0]},
+  {"type":"prop","prefab":"flag","position":[-1.9,0,-1]}]},
+{"id":"c","start":8,"end":12,"camera":{"position":["mix(5,3,smooth(0,1,p))",2.4,"mix(9,7,smooth(0,1,p))"],"target":[0,1.4,0],"fov":40},
+ "objects":[{"type":"prop","prefab":"building","params":{"width":3.6,"columns":5}},
+  {"type":"prop","prefab":"humanoid","pose":"walk","position":[-1.5,0,"mix(4,1.5,smooth(0,1,p))"],"rotation":[0,20,0],"params":{"turban":1,"top":"#caa25b","beard":1}}]},
+{"id":"d","start":12,"end":16,"camera":{"position":[0,1.5,6.5],"target":[0,1.0,0],"fov":40},
+ "objects":[{"type":"prop","prefab":"humanoid","pose":"point","position":[-0.7,0,0],"params":{"cap":1,"top":"#7a2f2a"}},
+  {"type":"prop","prefab":"document","position":[0.6,0,0.2],"params":{"title":"The Act"}},
+  {"type":"prop","prefab":"scale","position":[1.6,0,-0.5],"params":{"tilt":"12*sin(t*2)"}}]}
+]}

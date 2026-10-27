@@ -1,0 +1,15 @@
+{
+  "name": "studio3d",
+  "private": true,
+  "type": "module",
+  "description": "Headless WebGL renderer: declarative 3D scene spec -> 1080x1920 MP4 frames",
+  "scripts": {
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "katex": "^0.19.1",
+    "puppeteer-core": "^25.16.0",
+    "three": "^0.186.1"
+  }
+}

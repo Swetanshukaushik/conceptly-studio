@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     
     # Voice / TTS Providers
     ELEVENLABS_API_KEY: Optional[str] = Field(default=None, env="ELEVENLABS_API_KEY")
-    DEFAULT_EDGE_TTS_VOICE: str = "en-IN-NeerjaNeural"
+    DEFAULT_EDGE_TTS_VOICE: str = "en-US-BrianMultilingualNeural"
     DEFAULT_ELEVENLABS_VOICE_ID: str = "21m00Tcm4TlvDq8ikWAM"  # Rachel
 
     # Tier 2 & Tier 3 AI Video Generation Providers (2026 Generative Video)

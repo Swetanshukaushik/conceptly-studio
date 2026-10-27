@@ -1,0 +1,85 @@
+{
+ "about": "A heavy metal weight block with a ring on top and a mass label on the front. Centre of the block is at the origin.",
+ "params_doc": {
+  "text": "label on the front, e.g. '100 kg'",
+  "width": "block width",
+  "height": "block height"
+ },
+ "params": {
+  "text": "100 kg",
+  "width": 0.9,
+  "height": 0.7
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    "${height}",
+    0.55
+   ],
+   "bevel": 0.07,
+   "material": {
+    "color": "#3b434f",
+    "roughness": 0.38,
+    "metalness": 0.9
+   }
+  },
+  {
+   "type": "box",
+   "size": [
+    "${width}*0.7",
+    0.1,
+    0.4
+   ],
+   "bevel": 0.04,
+   "material": {
+    "color": "#59626f",
+    "roughness": 0.35,
+    "metalness": 0.9
+   },
+   "position": [
+    0,
+    "${height}/2+0.04",
+    0
+   ]
+  },
+  {
+   "type": "torus",
+   "radius": 0.09,
+   "tube": 0.025,
+   "material": {
+    "color": "#aeb8c6",
+    "roughness": 0.28,
+    "metalness": 1
+   },
+   "position": [
+    0,
+    "${height}/2+0.14",
+    0
+   ]
+  },
+  {
+   "type": "label",
+   "text": "${text}",
+   "size": 0.2,
+   "color": "ink",
+   "billboard": false,
+   "position": [
+    0,
+    0,
+    0.285
+   ]
+  }
+ ],
+ "bounds": {
+  "size": [
+   0.9,
+   0.9
+  ],
+  "center": [
+   0,
+   0
+  ]
+ }
+}

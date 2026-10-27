@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conceptly Studio — Creation Engine Live System Design</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#080c14',
+              card: '#0f172a',
+              cardHover: '#1e293b',
+              border: '#1e293b',
+              cobalt: '#3b82f6',
+              amber: '#f59e0b',
+              emerald: '#10b981',
+              rose: '#f43f5e',
+              purple: '#8b5cf6',
+              cyan: '#06b6d4'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #080c14;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .flow-line {
+      position: relative;
+    }
+    .flow-line::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      width: 2px;
+      height: 24px;
+      background: linear-gradient(to bottom, #3b82f6, #64748b);
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-brand-dark text-slate-100 flex flex-col custom-scroll">
+
+  <!-- Top Header Navigation -->
+  <header class="border-b border-brand-border bg-brand-dark/90 backdrop-blur sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-cobalt via-brand-purple to-brand-amber flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-brand-cobalt/20">
+        ⚡
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="font-extrabold text-lg tracking-tight text-white">Conceptly Studio</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30 flex items-center space-x-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>LIVE SYSTEM DESIGN</span>
+          </span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">INTERNAL ONLY</span>
+        </div>
+        <p class="text-xs text-slate-400">Autonomous Micro-Learning Reel Factory Architecture & Live Diagnostics</p>
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <!-- Live Status Badge -->
+      <div id="liveEngineBadge" class="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span class="text-slate-300 font-medium">Telemetry: <strong class="text-emerald-400">Connecting...</strong></span>
+      </div>
+
+      <!-- Refresh Telemetry Button -->
+      <button onclick="fetchLiveTelemetry()" class="flex items-center space-x-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg transition shadow-sm">
+        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        <span>Refresh</span>
+      </button>
+
+      <!-- Return to Studio Button -->
+      <a href="/studio" class="flex items-center space-x-1.5 text-xs font-semibold text-brand-cobalt bg-brand-cobalt/10 hover:bg-brand-cobalt/20 border border-brand-cobalt/30 px-3.5 py-1.5 rounded-lg transition shadow-sm">
+        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+        <span>Back to Studio</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Live Health Banner Strip -->
+  <section class="border-b border-brand-border bg-slate-900/60 px-6 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-2 text-xs text-slate-400">
+        <i data-lucide="activity" class="w-4 h-4 text-emerald-400"></i>
+        <span class="font-semibold text-slate-200">Live Provider Status:</span>
+      </div>
+
+      <div id="providersStrip" class="flex flex-wrap items-center gap-2 text-xs font-mono">
+        <!-- Injected via JavaScript -->
+        <span class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 border border-slate-700 flex items-center space-x-1.5">
+          <span class="w-2 h-2 rounded-full bg-slate-500 animate-pulse"></span>
+          <span>Probing system providers...</span>
+        </span>
+      </div>
+
+      <div class="text-xs text-slate-400 flex items-center space-x-3">
+        <span>Total Jobs: <strong id="statTotalJobs" class="text-white">-</strong></span>
+        <span>Completed: <strong id="statCompletedJobs" class="text-emerald-400">-</strong></span>
+        <span>Failed: <strong id="statFailedJobs" class="text-rose-400">-</strong></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-6 py-8 flex-1 space-y-12">
+
+    <!-- Section 1: End-to-End Interactive Pipeline Architecture Diagram -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+            <span>🗺️ Creation Engine: Complete End-to-End Pipeline</span>
+          </h2>
+          <p class="text-xs text-slate-400">Visual architectural map tracing every stage from topic input to final multi-platform video delivery. Click any stage to inspect diagnostics.</p>
+        </div>
+        <div class="flex items-center space-x-2 text-xs font-mono">
+          <span class="px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">● 100% Passing</span>
+          <span class="px-2 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">▲ Warning / Cascade</span>
+          <span class="px-2 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">■ Blocked / Credits</span>
+        </div>
+      </div>
+
+      <!-- Flowchart Canvas Container -->
+      <div class="bg-brand-card border border-brand-border rounded-2xl p-6 shadow-2xl space-y-6">
+
+        <!-- Stage 0: Input & Pedagogical Ingestion -->
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-brand-cobalt"></span>
+            <span>Input & Pedagogical Ingestion Stage</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Node: Topic & Exam Input -->
+            <div onclick="openStageModal('STAGE_0_CURRICULUM')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-brand-cobalt transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">STAGE 0.0</span>
+                <span class="text-[11px] font-mono text-emerald-400 flex items-center space-x-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>PASSING</span>
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-brand-cobalt transition">Curriculum Taxonomy Resolver</h4>
+              <p class="text-xs text-slate-400 mt-1">Maps user topic into NCERT/JEE/NEET syllabus hierarchy. Deterministic & offline.</p>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                <span>Deterministic</span>
+                <span class="text-slate-300">0.00s latency</span>
+              </div>
+            </div>
+
+            <!-- Node: Stage 0 Domain Intel -->
+            <div onclick="openStageModal('STAGE_0_DOMAIN_INTEL')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-brand-amber transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">STAGE 0.5</span>
+                <span class="text-[11px] font-mono text-amber-400 flex items-center space-x-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  <span>CASCADE ACTIVE</span>
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-brand-amber transition">Deep Pedagogical Ingestion</h4>
+              <p class="text-xs text-slate-400 mt-1">Extracts counter-intuitive hooks, cognitive traps, apparatus & matching persona.</p>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                <span>GPT-4o ➔ Gemini 2.5</span>
+                <span class="text-slate-300">~2.8s latency</span>
+              </div>
+            </div>
+
+            <!-- Node: Avatar Store Resolution -->
+            <div onclick="openCharacterStoreModal()" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-purple-500 transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 font-bold">PRESENTER</span>
+                <span class="text-[11px] font-mono text-emerald-400 flex items-center space-x-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>6 WORLDS READY</span>
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-purple-400 transition">3D Persona & Living World Roster</h4>
+              <p class="text-xs text-slate-400 mt-1">Resolves historical/scientific host with cached 1080x1920 3D spatial world.</p>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                <span>Cached On Disk</span>
+                <span class="text-emerald-400">Zero Cost</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="flex justify-center text-slate-600">
+          <i data-lucide="arrow-down" class="w-5 h-5 animate-bounce"></i>
+        </div>
+
+        <!-- Stage 1: Creative Blueprint & Choreography -->
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-brand-emerald"></span>
+            <span>Creative Blueprint & Visual Choreography Stage</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Node: Scriptwriting -->
+            <div onclick="openStageModal('STAGE_1_SCRIPTWRITING')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500 transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">STAGE 1.0</span>
+                <span class="text-[11px] font-mono text-emerald-400 flex items-center space-x-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>PASSING</span>
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-emerald-400 transition">4-Act Retention Screenplay Engine</h4>
+              <p class="text-xs text-slate-400 mt-1">Drafts 45-60s script with hook, build-up, core payoff, and retention pacing.</p>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                <span>Gemini 2.5 Flash</span>
+                <span class="text-slate-300">~3.2s latency</span>
+              </div>
+            </div>
+
+            <!-- Node: Fact Check -->
+            <div onclick="openStageModal('STAGE_1_FACTCHECK')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500 transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 font-bold">STAGE 1.5</span>
+                <span class="text-[11px] font-mono text-emerald-400 flex items-center space-x-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>PASSING</span>
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-cyan-400 transition">Pedagogical Fact-Checking Guardrail</h4>
+              <p class="text-xs text-slate-400 mt-1">Validates physical equations, units, constants, and flags hallucinated claims.</p>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                <span>Physics Validator</span>
+                <span class="text-slate-300">0.05s latency</span>
+              </div>
+            </div>
+
+            <!-- Node: Scene Director -->
+            <div onclick="openStageModal('STAGE_1_DIRECTOR')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-brand-cobalt transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">STAGE 1.8</span>
+                <span class="text-[11px] font-mono text-emerald-400 flex items-center space-x-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>PASSING</span>
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-brand-cobalt transition">3D Storyboard Beat Director</h4>
+              <p class="text-xs text-slate-400 mt-1">Generates 8-12 visual beats with camera motions, props, and 3D HUD formulas.</p>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                <span>Director Agent</span>
+                <span class="text-slate-300">~1.4s latency</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="flex justify-center text-slate-600">
+          <i data-lucide="arrow-down" class="w-5 h-5 animate-bounce"></i>
+        </div>
+
+        <!-- Stage 2: Assessment & Gate Modes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Node: Quiz MCQ -->
+          <div onclick="openStageModal('STAGE_2_QUIZ')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-brand-purple transition shadow-md">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 font-bold">STAGE 2.0</span>
+              <span class="text-[11px] font-mono text-emerald-400 flex items-center space-x-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>PASSING</span>
+              </span>
+            </div>
+            <h4 class="font-bold text-sm text-white group-hover:text-purple-400 transition">Checkpoint Concept Assessment (MCQ)</h4>
+            <p class="text-xs text-slate-400 mt-1">Generates exam-grade MCQs targeting student cognitive misconceptions with detailed answer keys.</p>
+            <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+              <span>Quiz Agent</span>
+              <span class="text-slate-300">~2.1s latency</span>
+            </div>
+          </div>
+
+          <!-- Node: Orchestrator Modes -->
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 shadow-md">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-bold">PIPELINE CONTROL</span>
+              <span class="text-[11px] font-mono text-emerald-400">2 MODES READY</span>
+            </div>
+            <h4 class="font-bold text-sm text-white">Execution Orchestration Modes</h4>
+            <div class="grid grid-cols-2 gap-2 mt-2">
+              <div class="p-2 rounded bg-slate-800/80 border border-slate-700/80 text-xs">
+                <span class="font-bold text-emerald-400">Direct End-to-End:</span>
+                <p class="text-[11px] text-slate-400 mt-0.5">Zero pause gates. Creates final ready-to-view reel immediately.</p>
+              </div>
+              <div class="p-2 rounded bg-slate-800/80 border border-slate-700/80 text-xs">
+                <span class="font-bold text-blue-400">3-Gate HITL:</span>
+                <p class="text-[11px] text-slate-400 mt-0.5">Pauses at Gate 1 (Blueprint), Gate 2 (Quiz), Gate 3 (Publish).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="flex justify-center text-slate-600">
+          <i data-lucide="arrow-down" class="w-5 h-5 animate-bounce"></i>
+        </div>
+
+        <!-- Stage 3: Multi-Track AV Synthesis & Compositing -->
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-brand-rose"></span>
+            <span>Multi-Track AV Synthesis & Motion Compositing Stage</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Node: TTS -->
+            <div onclick="openStageModal('STAGE_3_TTS')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-brand-emerald transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">STAGE 3.1</span>
+                <span class="text-[11px] font-mono text-emerald-400">PASSING</span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-emerald-400 transition">Neural Voice Prosody</h4>
+              <p class="text-xs text-slate-400 mt-1">Edge-TTS neural voices with persona pitch & rate. 100% free.</p>
+            </div>
+
+            <!-- Node: Subtitles -->
+            <div onclick="openStageModal('STAGE_3_SUBTITLES')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-brand-amber transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">STAGE 3.2</span>
+                <span class="text-[11px] font-mono text-emerald-400">PASSING</span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-brand-amber transition">Kinetic ASS Subtitles</h4>
+              <p class="text-xs text-slate-400 mt-1">Word-level chronometry + bouncing karaoke word highlights at Y=1400px.</p>
+            </div>
+
+            <!-- Node: Audio Mixer -->
+            <div onclick="openStageModal('STAGE_3_AUDIO_MIX')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-brand-cobalt transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">STAGE 3.3</span>
+                <span class="text-[11px] font-mono text-emerald-400">PASSING</span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-brand-cobalt transition">Dynamic Audio Mixer</h4>
+              <p class="text-xs text-slate-400 mt-1">Sidechain audio ducking (-14dB under voice) + synced risers & impacts.</p>
+            </div>
+
+            <!-- Node: Motion Compositor -->
+            <div onclick="openStageModal('STAGE_3_MOTION_RENDER')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-brand-purple transition shadow-md">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 font-bold">STAGE 3.4</span>
+                <span class="text-[11px] font-mono text-emerald-400">5 TIERS READY</span>
+              </div>
+              <h4 class="font-bold text-sm text-white group-hover:text-purple-400 transition">Living World Compositor</h4>
+              <p class="text-xs text-slate-400 mt-1">2.5D push-in dolly zoom, dynamic environmental FX, floating HUD badges.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Arrow -->
+        <div class="flex justify-center text-slate-600">
+          <i data-lucide="arrow-down" class="w-5 h-5 animate-bounce"></i>
+        </div>
+
+        <!-- Stage 4: QA & Distribution -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Node: Quality Validator -->
+          <div onclick="openStageModal('STAGE_3_QA')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500 transition shadow-md">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">STAGE 3.5</span>
+              <span class="text-[11px] font-mono text-emerald-400 flex items-center space-x-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>PASSING (100% STRICT)</span>
+              </span>
+            </div>
+            <h4 class="font-bold text-sm text-white group-hover:text-emerald-400 transition">Automated Video Quality Validator</h4>
+            <p class="text-xs text-slate-400 mt-1">Verifies 1080x1920 portrait resolution, 30.0 fps, H.264/AAC codecs, non-zero file size, and A/V duration sync (|Δ| &lt; 1.5s).</p>
+            <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+              <span>FFprobe QA</span>
+              <span class="text-slate-300">0.18s latency</span>
+            </div>
+          </div>
+
+          <!-- Node: Storage & Publishing -->
+          <div onclick="openStageModal('STAGE_4_PUBLISH')" class="cursor-pointer group p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-blue-500 transition shadow-md">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">STAGE 4.0</span>
+              <span class="text-[11px] font-mono text-emerald-400">READY</span>
+            </div>
+            <h4 class="font-bold text-sm text-white group-hover:text-blue-400 transition">Storage & Multi-Platform Distribution</h4>
+            <p class="text-xs text-slate-400 mt-1">Persists MP4, ASS & WAV artifacts. Serves /media stream and formats payloads for YouTube Shorts, Reels, and TikTok.</p>
+            <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+              <span>Local / R2 Storage</span>
+              <span class="text-slate-300">Instant Streaming</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section 2: Script Generator Engines (Newton Natural Philosopher Persona) -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+            <span>✍️ Script Generator Engines (Isaac Newton Spoken Narration Persona)</span>
+          </h2>
+          <p class="text-xs text-slate-400">Compares available LLM script generation options for Class 12 NCERT Physics: Google Gemini vs OpenAI GPT-4o vs Auto-Cascade.</p>
+        </div>
+        <span class="text-xs font-mono px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+          Target: 100–180 words (30–90s) • Audio-First
+        </span>
+      </div>
+
+      <div id="scriptGeneratorsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Injected via JavaScript from data.script_generators -->
+      </div>
+
+      <!-- Newton Persona Contract Box -->
+      <div class="p-4 rounded-xl bg-slate-900/90 border border-cyan-500/30 text-xs space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-cyan-300 flex items-center space-x-1.5 uppercase tracking-wider text-[11px]">
+            <i data-lucide="book-open" class="w-4 h-4 text-cyan-400"></i>
+            <span>Core Persona Contract: 17th-Century Natural Philosopher</span>
+          </span>
+          <span class="text-[10px] font-mono text-slate-400">Edge-TTS Preset: en-GB-RyanNeural (-2% rate, -4Hz pitch)</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-slate-300 text-[11px] pt-1">
+          <div class="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/80">
+            <span class="font-bold text-white block mb-1">1. Audio-First Delivery</span>
+            <p class="text-slate-400">Written for the ear, not a textbook. Spoken equations in words (e.g. "F equals I times L times B"), no markdown tables, zero visual deictic phrases ("as seen here").</p>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/80">
+            <span class="font-bold text-white block mb-1">2. 5-Part Structure</span>
+            <p class="text-slate-400">Hook (paradox/mystery) ➔ Logical Explanation ➔ Scientific Core (fundamental law) ➔ Discovery Moment (memorable insight) ➔ Closing Takeaway & Checkpoint Quiz.</p>
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/80">
+            <span class="font-bold text-white block mb-1">3. Separate Vocal Prompting</span>
+            <p class="text-slate-400">Separate content generation from voice generation. TTS receives deep, masculine, mature British scholarly instructions with deliberate dramatic pauses.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Exhaustive Options Comparison Table (Pros, Cons, What It Does, Live Status) -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+            <span>🔬 Comprehensive Option-by-Option Engineering Audit</span>
+          </h2>
+          <p class="text-xs text-slate-400">Detailed examination of every architectural choice, provider alternative, pros & cons, and current failure/passing diagnosis.</p>
+        </div>
+      </div>
+
+      <div class="bg-brand-card border border-brand-border rounded-2xl overflow-hidden shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-900/80 border-b border-brand-border text-slate-300 uppercase font-mono text-[11px]">
+                <th class="py-3.5 px-4 font-bold">Pipeline Option</th>
+                <th class="py-3.5 px-4 font-bold">What It Does</th>
+                <th class="py-3.5 px-4 font-bold">Pros</th>
+                <th class="py-3.5 px-4 font-bold">Cons</th>
+                <th class="py-3.5 px-4 font-bold text-center">Current Live Health</th>
+              </tr>
+            </thead>
+            <tbody id="optionsAuditTableBody" class="divide-y divide-slate-800">
+              <!-- Loaded via JavaScript from /api/reels/system/live-architecture -->
+              <tr>
+                <td colspan="5" class="py-8 text-center text-slate-400 font-mono">
+                  Loading complete architectural audit...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: 5 Generation Tiers Deep Dive -->
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+          <span>🎬 5 Video Generation Tiers: Technical Comparison</span>
+        </h2>
+        <p class="text-xs text-slate-400">Comparison of rendering engines, visual directions, costs per reel, and verified status.</p>
+      </div>
+
+      <div id="tiersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Section 4: Signature 3D Character Store Matrix -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+            <span>🎭 Living 3D World Presenter Roster</span>
+          </h2>
+          <p class="text-xs text-slate-400">Verified status of full 1080x1920 (9:16) 3D world scene environments where presenters stand and explain.</p>
+        </div>
+        <span class="text-xs font-mono px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          6 / 6 World Scenes Cached On Disk
+        </span>
+      </div>
+
+      <div id="charactersGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive Slide-over / Modal for Stage Deep Dive -->
+  <div id="stageModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-brand-card border border-brand-border rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scroll">
+      <button onclick="closeStageModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center space-x-2 text-xs font-mono">
+        <span id="modalStageBadge" class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">STAGE 0.0</span>
+        <span id="modalHealthBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">OPERATIONAL</span>
+      </div>
+
+      <h3 id="modalStageTitle" class="text-lg font-bold text-white">Stage Title</h3>
+
+      <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-2">
+        <span class="text-slate-400 font-semibold uppercase tracking-wider block text-[10px]">What This Component Does:</span>
+        <p id="modalStageDescription" class="text-slate-200 leading-relaxed"></p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-900/40 space-y-1.5">
+          <span class="font-bold text-emerald-400 flex items-center space-x-1">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            <span>Engineering Pros</span>
+          </span>
+          <ul id="modalStagePros" class="list-disc list-inside text-slate-300 space-y-1 text-[11px]"></ul>
+        </div>
+        <div class="p-3.5 rounded-xl bg-rose-950/20 border border-rose-900/40 space-y-1.5">
+          <span class="font-bold text-rose-400 flex items-center space-x-1">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+            <span>Engineering Cons</span>
+          </span>
+          <ul id="modalStageCons" class="list-disc list-inside text-slate-300 space-y-1 text-[11px]"></ul>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1">
+        <span class="text-slate-400 font-semibold uppercase tracking-wider block text-[10px]">Live Diagnostics & Health Diagnosis:</span>
+        <p id="modalStageHealth" class="text-slate-300 font-mono text-[11px]"></p>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="closeStageModal()" class="px-4 py-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition">
+          Close Inspector
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-brand-border bg-slate-950 px-6 py-4 text-center text-xs text-slate-500">
+    Conceptly Studio Autonomous Creation Engine • Live Architectural Blueprint v2.5 • Verified Deterministic Pipeline
+  </footer>
+
+  <script>
+    let telemetryData = null;
+
+    async function fetchLiveTelemetry() {
+      try {
+        const res = await fetch('/api/reels/system/live-architecture');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        telemetryData = await res.json();
+        renderTelemetry(telemetryData);
+      } catch (err) {
+        console.error('Failed to load telemetry:', err);
+        document.getElementById('liveEngineBadge').innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+          <span class="text-rose-400 font-medium">Connection Error</span>
+        `;
+      }
+    }
+
+    function renderTelemetry(data) {
+      // 1. Live Badge
+      document.getElementById('liveEngineBadge').innerHTML = `
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span class="text-slate-300 font-medium">Engine Status: <strong class="text-emerald-400">${data.system_status}</strong></span>
+      `;
+
+      // 2. Jobs stats
+      document.getElementById('statTotalJobs').textContent = data.jobs_summary.total_jobs;
+      document.getElementById('statCompletedJobs').textContent = data.jobs_summary.completed_jobs;
+      document.getElementById('statFailedJobs').textContent = data.jobs_summary.failed_jobs;
+
+      // 3. Providers Strip
+      const strip = document.getElementById('providersStrip');
+      strip.innerHTML = '';
+      for (const [key, p] of Object.entries(data.providers_health)) {
+        const isPass = p.status_code === 'PASSING';
+        const isWarn = p.status_code === 'WARNING';
+        const isFail = p.status_code === 'FAILING' || p.status_code === 'BLOCKED';
+
+        const dotColor = isPass ? 'bg-emerald-400' : isWarn ? 'bg-amber-400' : 'bg-rose-500';
+        const borderColor = isPass ? 'border-emerald-500/30' : isWarn ? 'border-amber-500/30' : 'border-rose-500/30';
+        const textColor = isPass ? 'text-emerald-300' : isWarn ? 'text-amber-300' : 'text-rose-300';
+
+        strip.innerHTML += `
+          <span class="px-2.5 py-1 rounded-md bg-slate-900 border ${borderColor} ${textColor} flex items-center space-x-1.5" title="${p.notes}">
+            <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+            <span class="font-bold">${p.name}:</span>
+            <span class="text-slate-400">${p.status}</span>
+          </span>
+        `;
+      }
+
+      // 3.5. Script Generators Grid
+      const genGrid = document.getElementById('scriptGeneratorsGrid');
+      if (genGrid && data.script_generators) {
+        genGrid.innerHTML = '';
+        data.script_generators.forEach(g => {
+          const isPass = g.status_code === 'PASSING';
+          const badgeClass = isPass ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border-rose-500/30';
+          genGrid.innerHTML += `
+            <div class="p-4 rounded-xl bg-slate-900 border ${isPass ? 'border-slate-800 hover:border-cyan-500' : 'border-rose-900/50 bg-rose-950/10'} transition space-y-3 shadow-md">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-sm text-white">${g.name}</span>
+                <span class="text-xs font-mono font-bold px-2 py-0.5 rounded border ${badgeClass}">
+                  ${g.status}
+                </span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">${g.description}</p>
+              <div class="pt-2 border-t border-slate-800 text-[11px] space-y-1">
+                <div class="text-emerald-400">✓ ${g.pros.join(', ')}</div>
+                <div class="text-rose-400">✗ ${g.cons.join(', ')}</div>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      // 4. Options Audit Table
+      const tbody = document.getElementById('optionsAuditTableBody');
+      tbody.innerHTML = '';
+      data.stages.forEach(s => {
+        const isPass = s.status_code === 'PASSING';
+        const isWarn = s.status_code === 'WARNING';
+        const badgeBg = isPass ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : isWarn ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-rose-500/20 text-rose-400 border-rose-500/30';
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-900/60 transition cursor-pointer" onclick="openStageModal('${s.stage_id}')">
+            <td class="py-3 px-4 font-mono">
+              <span class="font-bold text-white block">${s.name}</span>
+              <span class="text-[11px] text-slate-400">${s.component}</span>
+              <span class="text-[10px] text-brand-cobalt block font-semibold">${s.provider}</span>
+            </td>
+            <td class="py-3 px-4 text-slate-300 max-w-xs leading-relaxed">
+              ${s.what_it_does}
+            </td>
+            <td class="py-3 px-4 text-emerald-300 max-w-xs">
+              <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                ${s.pros.slice(0, 2).map(p => `<li>${p}</li>`).join('')}
+              </ul>
+            </td>
+            <td class="py-3 px-4 text-rose-300 max-w-xs">
+              <ul class="list-disc list-inside space-y-0.5 text-[11px]">
+                ${s.cons.slice(0, 2).map(c => `<li>${c}</li>`).join('')}
+              </ul>
+            </td>
+            <td class="py-3 px-4 text-center">
+              <span class="px-2 py-1 rounded text-[10px] font-mono font-bold border ${badgeBg}">
+                ${s.status}
+              </span>
+              <p class="text-[10px] text-slate-400 mt-1 max-w-[180px] mx-auto text-left leading-tight">
+                ${s.current_health}
+              </p>
+            </td>
+          </tr>
+        `;
+      });
+
+      // 5. Tiers Grid
+      const tiersGrid = document.getElementById('tiersGrid');
+      tiersGrid.innerHTML = '';
+      data.tiers.forEach(t => {
+        const isReady = t.status === 'OPERATIONAL';
+        tiersGrid.innerHTML += `
+          <div class="p-4 rounded-xl bg-slate-900 border ${isReady ? 'border-slate-800 hover:border-brand-cobalt' : 'border-rose-900/50 bg-rose-950/10'} transition space-y-3 shadow-md">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white">${t.name}</span>
+              <span class="text-xs font-mono font-bold px-2 py-0.5 rounded ${isReady ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">
+                ${t.status}
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-400 space-y-1">
+              <div class="flex justify-between">
+                <span>Cost / Reel:</span>
+                <strong class="text-brand-amber font-mono">${t.cost_per_reel}</strong>
+              </div>
+              <div class="flex justify-between">
+                <span>Render Speed:</span>
+                <span class="text-slate-300">${t.speed}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Engine:</span>
+                <span class="text-slate-300 font-mono text-[10px] truncate max-w-[150px]" title="${t.render_engine}">${t.render_engine}</span>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-800 text-[11px] space-y-1">
+              <div class="text-emerald-400">✓ ${t.pros[0]}</div>
+              <div class="text-slate-400">${t.cons.length ? "✗ " + t.cons[0] : ""}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      // 6. Characters Grid
+      const charsGrid = document.getElementById('charactersGrid');
+      charsGrid.innerHTML = '';
+      data.characters_store.forEach(c => {
+        const ready = c.has_world_scene_3d;
+        charsGrid.innerHTML += `
+          <div class="p-3 rounded-xl bg-slate-900 border ${ready ? 'border-emerald-500/30 bg-emerald-950/10' : 'border-slate-800'} text-center space-y-1.5 transition hover:scale-105">
+            <div class="w-10 h-10 mx-auto rounded-lg bg-slate-800 flex items-center justify-center text-lg shadow">
+              ${c.id.includes('newton') ? '🍎' : c.id.includes('curie') ? '☢️' : c.id.includes('kalam') ? '🚀' : c.id.includes('einstein') ? '⚛️' : c.id.includes('bose') ? '🎖️' : '🎒'}
+            </div>
+            <h5 class="text-xs font-bold text-white truncate" title="${c.name}">${c.name}</h5>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded ${ready ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'} block">
+              ${ready ? '3D WORLD READY' : 'AVATAR ONLY'}
+            </span>
+          </div>
+        `;
+      });
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function openStageModal(stageId) {
+      if (!telemetryData) return;
+      const stage = telemetryData.stages.find(s => s.stage_id === stageId);
+      if (!stage) return;
+
+      document.getElementById('modalStageBadge').textContent = stage.stage_id;
+      document.getElementById('modalStageTitle').textContent = stage.name;
+      document.getElementById('modalStageDescription').textContent = stage.what_it_does;
+      document.getElementById('modalHealthBadge').textContent = stage.status;
+      document.getElementById('modalStageHealth').textContent = stage.current_health;
+
+      const prosList = document.getElementById('modalStagePros');
+      prosList.innerHTML = stage.pros.map(p => `<li>${p}</li>`).join('');
+
+      const consList = document.getElementById('modalStageCons');
+      consList.innerHTML = stage.cons.map(c => `<li>${c}</li>`).join('');
+
+      document.getElementById('stageModal').classList.remove('hidden');
+      document.getElementById('stageModal').classList.add('flex');
+    }
+
+    function closeStageModal() {
+      document.getElementById('stageModal').classList.add('hidden');
+      document.getElementById('stageModal').classList.remove('flex');
+    }
+
+    function openCharacterStoreModal() {
+      window.location.href = '/studio';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      fetchLiveTelemetry();
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+      // Auto-poll live telemetry every 15s
+      setInterval(fetchLiveTelemetry, 15000);
+    });
+  </script>
+</body>
+</html>

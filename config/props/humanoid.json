@@ -1,0 +1,722 @@
+{
+ "about": "Stylised articulated person, about 1.9 units tall with feet on y=0, facing +z (towards the default camera). Use for ANY person: historical figures, scientists, students, soldiers, a crowd member. Pose with `pose`; move it by animating the prop's `position`/`rotation` with expressions; set clothing with params.",
+ "params_doc": {
+  "skin": "skin colour hex",
+  "hair": "hair colour hex",
+  "top": "shirt/jacket colour hex",
+  "bottom": "trousers colour hex",
+  "shoes": "shoe colour hex",
+  "forearm": "forearm colour (use the top colour for long sleeves)",
+  "speed": "animation speed multiplier",
+  "hat": "1 = brimmed hat",
+  "cap": "1 = cap with visor",
+  "turban": "1 = turban",
+  "glasses": "1 = round glasses",
+  "beard": "1 = beard",
+  "hatColor": "hat/cap colour",
+  "turbanColor": "turban colour",
+  "height": "overall height, default 1.8"
+ },
+ "params": {
+  "skin": "#d8a47f",
+  "hair": "#1d1a18",
+  "top": "#3b5b92",
+  "bottom": "#2a2f3a",
+  "shoes": "#1a1a1a",
+  "forearm": "#d8a47f",
+  "height": 1.8,
+  "speed": 1,
+  "hat": 0,
+  "cap": 0,
+  "turban": 0,
+  "glasses": 0,
+  "beard": 0,
+  "hatColor": "#3a2f26",
+  "turbanColor": "#e2dccb",
+  "pose": "idle",
+  "bodyX": 0,
+  "bodyY": 0,
+  "bodyZ": 0,
+  "bob": 0,
+  "headX": 0,
+  "headY": 0,
+  "headZ": 0,
+  "lShX": 0,
+  "lShY": 0,
+  "lShZ": 0,
+  "lElb": 0,
+  "rShX": 0,
+  "rShY": 0,
+  "rShZ": 0,
+  "rElb": 0,
+  "lHipX": 0,
+  "lHipZ": 0,
+  "lKnee": 0,
+  "rHipX": 0,
+  "rHipZ": 0,
+  "rKnee": 0
+ },
+ "objects": [
+  {
+   "type": "group",
+   "scale": "${height}/1.8",
+   "children": [
+    {
+     "type": "group",
+     "id": "hips",
+     "position": [
+      0,
+      "0.91+${bob}",
+      0
+     ],
+     "rotation": [
+      "${bodyX}",
+      "${bodyY}",
+      "${bodyZ}"
+     ],
+     "children": [
+      {
+       "type": "box",
+       "size": [
+        0.44,
+        0.55,
+        0.25
+       ],
+       "bevel": 0.1,
+       "material": {
+        "color": "${top}",
+        "roughness": 0.7,
+        "metalness": 0
+       },
+       "position": [
+        0,
+        0.36,
+        0
+       ]
+      },
+      {
+       "type": "box",
+       "size": [
+        0.4,
+        0.2,
+        0.23
+       ],
+       "bevel": 0.08,
+       "material": {
+        "color": "${bottom}",
+        "roughness": 0.75,
+        "metalness": 0
+       },
+       "position": [
+        0,
+        0.05,
+        0
+       ]
+      },
+      {
+       "type": "group",
+       "id": "larm",
+       "position": [
+        0.3,
+        0.6,
+        0
+       ],
+       "rotation": [
+        "${lShX}",
+        "${lShY}",
+        "${lShZ}"
+       ],
+       "children": [
+        {
+         "type": "sphere",
+         "radius": 0.07,
+         "material": {
+          "color": "${top}",
+          "roughness": 0.7,
+          "metalness": 0
+         }
+        },
+        {
+         "type": "capsule",
+         "radius": 0.055,
+         "length": 0.2,
+         "material": {
+          "color": "${top}",
+          "roughness": 0.7,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          -0.17,
+          0
+         ]
+        },
+        {
+         "type": "group",
+         "position": [
+          0,
+          -0.32,
+          0
+         ],
+         "rotation": [
+          "${lElb}",
+          0,
+          0
+         ],
+         "children": [
+          {
+           "type": "capsule",
+           "radius": 0.05,
+           "length": 0.18,
+           "material": {
+            "color": "${forearm}",
+            "roughness": 0.6,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.15,
+            0
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.05,
+           "material": {
+            "color": "${skin}",
+            "roughness": 0.6,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.3,
+            0
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "group",
+       "id": "rarm",
+       "position": [
+        -0.3,
+        0.6,
+        0
+       ],
+       "rotation": [
+        "${rShX}",
+        "${rShY}",
+        "${rShZ}"
+       ],
+       "children": [
+        {
+         "type": "sphere",
+         "radius": 0.07,
+         "material": {
+          "color": "${top}",
+          "roughness": 0.7,
+          "metalness": 0
+         }
+        },
+        {
+         "type": "capsule",
+         "radius": 0.055,
+         "length": 0.2,
+         "material": {
+          "color": "${top}",
+          "roughness": 0.7,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          -0.17,
+          0
+         ]
+        },
+        {
+         "type": "group",
+         "position": [
+          0,
+          -0.32,
+          0
+         ],
+         "rotation": [
+          "${rElb}",
+          0,
+          0
+         ],
+         "children": [
+          {
+           "type": "capsule",
+           "radius": 0.05,
+           "length": 0.18,
+           "material": {
+            "color": "${forearm}",
+            "roughness": 0.6,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.15,
+            0
+           ]
+          },
+          {
+           "type": "sphere",
+           "radius": 0.05,
+           "material": {
+            "color": "${skin}",
+            "roughness": 0.6,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.3,
+            0
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "group",
+       "position": [
+        0,
+        0.66,
+        0
+       ],
+       "rotation": [
+        "${headX}",
+        "${headY}",
+        "${headZ}"
+       ],
+       "children": [
+        {
+         "type": "cylinder",
+         "radius": 0.05,
+         "height": 0.1,
+         "material": {
+          "color": "${skin}",
+          "roughness": 0.6,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.02,
+          0
+         ]
+        },
+        {
+         "type": "sphere",
+         "radius": 0.125,
+         "material": {
+          "color": "${skin}",
+          "roughness": 0.55,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.18,
+          0
+         ],
+         "scale": [
+          0.92,
+          1.05,
+          1
+         ]
+        },
+        {
+         "type": "sphere",
+         "radius": 0.13,
+         "material": {
+          "color": "${hair}",
+          "roughness": 0.8,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.21,
+          -0.02
+         ],
+         "scale": [
+          0.96,
+          0.95,
+          1
+         ],
+         "visible": "1-${turban}-${hat}"
+        },
+        {
+         "type": "sphere",
+         "radius": 0.014,
+         "material": {
+          "color": "#101010",
+          "roughness": 0.3,
+          "metalness": 0
+         },
+         "position": [
+          -0.045,
+          0.2,
+          0.115
+         ]
+        },
+        {
+         "type": "sphere",
+         "radius": 0.014,
+         "material": {
+          "color": "#101010",
+          "roughness": 0.3,
+          "metalness": 0
+         },
+         "position": [
+          0.045,
+          0.2,
+          0.115
+         ]
+        },
+        {
+         "type": "torus",
+         "radius": 0.036,
+         "tube": 0.005,
+         "material": {
+          "color": "#222",
+          "roughness": 0.3,
+          "metalness": 0.8
+         },
+         "position": [
+          -0.048,
+          0.2,
+          0.125
+         ],
+         "visible": "${glasses}"
+        },
+        {
+         "type": "torus",
+         "radius": 0.036,
+         "tube": 0.005,
+         "material": {
+          "color": "#222",
+          "roughness": 0.3,
+          "metalness": 0.8
+         },
+         "position": [
+          0.048,
+          0.2,
+          0.125
+         ],
+         "visible": "${glasses}"
+        },
+        {
+         "type": "sphere",
+         "radius": 0.09,
+         "material": {
+          "color": "${hair}",
+          "roughness": 0.9,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.11,
+          0.05
+         ],
+         "scale": [
+          1,
+          0.7,
+          0.8
+         ],
+         "visible": "${beard}"
+        },
+        {
+         "type": "cylinder",
+         "radius": 0.23,
+         "height": 0.02,
+         "material": {
+          "color": "${hatColor}",
+          "roughness": 0.7,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.3,
+          0
+         ],
+         "visible": "${hat}"
+        },
+        {
+         "type": "cylinder",
+         "radius": 0.135,
+         "height": 0.14,
+         "material": {
+          "color": "${hatColor}",
+          "roughness": 0.7,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.37,
+          0
+         ],
+         "visible": "${hat}"
+        },
+        {
+         "type": "sphere",
+         "radius": 0.14,
+         "material": {
+          "color": "${hatColor}",
+          "roughness": 0.7,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.24,
+          -0.01
+         ],
+         "scale": [
+          1,
+          0.62,
+          1.05
+         ],
+         "visible": "${cap}"
+        },
+        {
+         "type": "box",
+         "size": [
+          0.18,
+          0.012,
+          0.12
+         ],
+         "bevel": 0.005,
+         "material": {
+          "color": "${hatColor}",
+          "roughness": 0.7,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.255,
+          0.14
+         ],
+         "visible": "${cap}"
+        },
+        {
+         "type": "sphere",
+         "radius": 0.15,
+         "material": {
+          "color": "${turbanColor}",
+          "roughness": 0.9,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.255,
+          -0.005
+         ],
+         "scale": [
+          1,
+          0.85,
+          1.05
+         ],
+         "visible": "${turban}"
+        },
+        {
+         "type": "torus",
+         "radius": 0.125,
+         "tube": 0.035,
+         "material": {
+          "color": "${turbanColor}",
+          "roughness": 0.9,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          0.22,
+          0
+         ],
+         "rotation": [
+          90,
+          0,
+          12
+         ],
+         "visible": "${turban}"
+        }
+       ]
+      },
+      {
+       "type": "group",
+       "id": "lleg",
+       "position": [
+        0.105,
+        0,
+        0
+       ],
+       "rotation": [
+        "${lHipX}",
+        0,
+        "${lHipZ}"
+       ],
+       "children": [
+        {
+         "type": "capsule",
+         "radius": 0.085,
+         "length": 0.26,
+         "material": {
+          "color": "${bottom}",
+          "roughness": 0.75,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          -0.2,
+          0
+         ]
+        },
+        {
+         "type": "group",
+         "position": [
+          0,
+          -0.42,
+          0
+         ],
+         "rotation": [
+          "${lKnee}",
+          0,
+          0
+         ],
+         "children": [
+          {
+           "type": "capsule",
+           "radius": 0.07,
+           "length": 0.26,
+           "material": {
+            "color": "${bottom}",
+            "roughness": 0.75,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.2,
+            0
+           ]
+          },
+          {
+           "type": "box",
+           "size": [
+            0.1,
+            0.07,
+            0.24
+           ],
+           "bevel": 0.03,
+           "material": {
+            "color": "${shoes}",
+            "roughness": 0.5,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.45,
+            0.05
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "group",
+       "id": "rleg",
+       "position": [
+        -0.105,
+        0,
+        0
+       ],
+       "rotation": [
+        "${rHipX}",
+        0,
+        "${rHipZ}"
+       ],
+       "children": [
+        {
+         "type": "capsule",
+         "radius": 0.085,
+         "length": 0.26,
+         "material": {
+          "color": "${bottom}",
+          "roughness": 0.75,
+          "metalness": 0
+         },
+         "position": [
+          0,
+          -0.2,
+          0
+         ]
+        },
+        {
+         "type": "group",
+         "position": [
+          0,
+          -0.42,
+          0
+         ],
+         "rotation": [
+          "${rKnee}",
+          0,
+          0
+         ],
+         "children": [
+          {
+           "type": "capsule",
+           "radius": 0.07,
+           "length": 0.26,
+           "material": {
+            "color": "${bottom}",
+            "roughness": 0.75,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.2,
+            0
+           ]
+          },
+          {
+           "type": "box",
+           "size": [
+            0.1,
+            0.07,
+            0.24
+           ],
+           "bevel": 0.03,
+           "material": {
+            "color": "${shoes}",
+            "roughness": 0.5,
+            "metalness": 0
+           },
+           "position": [
+            0,
+            -0.45,
+            0.05
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "poseable": true,
+ "bounds": {
+  "size": [
+   0.9,
+   1.9
+  ],
+  "center": [
+   0,
+   0.95
+  ]
+ }
+}

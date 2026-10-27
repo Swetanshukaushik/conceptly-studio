@@ -1,0 +1,21 @@
+{
+ "topic": "Projectile Motion",
+ "subject": "Physics",
+ "class_level": 11,
+ "exam_type": "SCHOOL",
+ "tier": "FREE",
+ "job_id": "21db1a62-3f78-4cf4-b1e0-a14c261603d5",
+ "created_utc": "2026-10-26T16:29:20.093082",
+ "status": "test render, not published, not reviewed",
+ "layout": "explainer_window",
+ "look": "obsidian_lab",
+ "qa_notes": [
+  "scene 1 (beat 1): \"ground\" is cropped by the edge of the 3D window (82% visible): move the camera back or re-target it"
+ ],
+ "narration": [
+  "Observe... carefully! Why does a ball thrown sideways fall at the exact same time as one dropped straight down?",
+  "Your intuition screams that forward speed delays the fall... but nature plays a different game! Gravity pulls downward, yet it cares nothing for your forward motion.",
+  "Horizontal velocity remains perfectly constant because acceleration in the x-direction is zero! Meanwhile, vertical velocity increases by nine point eight meters per second squared.",
+  "And behold! Two entirely independent motions blend into a single flawless parabola! Test your newfound mastery in the quiz below..."
+ ]
+}

@@ -21,6 +21,7 @@ class ReelJob(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey("users.id"), nullable=True)
     generation_tier = Column(String(20), default="DEFAULT")  # "DEFAULT" | "PREMIUM"
+    script_generator = Column(String(50), default="AUTO", nullable=True)  # "AUTO", "GEMINI", "OPENAI"
     
     # Curriculum Taxonomy
     exam_type = Column(String(50), default="SCHOOL")

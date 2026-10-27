@@ -88,8 +88,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 formatted_words = []
                 for j, w in enumerate(chunk):
                     if j == i:
-                        # Highlight active word + slight bold/uppercase emphasis
-                        formatted_words.append(f"{{\\c{highlight_color_ass}\\b1}}{w.word.upper()}{{\\c{normal_color_ass}\\b0}}")
+                        # Highlight active word + kinetic bounce scale animation + bold uppercase emphasis
+                        formatted_words.append(f"{{\\fscx120\\fscy120\\t(0,120,\\fscx100\\fscy100)\\c{highlight_color_ass}\\b1}}{w.word.upper()}{{\\fscx100\\fscy100\\c{normal_color_ass}\\b0}}")
                     else:
                         formatted_words.append(w.word)
 

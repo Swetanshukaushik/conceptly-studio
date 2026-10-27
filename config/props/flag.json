@@ -1,0 +1,130 @@
+{
+ "about": "A flag on a pole waving in the wind. The cloth is a rippling surface. Set the colour bands with `top`, `mid`, `bottom` (three horizontal stripes) or a single colour.",
+ "params_doc": {
+  "top": "upper stripe colour",
+  "mid": "middle stripe colour",
+  "bottom": "lower stripe colour",
+  "wind": "ripple strength",
+  "poleHeight": "pole height"
+ },
+ "params": {
+  "top": "#e8751a",
+  "mid": "#f4f4f4",
+  "bottom": "#1c8a3a",
+  "wind": 0.12,
+  "poleHeight": 2.6
+ },
+ "objects": [
+  {
+   "type": "cylinder",
+   "radius": 0.03,
+   "height": "${poleHeight}",
+   "material": {
+    "color": "#b9b2a6",
+    "roughness": 0.35,
+    "metalness": 1
+   },
+   "position": [
+    0,
+    "${poleHeight}/2",
+    0
+   ]
+  },
+  {
+   "type": "sphere",
+   "radius": 0.05,
+   "material": {
+    "color": "#e8b84a",
+    "roughness": 0.3,
+    "metalness": 1
+   },
+   "position": [
+    0,
+    "${poleHeight}+0.03",
+    0
+   ]
+  },
+  {
+   "type": "surface",
+   "x": "0.04+u*1.2",
+   "y": "${poleHeight}-0.1-0.27*(v+1)/2*2",
+   "z": "${wind}*u*sin(5*u-3.2*t+v)",
+   "uRange": [
+    0,
+    1
+   ],
+   "vRange": [
+    -1,
+    -0.34
+   ],
+   "resolution": [
+    24,
+    4
+   ],
+   "material": {
+    "color": "${top}",
+    "roughness": 0.8,
+    "metalness": 0,
+    "doubleSided": true
+   }
+  },
+  {
+   "type": "surface",
+   "x": "0.04+u*1.2",
+   "y": "${poleHeight}-0.1-0.27*(v+1)/2*2",
+   "z": "${wind}*u*sin(5*u-3.2*t+v)",
+   "uRange": [
+    0,
+    1
+   ],
+   "vRange": [
+    -0.34,
+    0.34
+   ],
+   "resolution": [
+    24,
+    4
+   ],
+   "material": {
+    "color": "${mid}",
+    "roughness": 0.8,
+    "metalness": 0,
+    "doubleSided": true
+   }
+  },
+  {
+   "type": "surface",
+   "x": "0.04+u*1.2",
+   "y": "${poleHeight}-0.1-0.27*(v+1)/2*2",
+   "z": "${wind}*u*sin(5*u-3.2*t+v)",
+   "uRange": [
+    0,
+    1
+   ],
+   "vRange": [
+    0.34,
+    1
+   ],
+   "resolution": [
+    24,
+    4
+   ],
+   "material": {
+    "color": "${bottom}",
+    "roughness": 0.8,
+    "metalness": 0,
+    "doubleSided": true
+   }
+  }
+ ],
+ "bounds": {
+  "size": [
+   1.4,
+   2.7
+  ],
+  "center": [
+   0.6,
+   1.4
+  ]
+ }
+}

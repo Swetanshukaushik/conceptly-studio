@@ -1,0 +1,29 @@
+{
+  "name": "biology",
+  "label": "Biology",
+  "status": "planned",
+  "summary": "Anatomy and process tours. Needs anatomical assets; Free shows stylised structures, Premium uses generated imagery.",
+  "subjects": [
+    "biology",
+    "life science",
+    "life sciences"
+  ],
+  "layout_hint": "full",
+  "look_hint": "daylight_studio",
+  "requires_sim": false,
+  "kits": [
+    "helix",
+    "flow_paths",
+    "label_pins",
+    "image_resolver"
+  ],
+  "verification": [
+    "source_retrieval_planned"
+  ],
+  "persona": null,
+  "tiers": {
+    "free": "partial",
+    "premium": "planned"
+  },
+  "prompt": "packs/biology.md"
+}

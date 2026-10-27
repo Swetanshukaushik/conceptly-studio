@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 from src.services.llm_factory import LLMFactory
 from src.models.schemas import QuizPayload, ReelScript, ReelGenerationTier
 
@@ -7,7 +7,7 @@ class QuizAgent:
     Quiz Generator Agent:
     Produces 2-3 concept-testing multiple-choice questions matching CONTRACT.md
     and Conceptly Core backend schema. Questions test the core takeaway and
-    debunk common distractors.
+    debunk common distractors based on the Stage 0 Domain Dossier.
     """
 
     SYSTEM_PROMPT = """You are Conceptly's Master Assessment & Quiz Specialist.
@@ -28,11 +28,22 @@ Output strictly structured JSON conforming to the QuizPayload schema."""
         cls,
         script: ReelScript,
         topic_id: Optional[str] = None,
-        tier: ReelGenerationTier = ReelGenerationTier.DEFAULT
+        tier: ReelGenerationTier = ReelGenerationTier.DEFAULT,
+        domain_dossier: Optional[Dict[str, Any]] = None
     ) -> QuizPayload:
+        dossier_cues = ""
+        if domain_dossier:
+            dossier_cues = f"""
+Diagnostic Pedagogical Cues from Stage 0 Intelligence:
+- Core Student Misconception: {domain_dossier.get('core_misconception')}
+- Recommended Diagnostic Trap: {domain_dossier.get('diagnostic_question')}
+- Trapping Distractor Option to Include: {domain_dossier.get('distractor_misconception_answer')}
+"""
+
         user_prompt = f"""Generate 2 Checkpoint MCQs for this reel:
 - Topic: {script.topic_title}
 - Takeaway Lesson: {script.key_takeaway}
+{dossier_cues}
 - Full Script:
 Act 1: {script.acts[0].spoken_text}
 Act 2: {script.acts[1].spoken_text}

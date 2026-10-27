@@ -1,0 +1,118 @@
+{
+ "version": 1,
+ "look": "workshop_blue",
+ "layout": "explainer_window",
+ "header": [
+  "Projectile",
+  "Motion"
+ ],
+ "duration": 5,
+ "scenes": [
+  {
+   "id": "a",
+   "start": 0,
+   "end": 5,
+   "floor": false,
+   "camera": {
+    "position": [
+     4.4,
+     2.6,
+     11.6
+    ],
+    "target": [
+     4.4,
+     2.4,
+     0
+    ],
+    "fov": 40
+   },
+   "sim": {
+    "surfaces": [
+     {
+      "p1": [
+       -1,
+       0
+      ],
+      "p2": [
+       40,
+       0
+      ],
+      "mu": 0.6,
+      "e": 0.3
+     }
+    ],
+    "bodies": [
+     {
+      "id": "ball",
+      "kind": "ball",
+      "m": 1,
+      "r": 0.2,
+      "pos": [
+       0,
+       0.2
+      ],
+      "vel": [
+       6,
+       8
+      ],
+      "color": "accent",
+      "trail": {
+       "color": "accent"
+      },
+      "vectors": [
+       "v"
+      ]
+     }
+    ]
+   },
+   "objects": [
+    {
+     "type": "prop",
+     "prefab": "workshop_wall",
+     "params": {
+      "wall": "#0f1d33"
+     }
+    },
+    {
+     "type": "prop",
+     "prefab": "graph",
+     "position": [
+      7.2,
+      3.0,
+      0
+     ],
+     "params": {
+      "xmax": 2,
+      "ymin": -10,
+      "ymax": 10,
+      "y1": "sim(3,0,X)",
+      "n1": "vy",
+      "c1": "#ffc23d",
+      "y2": "sim(2,0,X)",
+      "s2": 1,
+      "n2": "vx",
+      "c2": "#5aa9ff",
+      "w": 2.6,
+      "h": 1.8,
+      "ylabel": "v (m/s)",
+      "xmaxText": "2 s",
+      "ymaxText": "10"
+     }
+    }
+   ],
+   "overlays": [
+    {
+     "kind": "derivation",
+     "lines": [
+      "y = v_y t - \\tfrac{1}{2} g t^2",
+      "t_{up} = v_y / g = 0.82\\ \\mathrm{s}"
+     ],
+     "anchor": "top",
+     "at": 0.5,
+     "until": 4.5,
+     "step": 1.4
+    }
+   ]
+  }
+ ]
+}

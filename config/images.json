@@ -1,0 +1,7 @@
+{
+  "min_width": 900,
+  "max_candidates": 6,
+  "verify_with_vision": true,
+  "vision_profile": "vision",
+  "judge_prompt": "You are checking a stock image for a short educational video. Scene narration: \"{narration}\". Requested picture: \"{query}\". Decide whether this image genuinely shows the requested subject, person, place, event or object. It must be a photograph, painting, drawing or museum artefact. Reject logos, emblems, flags, maps, charts, pages of text, screenshots, statues or modern photos when a historical scene was requested, and anything that only shares a keyword. Reply with JSON only: {\"match\": true or false, \"reason\": \"one short sentence\"}."
+}

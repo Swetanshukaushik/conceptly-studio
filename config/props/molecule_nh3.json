@@ -1,0 +1,153 @@
+{
+ "about": "Ammonia molecule NH3 (trigonal pyramid, 106.7 degrees). Ball-and-stick model with true bond lengths and angles; it turns slowly.",
+ "params_doc": {
+  "size": "scale",
+  "spin": "degrees per second of slow rotation about the vertical axis"
+ },
+ "bounds": {
+  "size": [
+   1.6,
+   1.6
+  ],
+  "center": [
+   0,
+   0
+  ]
+ },
+ "params": {
+  "size": 1,
+  "spin": 25
+ },
+ "objects": [
+  {
+   "type": "group",
+   "scale": "${size}",
+   "rotation": [
+    0,
+    "${spin}*t",
+    0
+   ],
+   "children": [
+    {
+     "type": "sphere",
+     "radius": 0.19,
+     "material": {
+      "color": "#3050f8",
+      "roughness": 0.35,
+      "metalness": 0.05
+     },
+     "position": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "type": "sphere",
+     "radius": 0.12,
+     "material": {
+      "color": "#f2f2f2",
+      "roughness": 0.35,
+      "metalness": 0.05
+     },
+     "position": [
+      0.0,
+      -0.2092,
+      0.5146
+     ]
+    },
+    {
+     "type": "sphere",
+     "radius": 0.12,
+     "material": {
+      "color": "#f2f2f2",
+      "roughness": 0.35,
+      "metalness": 0.05
+     },
+     "position": [
+      -0.4457,
+      -0.2092,
+      -0.2573
+     ]
+    },
+    {
+     "type": "sphere",
+     "radius": 0.12,
+     "material": {
+      "color": "#f2f2f2",
+      "roughness": 0.35,
+      "metalness": 0.05
+     },
+     "position": [
+      0.4457,
+      -0.2092,
+      -0.2573
+     ]
+    },
+    {
+     "type": "tube",
+     "points": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       -0.2092,
+       0.5146
+      ]
+     ],
+     "radius": 0.045,
+     "material": {
+      "color": "#c9ced8",
+      "roughness": 0.5,
+      "metalness": 0.2
+     }
+    },
+    {
+     "type": "tube",
+     "points": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       -0.4457,
+       -0.2092,
+       -0.2573
+      ]
+     ],
+     "radius": 0.045,
+     "material": {
+      "color": "#c9ced8",
+      "roughness": 0.5,
+      "metalness": 0.2
+     }
+    },
+    {
+     "type": "tube",
+     "points": [
+      [
+       0.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.4457,
+       -0.2092,
+       -0.2573
+      ]
+     ],
+     "radius": 0.045,
+     "material": {
+      "color": "#c9ced8",
+      "roughness": 0.5,
+      "metalness": 0.2
+     }
+    }
+   ]
+  }
+ ]
+}

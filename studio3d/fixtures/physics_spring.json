@@ -1,0 +1,4 @@
+{"version":1,"look":"obsidian_lab","layout":"explainer_window","header":["Simple Harmonic","Motion"],"duration":6,"scenes":[{"id":"a","start":0,"end":6,"camera":{"fit":true},"sim":{"gravity":[0,0],"springs":[{"a":[0,0.5],"b":"m","k":20,"L0":2}],
+ "surfaces":[{"p1":[-0.5,0],"p2":[5,0],"mu":0.0,"e":0.0,"thickness":0.1}],
+ "bodies":[{"id":"m","kind":"block","m":1,"size":[0.7,0.5],"pos":[3.2,0.25],"color":"primary","vectors":["v"]}]},
+ "objects":[{"type":"box","size":[0.2,1.5,1],"material":{"color":"#aeb8c6","metalness":0.8,"roughness":0.4},"position":[-0.1,0.6,0],"background":false}]}]}

@@ -1,0 +1,426 @@
+{
+ "about": "Glass chamber full of two kinds of moving particles (species A and B) that convert into each other: a dynamic equilibrium. The fraction of A relaxes from `fA0` to the equilibrium value kr/(kf+kr) after `t0`; a disturbance at `tS` (e.g. adding reactant) pushes it away and it relaxes back (Le Chatelier). Two arrows under the chamber show forward and reverse rates, which become equal at equilibrium. Pair it with concentration_graph using the SAME kf, kr, fA0, k, t0, tS, bump. Use plain ASCII for texts (no subscript characters); show chemical formulas in a LaTeX formula card. Origin at the centre of the chamber floor.",
+ "params_doc": {
+  "kf": "forward rate constant (A to B)",
+  "kr": "reverse rate constant (B to A); equilibrium fraction of A = kr/(kf+kr)",
+  "fA0": "starting fraction of species A (0..1)",
+  "k": "how fast the system relaxes to equilibrium",
+  "t0": "scene time (s) when the reaction starts",
+  "tS": "scene time (s) of a disturbance (99 = none)",
+  "bump": "how much the fraction of A jumps up at tS (adding reactant, Le Chatelier); negative removes it",
+  "span": "graph time span in seconds (use the scene duration)",
+  "nameA": "label for species A (ASCII, e.g. 'N2O4')",
+  "nameB": "label for species B",
+  "colA": "colour of A",
+  "colB": "colour of B",
+  "N": "number of particles (60-300)",
+  "w": "chamber width",
+  "h": "chamber height",
+  "d": "chamber depth",
+  "showRates": "1 = show the forward / reverse rate arrows"
+ },
+ "bounds": {
+  "size": [
+   3.0,
+   3.0
+  ],
+  "center": [
+   0,
+   0.9
+  ]
+ },
+ "params": {
+  "kf": 0.8,
+  "kr": 0.4,
+  "fA0": 0.95,
+  "k": 0.55,
+  "t0": 0.6,
+  "tS": 99,
+  "bump": 0,
+  "span": 8,
+  "fAeq": "${kr}/(${kf}+${kr})",
+  "fA1": "${fAeq}+(${fA0}-${fAeq})*exp(-${k}*max(0,t-${t0}))",
+  "fAs": "${fAeq}+(${fA0}-${fAeq})*exp(-${k}*max(0,${tS}-${t0}))",
+  "fA2": "${fAeq}+(min(1,${fAs}+${bump})-${fAeq})*exp(-${k}*(t-${tS}))",
+  "fA": "if(t<${tS},${fA1},${fA2})",
+  "N": 140,
+  "w": 1.8,
+  "h": 1.7,
+  "d": 1.2,
+  "pr": 0.05,
+  "rs": 1.8,
+  "colA": "#ff8a3d",
+  "colB": "#2f6fe0",
+  "nameA": "A",
+  "nameB": "B",
+  "showRates": 1
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    0.025,
+    "${h}",
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    "-1*${w}/2",
+    "${h}/2",
+    "-1*${d}/2"
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    0.025,
+    "${h}",
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    "-1*${w}/2",
+    "${h}/2",
+    "1*${d}/2"
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    0.025,
+    "${h}",
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    "1*${w}/2",
+    "${h}/2",
+    "-1*${d}/2"
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    0.025,
+    "${h}",
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    "1*${w}/2",
+    "${h}/2",
+    "1*${d}/2"
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    "${w}",
+    0.025,
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    0,
+    "0*${h}",
+    "-1*${d}/2"
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    "${w}",
+    0.025,
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    0,
+    "0*${h}",
+    "1*${d}/2"
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    0.025,
+    0.025,
+    "${d}"
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    "-1*${w}/2",
+    "0*${h}",
+    0
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    0.025,
+    0.025,
+    "${d}"
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    "1*${w}/2",
+    "0*${h}",
+    0
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    "${w}",
+    0.025,
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    0,
+    "1*${h}",
+    "-1*${d}/2"
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    "${w}",
+    0.025,
+    0.025
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    0,
+    "1*${h}",
+    "1*${d}/2"
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    0.025,
+    0.025,
+    "${d}"
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    "-1*${w}/2",
+    "1*${h}",
+    0
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "box",
+   "size": [
+    0.025,
+    0.025,
+    "${d}"
+   ],
+   "material": {
+    "color": "muted",
+    "roughness": 0.2,
+    "metalness": 0.3
+   },
+   "position": [
+    "1*${w}/2",
+    "1*${h}",
+    0
+   ],
+   "castShadow": false
+  },
+  {
+   "type": "particles",
+   "count": "${N}",
+   "x": "(${w}-0.2)*(abs(mod(hash(i*1.7)*2+(0.35+0.5*hash(i*2.9))*t,2)-1)-0.5)",
+   "y": "${h}/2+(${h}-0.2)*(abs(mod(hash(i*3.1)*2+(0.3+0.5*hash(i*5.3))*t,2)-1)-0.5)",
+   "z": "(${d}-0.2)*(abs(mod(hash(i*4.7)*2+(0.3+0.45*hash(i*6.1))*t,2)-1)-0.5)",
+   "radius": "if(hash(i*7.13)<(${fA}),${pr},0)",
+   "material": {
+    "color": "${colA}",
+    "emissive": "${colA}",
+    "emissiveIntensity": 0.9,
+    "roughness": 0.35
+   }
+  },
+  {
+   "type": "particles",
+   "count": "${N}",
+   "x": "(${w}-0.2)*(abs(mod(hash(i*1.7)*2+(0.35+0.5*hash(i*2.9))*t,2)-1)-0.5)",
+   "y": "${h}/2+(${h}-0.2)*(abs(mod(hash(i*3.1)*2+(0.3+0.5*hash(i*5.3))*t,2)-1)-0.5)",
+   "z": "(${d}-0.2)*(abs(mod(hash(i*4.7)*2+(0.3+0.45*hash(i*6.1))*t,2)-1)-0.5)",
+   "radius": "if(hash(i*7.13)>=(${fA}),${pr},0)",
+   "material": {
+    "color": "${colB}",
+    "emissive": "${colB}",
+    "emissiveIntensity": 0.9,
+    "roughness": 0.35
+   }
+  },
+  {
+   "type": "label",
+   "text": "${nameA}",
+   "size": 0.16,
+   "color": "${colA}",
+   "position": [
+    -0.35,
+    "${h}+0.25",
+    0
+   ]
+  },
+  {
+   "type": "label",
+   "text": "${nameB}",
+   "size": 0.16,
+   "color": "${colB}",
+   "position": [
+    0.95,
+    "${h}+0.25",
+    0
+   ]
+  },
+  {
+   "type": "sphere",
+   "radius": 0.05,
+   "material": {
+    "color": "${colA}",
+    "roughness": 0.4,
+    "metalness": 0,
+    "emissive": "${colA}",
+    "emissiveIntensity": 0.9
+   },
+   "position": [
+    -1.05,
+    "${h}+0.25",
+    0
+   ]
+  },
+  {
+   "type": "sphere",
+   "radius": 0.05,
+   "material": {
+    "color": "${colB}",
+    "roughness": 0.4,
+    "metalness": 0,
+    "emissive": "${colB}",
+    "emissiveIntensity": 0.9
+   },
+   "position": [
+    0.3,
+    "${h}+0.25",
+    0
+   ]
+  },
+  {
+   "type": "arrow",
+   "from": [
+    "-0.8",
+    -0.3,
+    0
+   ],
+   "to": [
+    "-0.8+${rs}*${kf}*(${fA})",
+    -0.3,
+    0
+   ],
+   "color": "${colA}",
+   "thickness": 0.035,
+   "visible": "${showRates}"
+  },
+  {
+   "type": "arrow",
+   "from": [
+    "0.8",
+    -0.62,
+    0
+   ],
+   "to": [
+    "0.8-${rs}*${kr}*(1-(${fA}))",
+    -0.62,
+    0
+   ],
+   "color": "${colB}",
+   "thickness": 0.035,
+   "visible": "${showRates}"
+  },
+  {
+   "type": "label",
+   "text": "forward rate",
+   "size": 0.12,
+   "color": "${colA}",
+   "position": [
+    -0.8,
+    -0.15,
+    0
+   ],
+   "visible": "${showRates}"
+  },
+  {
+   "type": "label",
+   "text": "reverse rate",
+   "size": 0.12,
+   "color": "${colB}",
+   "position": [
+    0.8,
+    -0.47,
+    0
+   ],
+   "visible": "${showRates}"
+  }
+ ]
+}

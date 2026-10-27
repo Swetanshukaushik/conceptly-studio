@@ -1,0 +1,23 @@
+{
+ "topic": "Simple Harmonic Motion",
+ "subject": "Physics",
+ "class_level": 11,
+ "exam_type": "SCHOOL",
+ "tier": "FREE",
+ "job_id": "24b6ed75-bb64-415c-b4f0-e770d8ee211e",
+ "created_utc": "2026-10-26T16:30:19.816613",
+ "status": "test render, not published, not reviewed",
+ "layout": "explainer_window",
+ "look": "obsidian_lab",
+ "qa_notes": [
+  "scene 5 (beat 5): \"wall\" is cropped by the edge of the 3D window (44% visible): move the camera back or re-target it",
+  "scene 5 (beat 5): \"floor\" is cropped by the edge of the 3D window (43% visible): move the camera back or re-target it",
+  "beat 3: retry rejected (renderer errors), kept original; issues: Wall or fixed end looks like a solid block rather than a mount; Spring is completely missing between the wall and the block"
+ ],
+ "narration": [
+  "Observe this mass on a spring... If it pulls harder the more it stretches, why isn't its acceleration constant? Let us reason together!",
+  "Most imagine acceleration stays steady... But wait! As the spring pulls the block back toward the center, the stretch shrinks. Less stretch means less force!",
+  "Here is the profound truth—Force equals negative k times x! Acceleration continuously varies, reaching absolute zero right at the mean equilibrium position!",
+  "And behold! Zero force at the center means zero acceleration—yet maximum speed! Nature is truly wondrous. Test your newfound mastery in the quiz below!"
+ ]
+}

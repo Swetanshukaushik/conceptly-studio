@@ -1,0 +1,99 @@
+{
+ "about": "Conical (Erlenmeyer) glass flask with coloured liquid and a few rising bubbles. Good for reactions, solutions, titration set-ups. Origin at the base centre.",
+ "params_doc": {
+  "liquid": "liquid colour",
+  "level": "liquid fill 0..1",
+  "bubbles": "1 = rising bubbles"
+ },
+ "params": {
+  "liquid": "#5aa9ff",
+  "level": 0.5,
+  "bubbles": 1
+ },
+ "bounds": {
+  "size": [
+   1.2,
+   1.6
+  ],
+  "center": [
+   0,
+   0.8
+  ]
+ },
+ "objects": [
+  {
+   "type": "lathe",
+   "profile": [
+    [
+     0.01,
+     0
+    ],
+    [
+     0.55,
+     0
+    ],
+    [
+     0.58,
+     0.05
+    ],
+    [
+     0.3,
+     0.95
+    ],
+    [
+     0.17,
+     1.1
+    ],
+    [
+     0.17,
+     1.45
+    ],
+    [
+     0.21,
+     1.5
+    ]
+   ],
+   "smooth": true,
+   "material": {
+    "color": "#dff3ff",
+    "roughness": 0.05,
+    "metalness": 0,
+    "opacity": 0.18,
+    "doubleSided": true
+   }
+  },
+  {
+   "type": "cylinder",
+   "radiusTop": 0.7,
+   "radiusBottom": 1,
+   "radius": "0.52",
+   "height": "0.9*${level}",
+   "material": {
+    "color": "${liquid}",
+    "roughness": 0.2,
+    "opacity": 0.8,
+    "emissive": "${liquid}",
+    "emissiveIntensity": 0.25
+   },
+   "position": [
+    0,
+    "0.45*${level}+0.03",
+    0
+   ]
+  },
+  {
+   "type": "particles",
+   "count": 14,
+   "x": "0.18*sin(i*2.4+t)",
+   "y": "0.1+mod(t*0.3+i*0.07,0.8*${level})",
+   "z": "0.18*cos(i*1.9)",
+   "radius": 0.025,
+   "material": {
+    "color": "#ffffff",
+    "opacity": 0.7,
+    "roughness": 0.2
+   },
+   "visible": "${bubbles}"
+  }
+ ]
+}

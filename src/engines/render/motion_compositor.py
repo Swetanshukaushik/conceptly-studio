@@ -1,7 +1,7 @@
 import os
 import shutil
 import subprocess
-from typing import List, Optional
+from typing import List, Optional, Any
 from src.models.schemas import Storyboard, SceneBeat, CameraMotion, ReelGenerationTier
 
 class FFmpegMotionCompositor:
@@ -27,13 +27,23 @@ class FFmpegMotionCompositor:
         return None
 
     @classmethod
+    def _has_libass_filter(cls, ffmpeg_bin: str) -> bool:
+        try:
+            res = subprocess.run([ffmpeg_bin, "-filters"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            return "subtitles" in res.stdout
+        except Exception:
+            return False
+
+    @classmethod
     def composite_storyboard(
         cls,
         storyboard: Storyboard,
         audio_path: str,
         output_mp4_path: str,
+        ass_subtitle_path: Optional[str] = None,
         tier: ReelGenerationTier = ReelGenerationTier.FREE,
-        enable_camera_motion: bool = True
+        enable_camera_motion: bool = True,
+        avatar: Optional[Any] = None
     ) -> str:
         os.makedirs(os.path.dirname(os.path.abspath(output_mp4_path)), exist_ok=True)
         ffmpeg_bin = cls._find_ffmpeg()
@@ -47,15 +57,13 @@ class FFmpegMotionCompositor:
 
         from src.engines.render.video_clip_engine import VideoClipEngine
 
-        # 1. Ensure every scene has a moving video clip (.mp4)
+        # 1. Ensure every scene has a moving video clip (.mp4) with dynamic chronometry
         video_clips = []
         for scene in storyboard.scenes:
-            clip_path = scene.video_clip_path
-            if not clip_path or not os.path.exists(clip_path):
-                clip_path = os.path.join(clips_dir, f"clip_scene_{scene.scene_number:02d}.mp4")
-                VideoClipEngine.generate_scene_clip(scene, clip_path, tier=tier)
-                scene.video_clip_path = clip_path
-                scene.video_clip_url = f"/media/jobs/{os.path.basename(temp_dir)}/scene_clips/clip_scene_{scene.scene_number:02d}.mp4"
+            clip_path = os.path.join(clips_dir, f"clip_scene_{scene.scene_number:02d}.mp4")
+            VideoClipEngine.generate_scene_clip(scene, clip_path, tier=tier, avatar=avatar)
+            scene.video_clip_path = clip_path
+            scene.video_clip_url = f"/media/jobs/{os.path.basename(temp_dir)}/scene_clips/clip_scene_{scene.scene_number:02d}.mp4"
             video_clips.append(clip_path)
 
         # 2. Concat video clips with audio
@@ -79,6 +87,13 @@ class FFmpegMotionCompositor:
                     "-i", rel_audio,
                     "-map", "0:v:0",
                     "-map", "1:a:0",
+                ]
+
+                if ass_subtitle_path and os.path.exists(ass_subtitle_path) and cls._has_libass_filter(ffmpeg_bin):
+                    rel_ass = os.path.relpath(ass_subtitle_path, temp_dir).replace("\\", "/").replace(":", "\\:")
+                    cmd.extend(["-vf", f"subtitles='{rel_ass}'"])
+
+                cmd.extend([
                     "-c:v", "libx264",
                     "-preset", "veryfast",
                     "-crf", "20",
@@ -88,7 +103,7 @@ class FFmpegMotionCompositor:
                     "-b:a", "192k",
                     "-shortest",
                     rel_output
-                ]
+                ])
 
                 result = subprocess.run(cmd, cwd=temp_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
                 if result.returncode == 0 and os.path.exists(output_mp4_path) and os.path.getsize(output_mp4_path) > 10000:

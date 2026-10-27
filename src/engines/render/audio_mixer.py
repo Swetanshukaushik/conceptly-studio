@@ -16,18 +16,18 @@ class AudioMixer:
     @classmethod
     def generate_ambient_lofi_track(cls, output_wav_path: str, duration_sec: float = 60.0, sample_rate: int = 24000) -> str:
         """
-        Synthesizes a soft, warm lofi ambient drone chord progression
-        (Cmaj7 - Am7 - Fmaj7 - G7) at low volume (-22 dB).
+        Synthesizes a warm, curious, and dramatic ambient drone progression
+        (Cm7 - Gm7 - Abmaj7 - Bb) with soft tape saturation at -24 dB.
         """
         os.makedirs(os.path.dirname(os.path.abspath(output_wav_path)), exist_ok=True)
         total_samples = int(sample_rate * duration_sec)
 
-        # Frequencies for warm lofi chord progression (C3, E3, G3, B3)
+        # Frequencies for curious, dramatic scientific discovery (Cm7, Gm7, Abmaj7, Bb)
         chords = [
-            [130.81, 164.81, 196.00, 246.94],  # Cmaj7
-            [110.00, 130.81, 164.81, 196.00],  # Am7
-            [87.31, 110.00, 130.81, 164.81],   # Fmaj7
-            [98.00, 123.47, 146.83, 174.61],   # G7
+            [130.81, 155.56, 196.00, 233.08],  # Cm7 (mystery & wonder)
+            [98.00, 146.83, 174.61, 220.00],   # Gm7 (depth)
+            [103.83, 130.81, 164.81, 207.65],  # Abmaj7 (curiosity)
+            [116.54, 146.83, 174.61, 233.08],  # Bb (resolution / discovery)
         ]
         chord_duration = 4.0
 
@@ -36,18 +36,42 @@ class AudioMixer:
             wav.setsampwidth(2)      # 16-bit PCM
             wav.setframerate(sample_rate)
 
+            # Acoustic 1st-order low-pass filter (cutoff 450 Hz) to eliminate any high-frequency buzz or harmonics
+            fc = 450.0
+            rc = 1.0 / (2.0 * math.pi * fc)
+            dt = 1.0 / sample_rate
+            alpha = dt / (rc + dt)
+            lp_state = 0.0
+
             frames = bytearray()
             for i in range(total_samples):
                 t = i / sample_rate
                 chord_idx = int((t / chord_duration) % len(chords))
-                freqs = chords[chord_idx]
+                next_chord_idx = (chord_idx + 1) % len(chords)
+                chord_progress = (t % chord_duration) / chord_duration
+                # Smooth sinusoidal crossfade envelope between harmonic changes
+                fade_next = 0.5 * (1.0 - math.cos(math.pi * chord_progress))
+                fade_curr = 1.0 - fade_next
+
+                # Subtle organic breathing LFO (0.2 Hz) for lifelike atmosphere
+                lfo = 0.88 + 0.12 * math.sin(2 * math.pi * 0.20 * t)
 
                 val = 0.0
-                for f in freqs:
-                    val += math.sin(2 * math.pi * f * t)
+                for f in chords[chord_idx]:
+                    val += math.sin(2 * math.pi * f * t) * fade_curr * 0.70
+                    val += 0.25 * math.sin(2 * math.pi * (f * 1.5) * t) * fade_curr
+                    val += 0.12 * math.sin(2 * math.pi * (f * 2.0) * t) * fade_curr
+                for f in chords[next_chord_idx]:
+                    val += math.sin(2 * math.pi * f * t) * fade_next * 0.70
+                    val += 0.25 * math.sin(2 * math.pi * (f * 1.5) * t) * fade_next
+                    val += 0.12 * math.sin(2 * math.pi * (f * 2.0) * t) * fade_next
 
-                # Ducked amplitude for background ambience
-                norm_val = int(val * 350.0)
+                # Soft analog tape saturation: warmth without harsh synthesizer buzz
+                val = math.tanh(val * 0.35) * lfo
+                # Apply 450Hz low-pass filter
+                lp_state += alpha * (val - lp_state)
+                # Calibrated to -24 dB cinematic ambient bed
+                norm_val = int(lp_state * 2200.0)
                 norm_val = max(-32768, min(32767, norm_val))
                 frames.extend(struct.pack("<h", norm_val))
 
@@ -93,19 +117,30 @@ class AudioMixer:
                 b_data = b_wav.readframes(s_frames)
 
             speech_samples = struct.unpack(f"<{len(speech_data)//2}h", speech_data)
+            if s_channels == 2:
+                # Mix in mono (the BGM bed and SFX timeline are mono), then write stereo back out.
+                # Treating interleaved stereo as mono halved the reel's audio and mis-timed the SFX.
+                speech_samples = [(l + r) // 2 for l, r in zip(speech_samples[0::2], speech_samples[1::2])]
             bgm_samples = struct.unpack(f"<{len(b_data)//2}h", b_data)
 
             min_len = min(len(speech_samples), len(bgm_samples))
             combined_samples = []
+            
+            # Dynamic broadcast ducking: BGM ducks during speech (-28 dB) and smoothly swells during pauses (-24 dB)
+            ducking = 0.55
             for i in range(min_len):
                 s_val = speech_samples[i]
-                b_val = int(bgm_samples[i] * 0.30)  # Ducked ambient BGM
+                abs_s = abs(s_val)
+                target_duck = 0.45 if abs_s > 1400 else (0.70 if abs_s > 500 else 1.0)
+                ducking += (target_duck - ducking) * 0.001
+                b_val = int(bgm_samples[i] * ducking)
                 combined_samples.append(max(-32768, min(32767, s_val + b_val)))
 
             # Overlay Synchronized Cinematic Sound FX (Booms, Whooshes, Chimes, Rustles)
             try:
                 from src.engines.render.sound_fx_engine import SoundFXEngine
-                if storyboard:
+                from src.services.config_loader import load_json
+                if storyboard and load_json("audio.json").get("scene_change_sfx", False):   # booms, whooshes and chimes at every cut
                     combined_samples = SoundFXEngine.overlay_storyboard_sfx(
                         base_samples=combined_samples,
                         storyboard=storyboard,
@@ -116,7 +151,8 @@ class AudioMixer:
 
             mixed_frames = bytearray()
             for val in combined_samples:
-                mixed_frames.extend(struct.pack("<h", max(-32768, min(32767, val))))
+                clipped = max(-32768, min(32767, val))
+                mixed_frames.extend(struct.pack("<h", clipped) * s_channels)
 
             with wave.open(output_mixed_path, "wb") as out_wav:
                 out_wav.setnchannels(s_channels)

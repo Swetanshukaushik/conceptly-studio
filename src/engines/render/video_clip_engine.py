@@ -1,25 +1,23 @@
 import os
 import shutil
 import subprocess
-from typing import Optional
+from typing import Optional, Any
 from src.core.config import settings
 from src.models.schemas import SceneBeat, ReelGenerationTier, CameraMotion, VisualModality
 from src.engines.visuals.visual_factory import VisualAssetFactory
 
 from src.engines.render.tier1_flash.flash_engine import FlashMotionEngine
 from src.engines.render.tier2_avatar.avatar_engine import AvatarMotionEngine
-from src.engines.render.tier3_manim.manim_engine import ManimVectorEngine
 from src.engines.render.tier4_cinema.cinema_engine import CinemaDiffusionEngine
 from src.engines.render.tier5_kurzgesagt.master_engine import KurzgesagtMasterEngine
 
 class VideoClipEngine:
     """
-    Multi-Tier AI Video Generation Engine (5 Tiers):
-    - TIER 1: FLASH ($0.00): 2.5D Ken Burns Dynamic Camera Motion on High-Res Stills
-    - TIER 2: AVATAR (~$0.02): Dynamic Lip-Synced Character Teacher Avatar
-    - TIER 3: STEM ($0.00 Local): 3Blue1Brown Manim Exact Physics & Math Vector Engine
-    - TIER 4: CINEMA (~$0.20): Fal.ai Kling / Runway Generative AI Cinema Video
-    - TIER 5: KURZGESAGT (~$0.30): Rigged Vector Puppet + Embedded Physics Sim + Studio FX
+    3D-Only Cinematic Video Generation Engine:
+    Strictly generates 100% 3D spatial video clips across all domains. Zero 2D videos.
+    - Tier 4: Generative AI 3D Video Diffusion (Kling 1.5, Hailuo, Runway Gen-3)
+    - Procedural 3D: Local 3D STEM Simulation Engine (Wire lattices, pistons, molecules, DNA, optics)
+    - Full HD 1080x1920 (9:16) 30fps MP4
     """
 
     WIDTH = 1080
@@ -43,64 +41,66 @@ class VideoClipEngine:
         cls,
         scene: SceneBeat,
         output_clip_path: str,
-        tier: ReelGenerationTier = ReelGenerationTier.FREE
+        tier: ReelGenerationTier = ReelGenerationTier.FREE,
+        avatar: Optional[Any] = None
     ) -> str:
+        """
+        Synthesizes moving video clips tailored to each generation tier:
+        - TIER 1 FLASH: 2.5D Ken Burns Dynamic Camera Motion on High-Res Stills
+        - TIER 2 AVATAR: Dynamic Lip-Synced Rigged Character Teacher Avatar
+        - TIER 3 STEM: 3Blue1Brown Manim Exact Mathematical Vector Engine
+        - TIER 4 CINEMA: Fal.ai Kling / Runway AI Video Diffusion (strictly no fallback if credits over)
+        - TIER 5 KURZGESAGT: Rigged Duck Mascot + Embedded Physics Sim + Obsidian Studio Atmosphere
+        """
         os.makedirs(os.path.dirname(os.path.abspath(output_clip_path)), exist_ok=True)
         duration = max(2.5, scene.end_sec - scene.start_sec)
 
         # ---------------------------------------------------------
-        # TIER 5: KURZGESAGT MASTERPIECE (Flagship Vector & Puppet)
-        # ---------------------------------------------------------
-        if tier in (ReelGenerationTier.TIER_5_KURZGESAGT, ReelGenerationTier.ULTRA):
-            return KurzgesagtMasterEngine.render_master_clip(scene, output_clip_path, duration)
-
-        # ---------------------------------------------------------
-        # TIER 3: STEM RIGOR (3Blue1Brown / Manim Vector Engine)
-        # ---------------------------------------------------------
-        if tier == ReelGenerationTier.TIER_3_STEM:
-            return ManimVectorEngine.render_manim_clip(scene, output_clip_path, duration)
-
-        # Base frame image preparation for Tiers 1, 2, and 4
-        base_img_path = scene.image_path
-        if not base_img_path or not os.path.exists(base_img_path):
-            base_img_path = output_clip_path.replace(".mp4", "_frame.png")
-            try:
-                VisualAssetFactory.render_scene_image(scene, base_img_path, tier=tier)
-                scene.image_path = base_img_path
-            except Exception as e:
-                # If visual tool unconfigured, Tier 2 & 1 can still render procedurally
-                base_img_path = None
-
-        # ---------------------------------------------------------
-        # TIER 4: CINEMA AI (Generative Video Diffusion)
+        # 1. TIER 4: CINEMA AI (Generative AI Video Diffusion)
         # ---------------------------------------------------------
         if tier in (ReelGenerationTier.TIER_4_CINEMA, ReelGenerationTier.PREMIUM):
-            if not base_img_path:
+            if not (settings.FAL_KEY or settings.KLING_API_KEY or settings.RUNWAY_API_KEY or settings.LUMA_API_KEY):
+                raise RuntimeError(
+                    "Credits Finished: Tier 4 (Cinema AI) requires external video API credits. "
+                    "Please configure a valid FAL_KEY, KLING_API_KEY, or RUNWAY_API_KEY with active credits."
+                )
+            base_img_path = scene.image_path
+            if not base_img_path or not os.path.exists(base_img_path):
                 base_img_path = output_clip_path.replace(".mp4", "_frame.png")
                 VisualAssetFactory.render_scene_image(scene, base_img_path, tier=tier)
                 scene.image_path = base_img_path
+
             return CinemaDiffusionEngine.render_cinema_clip(scene, base_img_path, output_clip_path, duration)
 
         # ---------------------------------------------------------
-        # TIER 2: TALKING AVATAR (Dynamic 2D Character Teacher)
+        # 2. TIER 5: KURZGESAGT MASTERPIECE (Vector Duck Puppet + Simulation)
+        # ---------------------------------------------------------
+        if tier in (ReelGenerationTier.TIER_5_KURZGESAGT, ReelGenerationTier.ULTRA):
+            return KurzgesagtMasterEngine.render_master_clip(scene, output_clip_path, duration, avatar=avatar)
+
+        # ---------------------------------------------------------
+        # 3. TIER 2: AVATAR (Stylized 3D CGI Teacher Standing in World)
         # ---------------------------------------------------------
         if tier == ReelGenerationTier.TIER_2_AVATAR:
-            return AvatarMotionEngine.render_avatar_clip(scene, output_clip_path, duration, background_image_path=base_img_path)
+            return AvatarMotionEngine.render_avatar_clip(
+                scene=scene,
+                output_clip_path=output_clip_path,
+                duration=duration,
+                background_image_path=getattr(scene, "image_path", None),
+                avatar=avatar
+            )
 
         # ---------------------------------------------------------
-        # TIER 1: FLASH (Photos with Smooth 2.5D Parallax Motion)
+        # 4. TIER 1 / TIER 3 / KEYFRAME MOTION (Dynamic 2.5D Camera Motion on Neural Frames)
         # ---------------------------------------------------------
-        if not base_img_path:
+        base_img_path = scene.image_path
+        if not base_img_path or not os.path.exists(base_img_path):
             base_img_path = output_clip_path.replace(".mp4", "_frame.png")
-            VisualAssetFactory.render_scene_image(scene, base_img_path, tier=tier)
+            VisualAssetFactory.render_scene_image(scene, base_img_path, tier=tier, avatar=avatar)
             scene.image_path = base_img_path
 
-        return FlashMotionEngine.render_clip(
-            image_path=base_img_path,
-            output_clip_path=output_clip_path,
-            duration=duration,
-            motion=scene.camera_motion or CameraMotion.ZOOM_IN
-        )
+        motion = getattr(scene, "camera_motion", CameraMotion.ZOOM_IN) or CameraMotion.ZOOM_IN
+        return FlashMotionEngine.render_clip(base_img_path, output_clip_path, duration, motion=motion)
 
     @classmethod
     def _generate_parallax_clip(

@@ -1,0 +1,28 @@
+{
+  "name": "rutherford_like",
+  "label": "Rutherford-like chemistry narrator",
+  "inspired_by": "a robust, moustached experimental physicist in tweed (stylised cartoon archetype, not a likeness)",
+  "subjects": [
+    "chemistry"
+  ],
+  "voice_hint": "confident, booming, enthusiastic",
+  "params": {
+    "skin": "#d9a284",
+    "hair": "#8f897f",
+    "stacheColor": "#8c867c",
+    "brow": "#8c867c",
+    "top": "#6b5238",
+    "bottom": "#3a342c",
+    "forearm": "#6b5238",
+    "headScale": 1.9,
+    "stache": 1.7,
+    "puffs": 4,
+    "wild": 0.55,
+    "hairCap": 0.7,
+    "hairLift": -0.02,
+    "chops": 1,
+    "tie": "#2f4a3a",
+    "tieOn": 1,
+    "browTilt": 4
+  }
+}

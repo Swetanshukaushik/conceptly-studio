@@ -1,0 +1,169 @@
+{
+ "about": "Interior hall or chamber seen from the front: floor, back wall, side walls, a row of columns and a ceiling beam. Use as the set for assemblies, courts, palaces, schools, museums. Origin at floor centre; the back wall is at z=-depth/2.",
+ "params_doc": {
+  "width": "hall width",
+  "depth": "hall depth",
+  "height": "hall height",
+  "columns": "columns per side",
+  "wall": "wall colour",
+  "floor": "floor colour",
+  "accent": "column colour"
+ },
+ "params": {
+  "width": 6,
+  "depth": 6,
+  "height": 4.2,
+  "columns": 3,
+  "wall": "#7d6b55",
+  "floor": "#4a3b2d",
+  "accent": "#a89478"
+ },
+ "objects": [
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    0.12,
+    "${depth}"
+   ],
+   "bevel": 0.02,
+   "material": {
+    "color": "${floor}",
+    "roughness": 0.45,
+    "metalness": 0,
+    "pattern": {
+     "kind": "checker",
+     "count": 14
+    }
+   },
+   "position": [
+    0,
+    -0.06,
+    0
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    "${height}",
+    0.2
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "${wall}",
+    "roughness": 0.9,
+    "metalness": 0,
+    "pattern": {
+     "kind": "bricks",
+     "count": 16
+    }
+   },
+   "position": [
+    0,
+    "${height}/2",
+    "-${depth}/2"
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    0.2,
+    "${height}",
+    "${depth}"
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "${wall}",
+    "roughness": 0.9,
+    "metalness": 0
+   },
+   "position": [
+    "-${width}/2",
+    "${height}/2",
+    0
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    0.2,
+    "${height}",
+    "${depth}"
+   ],
+   "bevel": 0.03,
+   "material": {
+    "color": "${wall}",
+    "roughness": 0.9,
+    "metalness": 0
+   },
+   "position": [
+    "${width}/2",
+    "${height}/2",
+    0
+   ]
+  },
+  {
+   "type": "box",
+   "size": [
+    "${width}",
+    0.3,
+    0.4
+   ],
+   "bevel": 0.06,
+   "material": {
+    "color": "${accent}",
+    "roughness": 0.6,
+    "metalness": 0
+   },
+   "position": [
+    0,
+    "${height}-0.15",
+    "-${depth}/2+0.3"
+   ]
+  },
+  {
+   "repeat": "${columns}",
+   "type": "cylinder",
+   "radius": 0.22,
+   "height": "${height}-0.3",
+   "material": {
+    "color": "${accent}",
+    "roughness": 0.55,
+    "metalness": 0
+   },
+   "position": [
+    "-${width}/2+0.5",
+    "(${height}-0.3)/2",
+    "-${depth}/2+0.9+(${depth}-1.6)*${i}/(${n}-0.999)"
+   ]
+  },
+  {
+   "repeat": "${columns}",
+   "type": "cylinder",
+   "radius": 0.22,
+   "height": "${height}-0.3",
+   "material": {
+    "color": "${accent}",
+    "roughness": 0.55,
+    "metalness": 0
+   },
+   "position": [
+    "${width}/2-0.5",
+    "(${height}-0.3)/2",
+    "-${depth}/2+0.9+(${depth}-1.6)*${i}/(${n}-0.999)"
+   ]
+  }
+ ],
+ "bounds": {
+  "size": [
+   6,
+   4.2
+  ],
+  "center": [
+   0,
+   2.1
+  ]
+ },
+ "background": true
+}

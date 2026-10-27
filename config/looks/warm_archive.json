@@ -1,0 +1,138 @@
+{
+  "name": "warm_archive",
+  "description": "Warm cinematic museum/archive mood: amber light, dark wood-and-stone tones, dust glow. Best for history, civics, UPSC, biographies; supports archival photos placed as image objects.",
+  "palette": {
+    "ink": "#fbf3e4",
+    "muted": "#b9a789",
+    "primary": "#f2b04a",
+    "secondary": "#c8553d",
+    "accent": "#ffd98a",
+    "warn": "#e04a3a",
+    "good": "#8fbf6a",
+    "surface": "#1c140d"
+  },
+  "background": {
+    "top": "#0d0805",
+    "bottom": "#2a1a0e"
+  },
+  "fog": {
+    "color": "#150d07",
+    "near": 10,
+    "far": 34
+  },
+  "exposure": 0.95,
+  "environment": {
+    "intensity": 0.5
+  },
+  "lights": [
+    {
+      "type": "ambient",
+      "color": "#ffcf9a",
+      "intensity": 0.4
+    },
+    {
+      "type": "directional",
+      "color": "#ffd9a0",
+      "intensity": 1.9,
+      "position": [
+        -6,
+        8,
+        5
+      ],
+      "castShadow": true
+    },
+    {
+      "type": "point",
+      "color": "#ff9a3c",
+      "intensity": 14,
+      "position": [
+        3,
+        2.5,
+        2
+      ],
+      "distance": 18
+    }
+  ],
+  "floor": {
+    "enabled": true,
+    "y": 0,
+    "color": "#1b120b",
+    "roughness": 0.35,
+    "metalness": 0.2,
+    "reflectMix": 0.35,
+    "grid": {
+      "color": "#f2b04a",
+      "spacing": 1,
+      "opacity": 0.25,
+      "size": 80
+    },
+    "size": 60
+  },
+  "post": {
+    "bloom": {
+      "strength": 0.22,
+      "radius": 0.55,
+      "threshold": 0.95
+    },
+    "vignette": 0.55,
+    "grain": 0.04,
+    "chromatic": 0.0008,
+    "contrast": 1.1,
+    "saturation": 1.0
+  },
+  "materials": {
+    "stone": {
+      "color": "#7a6d5c",
+      "metalness": 0,
+      "roughness": 0.9
+    },
+    "wood": {
+      "color": "#6b4426",
+      "metalness": 0,
+      "roughness": 0.6,
+      "clearcoat": 0.2
+    },
+    "gold": {
+      "color": "#e8b84a",
+      "metalness": 1,
+      "roughness": 0.25
+    },
+    "metal": {
+      "color": "#b9b2a6",
+      "metalness": 1,
+      "roughness": 0.35
+    },
+    "paper": {
+      "color": "#c9bc9f",
+      "metalness": 0,
+      "roughness": 0.95
+    },
+    "cloth": {
+      "color": "#a23b2a",
+      "metalness": 0,
+      "roughness": 0.9,
+      "sheen": 1
+    },
+    "glow": {
+      "color": "#ffb347",
+      "emissive": "#ffb347",
+      "emissiveIntensity": 1.4,
+      "metalness": 0,
+      "roughness": 0.5
+    },
+    "matte": {
+      "color": "#9a8b78",
+      "metalness": 0,
+      "roughness": 0.85
+    },
+    "glass": {
+      "color": "#fff1d6",
+      "metalness": 0,
+      "roughness": 0.05,
+      "transmission": 1,
+      "thickness": 0.5,
+      "ior": 1.5,
+      "opacity": 1
+    }
+  }
+}
