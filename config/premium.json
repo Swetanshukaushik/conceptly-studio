@@ -1,0 +1,195 @@
+{
+  "max_images_per_reel": 16,
+  "regenerations_per_shot": 1,
+  "judge": {
+    "min_score": 6,
+    "profile": "vision"
+  },
+  "consistency": {
+    "min_score": 6,
+    "min_images": 3
+  },
+  "stop_generating_on_status": [
+    401,
+    402,
+    403,
+    429
+  ],
+  "styles": {
+    "history_civics": {
+      "look": "warm_archive",
+      "medium": "painterly editorial illustration, like a high-end documentary graphic novel",
+      "palette": "warm muted earth tones (ochre, umber, faded teal) with one saturated accent colour",
+      "lighting": "soft low golden light, gentle haze",
+      "lens": "35mm cinematic framing, shallow depth of field",
+      "era_note": "period-accurate clothing, architecture and objects for the era in the narration; no modern items"
+    },
+    "biology": {
+      "look": "daylight_studio",
+      "medium": "clean scientific illustration, like a modern textbook cutaway with soft shading",
+      "palette": "oxygenated structures in warm red, deoxygenated in blue, tissue in soft cream and pink, neutral light background",
+      "lighting": "even soft studio light, subtle rim light",
+      "lens": "orthographic or slight three-quarter view, centred subject",
+      "era_note": "anatomically plausible and simple; no gore, no clutter"
+    },
+    "default": {
+      "look": "warm_archive",
+      "medium": "painterly editorial illustration",
+      "palette": "muted palette with one accent colour",
+      "lighting": "soft cinematic light",
+      "lens": "35mm cinematic framing",
+      "era_note": ""
+    }
+  },
+  "style_template": "Style for the whole video (keep identical in every image): {medium}. Palette: {palette}. Lighting: {lighting}. Camera: {lens}. {era_note} Vertical 9:16 composition with the main subject large and centred in the middle 60 percent of the frame, the top fifth and bottom fifth calm and uncluttered.",
+  "negative": "Absolutely no text, letters, numbers, captions, signs with writing, watermarks or logos anywhere in the image. No real-person likeness or celebrity faces. No extra fingers or limbs, no distorted faces, no modern objects in historical scenes.",
+  "policy": {
+    "banned_prompt_phrases": [
+      "text saying",
+      "caption",
+      "sign reading",
+      "that says",
+      "the words",
+      "logo",
+      "watermark",
+      "in the style of",
+      "photo of the real"
+    ],
+    "named_person_replacement": "a figure in period dress",
+    "max_prompt_chars": 700
+  },
+  "motions": {
+    "push_in": {
+      "d": [
+        0.8,
+        0.62
+      ],
+      "x": [
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0
+      ]
+    },
+    "pull_out": {
+      "d": [
+        0.62,
+        0.8
+      ],
+      "x": [
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0
+      ]
+    },
+    "pan_left": {
+      "d": [
+        0.72,
+        0.72
+      ],
+      "x": [
+        0.7,
+        -0.7
+      ],
+      "y": [
+        0,
+        0
+      ]
+    },
+    "pan_right": {
+      "d": [
+        0.72,
+        0.72
+      ],
+      "x": [
+        -0.7,
+        0.7
+      ],
+      "y": [
+        0,
+        0
+      ]
+    },
+    "drift_up": {
+      "d": [
+        0.72,
+        0.72
+      ],
+      "x": [
+        0,
+        0
+      ],
+      "y": [
+        -0.9,
+        0.9
+      ]
+    },
+    "drift_down": {
+      "d": [
+        0.72,
+        0.72
+      ],
+      "x": [
+        0,
+        0
+      ],
+      "y": [
+        0.9,
+        -0.9
+      ]
+    }
+  },
+  "plane": {
+    "height": 10.0,
+    "aspect": 0.5625
+  },
+  "dust": {
+    "enabled": true,
+    "count": 45
+  },
+  "judge_prompt": "You review one generated still for a short educational video. Narration for this moment: \"{narration}\". The picture was requested as: \"{prompt}\". Score 0-10 how well it shows what the narration needs, as a clean, correct, usable image. Deduct heavily for: any visible text, letters or numbers; garbled or extra hands, fingers, limbs or faces; anachronisms (modern objects in a historical scene); wrong anatomy for biology; a subject that does not match the request; a cluttered or off-centre composition. Reply with JSON only: {\"score\": 0-10, \"issues\": [\"short issue\"]}",
+  "consistency_prompt": "This image is a contact sheet of the stills of ONE short video, in order. Score 0-10 how consistent they look as a single video: same medium, palette, lighting and level of detail, and recurring subjects drawn the same way. Reply with JSON only: {\"score\": 0-10, \"issues\": [\"short issue\"]}",
+  "facts": {
+    "max_sources": 3,
+    "max_source_chars": 3500,
+    "max_claims": 12,
+    "min_supported_fraction": 0.5,
+    "prompt": "You fact-check a short educational narration against source extracts. First list the checkable claims the narration states (dates, years, names, places, titles, quantities, causal statements about events). Then judge each against the sources only: \"supported\" (a source says the same), \"contradicted\" (a source says something different), or \"unverified\" (the sources do not cover it; do not use your own memory). Reply with JSON only: {\"claims\": [{\"claim\": \"short claim\", \"verdict\": \"supported|contradicted|unverified\", \"source\": \"source title or empty\", \"note\": \"one short sentence\"}]}.\n\nNarration:\n{narration}\n\nSources:\n{sources}"
+  },
+  "voice": {
+    "provider": "gemini_tts",
+    "model": "gemini-3.8-flash-tts",
+    "voice_name": "Kore",
+    "price_per_10s_usd": 0.00225,
+    "sample_rate": 24000
+  },
+  "supported_packs": [
+    "history_civics",
+    "biology",
+    "generic"
+  ],
+  "hero": {
+    "enabled": true,
+    "first_shot_only": true
+  },
+  "sharing": {
+    "max_unique_fraction": 0.6,
+    "complement": {
+      "push_in": "pull_out",
+      "pull_out": "push_in",
+      "pan_left": "pan_right",
+      "pan_right": "pan_left",
+      "drift_up": "drift_down",
+      "drift_down": "drift_up"
+    }
+  },
+  "cache": {
+    "enabled": true,
+    "dir": "cache/premium_images"
+  }
+}

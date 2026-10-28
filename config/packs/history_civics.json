@@ -30,13 +30,12 @@
     "timeline"
   ],
   "verification": [
-    "source_retrieval_planned",
-    "date_check_planned"
+    "source_check"
   ],
   "persona": null,
   "tiers": {
     "free": "partial",
-    "premium": "planned"
+    "premium": "partial"
   },
   "prompt": "packs/history_civics.md"
 }

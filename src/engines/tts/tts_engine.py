@@ -253,6 +253,72 @@ class ElevenLabsEngine(BaseTTSEngine):
             print(f"⚠️ ElevenLabs API failed: {e}. Falling back to EdgeTTS...")
             return EdgeTTSEngine().synthesize(text, output_audio_path, voice)
 
+class GeminiTTSEngine(BaseTTSEngine):
+    """Premium narration voice (Gemini TTS over REST). Spend goes through the reel's ledger; any failure falls back to EdgeTTS.
+
+    The API returns audio without word timings, so timings are spread over the real duration in proportion to word length.
+    """
+
+    def __init__(self, ledger=None, transport=None):
+        self.ledger, self.transport = ledger, transport
+
+    @staticmethod
+    def _weighted_timestamps(text: str, duration: float, lead: float = 0.15) -> List[WordTimestamp]:
+        words = text.split()
+        if not words:
+            return []
+        weights = [len(w.strip(".,!?;:")) + 2 for w in words]
+        span = max(0.5, duration - lead); total = sum(weights); out, t = [], lead
+        for w, wt in zip(words, weights):
+            d = span * wt / total
+            out.append(WordTimestamp(word=w, start_sec=round(t, 3), end_sec=round(t + d * 0.92, 3))); t += d
+        return out
+
+    def synthesize(self, text: str, output_audio_path: str, voice: Optional[str] = None, **_: object) -> List[WordTimestamp]:
+        import base64
+        from src.services.config_loader import load_json
+        cfg = load_json("premium.json")["voice"]
+        speech_text = AcousticTextNormalizer.normalize_for_speech(text) or text
+        try:
+            key = settings.GEMINI_API_KEY
+            if not key and not self.transport:
+                raise RuntimeError("GEMINI_API_KEY is not set")
+            est_seconds = max(1.0, len(speech_text.split()) / 2.4)
+            est = cfg["price_per_10s_usd"] * est_seconds / 10
+            token = self.ledger.reserve("tts", cfg["model"], est, "narration") if self.ledger else None
+            voice_name = voice if voice and "Neural" not in voice else cfg["voice_name"]
+            body = {"contents": [{"parts": [{"text": speech_text}]}],
+                    "generationConfig": {"responseModalities": ["AUDIO"], "speechConfig": {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice_name}}}}}
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{cfg['model']}:generateContent"
+            try:
+                if self.transport:
+                    status, payload = self.transport(url, body)
+                else:
+                    import httpx
+                    r = httpx.post(url, json=body, headers={"x-goog-api-key": key}, timeout=180)
+                    status, payload = r.status_code, (r.json() if r.content else {})
+                if status != 200:
+                    raise RuntimeError(f"Gemini TTS returned {status}: {((payload or {}).get('error') or {}).get('message', '')[:120]}")
+                part = next((p for p in (((payload.get("candidates") or [{}])[0].get("content") or {}).get("parts") or []) if p.get("inlineData") or p.get("inline_data")), None)
+                if not part:
+                    raise RuntimeError("Gemini TTS returned no audio")
+                pcm = base64.b64decode((part.get("inlineData") or part.get("inline_data"))["data"])
+            except Exception as exc:
+                if token is not None:
+                    self.ledger.release(token, str(exc))
+                raise
+            os.makedirs(os.path.dirname(os.path.abspath(output_audio_path)), exist_ok=True)
+            with wave.open(output_audio_path, "w") as wav:
+                wav.setnchannels(1); wav.setsampwidth(2); wav.setframerate(cfg["sample_rate"]); wav.writeframes(pcm)
+            duration = len(pcm) / 2 / cfg["sample_rate"]
+            if token is not None:
+                self.ledger.commit(token, cfg["price_per_10s_usd"] * duration / 10, seconds=round(duration, 1))
+            return self._weighted_timestamps(speech_text, duration)
+        except Exception as e:
+            print(f"⚠️ Gemini TTS failed: {e}. Falling back to EdgeTTS...")
+            return EdgeTTSEngine().synthesize(text, output_audio_path)
+
+
 class MockTTSEngine(BaseTTSEngine):
     """
     Offline Mock Audio Generator:
@@ -313,7 +379,11 @@ class MockTTSEngine(BaseTTSEngine):
 
 class TTSFactory:
     @staticmethod
-    def get_engine(tier: ReelGenerationTier = ReelGenerationTier.FREE) -> BaseTTSEngine:
+    def get_engine(tier: ReelGenerationTier = ReelGenerationTier.FREE, ledger=None) -> BaseTTSEngine:
+        if tier == ReelGenerationTier.PREMIUM and settings.GEMINI_API_KEY:
+            from src.services.config_loader import load_json
+            if load_json("premium.json")["voice"]["provider"] == "gemini_tts":
+                return GeminiTTSEngine(ledger=ledger)
         if tier in (ReelGenerationTier.ULTRA, ReelGenerationTier.PREMIUM) and settings.ELEVENLABS_API_KEY:
             return ElevenLabsEngine()
         return EdgeTTSEngine()

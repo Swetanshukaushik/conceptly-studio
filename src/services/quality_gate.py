@@ -119,9 +119,27 @@ def evaluate(script: Dict[str, Any], quiz_issues: Optional[List[str]] = None, ti
     add("qa_notes", f"At most {cfg['max_qa_notes']} layout notes", len(qa) <= cfg["max_qa_notes"], f"{len(qa)} notes")
 
     kinds = {o.get("kind") for s in scenes for o in (s.get("scene3d") or {}).get("overlays", [])}
-    add("variety", f"At least {cfg['min_distinct_overlay_kinds']} kinds of on-screen elements", len(kinds) >= cfg["min_distinct_overlay_kinds"], ", ".join(sorted(k for k in kinds if k)))
+    if not script.get("premium"):   # Premium scenes are single generated stills; variety comes from the images and camera moves
+        add("variety", f"At least {cfg['min_distinct_overlay_kinds']} kinds of on-screen elements", len(kinds) >= cfg["min_distinct_overlay_kinds"], ", ".join(sorted(k for k in kinds if k)))
 
     add("quiz", "Quiz answers agree with the narration", not quiz_issues, "; ".join(quiz_issues or [])[:200])
+
+    prem = script.get("premium")
+    if prem:
+        pc = cfg["premium"]; img = prem.get("images", {}); total_imgs = max(1, sum(v for k, v in img.items() if k != "shared"))
+        frac = img.get("generated", 0) / total_imgs
+        add("images_generated", f"At least {int(pc['min_generated_fraction'] * 100)}% of stills are generated", frac >= pc["min_generated_fraction"],
+            f"{img.get('generated', 0)} generated, {img.get('archive', 0)} archive, {img.get('archive_fallback', 0)} fallback, {img.get('none', 0)} none")
+        scores = [v["score"] for v in prem.get("per_beat", {}).values() if v.get("source") == "generated" and v.get("score") is not None]
+        add("image_quality", f"Generated stills score {pc['min_image_score']}+/10 on review", all(sc >= pc["min_image_score"] for sc in scores), f"lowest {min(scores):g}" if scores else "no reviewed stills")
+        cons = (prem.get("consistency") or {}).get("score")
+        add("consistency", f"Stills look like one video ({pc['min_consistency']}+/10)", cons is None or cons >= pc["min_consistency"], "not reviewed" if cons is None else f"{cons:g}/10")
+        fr = prem.get("facts") or {}
+        add("facts", "No claim contradicts its sources", fr.get("status") != "flagged",
+            ("; ".join(f"{c['claim']} ({c.get('note', '')})" for c in fr.get("claims", []) if c.get("verdict") == "contradicted")[:200]) if fr.get("status") == "flagged"
+            else f"{fr.get('status', 'not run')}: {fr.get('supported', 0)} supported, {fr.get('unverified', 0)} unverified")
+        cost = prem.get("cost") or {}
+        add("cost", "Spend within the per-reel cap", cost.get("spent_usd", 0) <= cost.get("cap_usd", 0) + 1e-9, f"${cost.get('spent_usd', 0):.3f} of ${cost.get('cap_usd', 0):.2f}")
 
     ok = sum(1 for c in checks if c["ok"])
     return {"passed": all(c["ok"] for c in checks if c["blocking"]), "score": f"{ok}/{len(checks)}", "checks": checks}

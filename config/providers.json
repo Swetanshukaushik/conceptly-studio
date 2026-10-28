@@ -1,0 +1,36 @@
+{
+  "image": {
+    "default_model": "gemini-3.1-flash-lite-image",
+    "hero_model": "gemini-3.1-flash-image",
+    "aspect_ratio": "9:16",
+    "timeout_seconds": 180,
+    "models": {
+      "gemini-3.1-flash-lite-image": {
+        "provider": "gemini",
+        "price_usd": 0.034,
+        "price_note": "Google pricing page, 2026-10-27, about 1K image"
+      },
+      "gemini-3.1-flash-image": {
+        "provider": "gemini",
+        "price_usd": 0.067,
+        "price_note": "Google pricing page, 2026-10-27, 0.045 to 0.151 by size; mid value until measured"
+      },
+      "gemini-3-pro-image": {
+        "provider": "gemini",
+        "price_usd": 0.134,
+        "price_note": "Google pricing page, 2026-10-27"
+      }
+    }
+  },
+  "ledger": {
+    "cap_usd_default": 1.5,
+    "safety_margin": 1.0
+  },
+  "tts": {
+    "gemini-3.8-flash-tts": {
+      "provider": "gemini",
+      "price_per_10s_usd": 0.00225,
+      "price_note": "Google pricing page, 2026-10-27"
+    }
+  }
+}

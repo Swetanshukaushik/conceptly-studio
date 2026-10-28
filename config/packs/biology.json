@@ -18,12 +18,12 @@
     "image_resolver"
   ],
   "verification": [
-    "source_retrieval_planned"
+    "source_check"
   ],
   "persona": null,
   "tiers": {
     "free": "partial",
-    "premium": "planned"
+    "premium": "partial"
   },
   "prompt": "packs/biology.md"
 }

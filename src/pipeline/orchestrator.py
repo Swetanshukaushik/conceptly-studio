@@ -197,6 +197,7 @@ class PipelineOrchestrator:
             assets_dir = os.path.join(job_output_dir, "assets")
             os.makedirs(frames_dir, exist_ok=True)
 
+            premium_record = None
             if use_3d:
                 cls._update_stage(db, job_id, "SCRIPTWRITING", "IN_PROGRESS", 80, "Designing 3D scenes for each narration beat...")
                 from src.agents.scene3d_director import Scene3DDirector
@@ -204,15 +205,25 @@ class PipelineOrchestrator:
                 from src.services.concept_router import route as route_topic
                 route = route_topic(job.subject, job.topic_title, tier=tier, provider=script_gen)
                 cls._update_stage(db, job_id, "SCRIPTWRITING", "IN_PROGRESS", 80, f"Routed to the {route['label']} pack ({route['method']}). Designing 3D scenes...")
-                storyboard = Scene3DDirector.direct_storyboard(
-                    route=route, script=script, subject=job.subject, class_level=job.class_level, exam_type=job.exam_type,
-                    assets_dir=assets_dir, tier=tier, provider=script_gen
-                )
+                from src.services.config_loader import load_json as _cfg
+                premium_record = None
+                if tier_cfg.get("scene_mode") == "generated_stills" and route["pack"] in _cfg("premium.json")["supported_packs"]:
+                    from src.services.premium.director import direct_premium_storyboard
+                    cls._update_stage(db, job_id, "SCRIPTWRITING", "IN_PROGRESS", 82, "Planning shots and generating stills under the spend cap...")
+                    result = direct_premium_storyboard(script=script, subject=job.subject, class_level=job.class_level, exam_type=job.exam_type,
+                                                       assets_dir=assets_dir, tier=tier, provider=script_gen, route=route)
+                    storyboard, premium_record = result["storyboard"], result["premium"]
+                else:
+                    storyboard = Scene3DDirector.direct_storyboard(
+                        route=route, script=script, subject=job.subject, class_level=job.class_level, exam_type=job.exam_type,
+                        assets_dir=assets_dir, tier=tier, provider=script_gen
+                    )
+                    if tier_cfg.get("scene_mode") == "generated_stills":
+                        storyboard.qa = (storyboard.qa or []) + [f"{route['label']} renders on the in-house 3D engine inside Premium; the premium voice still applies."]
                 # Gate 1 previews come from the same 3D scenes the final video plays, one frame per scene.
                 # Vision QA scores each frame and re-designs low-scoring beats once before the creator sees them.
-                from src.services.config_loader import load_json as _cfg
                 qa_notes = list(storyboard.qa or [])
-                if _cfg("qa.json").get("enabled", True):
+                if premium_record is None and _cfg("qa.json").get("enabled", True):
                     cls._update_stage(db, job_id, "SCRIPTWRITING", "IN_PROGRESS", 90, "Vision QA: reviewing each 3D scene...")
                     qa_notes += Scene3DDirector.vision_review(storyboard, assets_dir, frames_dir, tier=tier, provider=script_gen)
                     for scene in storyboard.scenes:
@@ -266,6 +277,8 @@ class PipelineOrchestrator:
             if quiz_issues:
                 script_dict.pop("pending_quiz", None)   # a quiz that disagrees with the narration is regenerated after Gate 1 instead of shipped
                 script_dict["quiz_check"] = {"dropped_pending_quiz": quiz_issues}
+            if use_3d and premium_record is not None:
+                script_dict["premium"] = premium_record
             script_dict["quality_gate"] = quality_gate.evaluate(script_dict, tier_limits=get_tier(job.generation_tier).get("limits"))
             job.script_data = json.dumps(script_dict)
 
@@ -440,7 +453,13 @@ class PipelineOrchestrator:
 
             # 1. Voice Synthesis & Word Chronometry directly from scene lines for 1-to-1 sync
             cls._update_stage(db, job_id, "VOICE_SYNTHESIS", "IN_PROGRESS", 20, f"Synthesizing neural speech ({tier.value} tier)...")
-            tts_engine = TTSFactory.get_engine(tier)
+            premium_ledger = None
+            if tier == ReelGenerationTier.PREMIUM and script_dict.get("premium"):
+                from src.services.media.ledger import SpendLedger
+                carried = script_dict["premium"].get("cost") or {}
+                premium_ledger = SpendLedger(carried.get("cap_usd") or get_tier(job.generation_tier)["cost_cap_usd"])
+                premium_ledger.carry(carried.get("spent_usd", 0.0), "image generation")
+            tts_engine = TTSFactory.get_engine(tier, ledger=premium_ledger)
             
             # Crucial: Synthesize from richly punctuated acts to preserve natural breathing, suspense pauses, and curious questions
             if script.acts:
@@ -469,6 +488,13 @@ class PipelineOrchestrator:
                 )
             else:
                 word_timestamps = tts_engine.synthesize(full_speech_text, raw_audio_path, voice=avatar_voice)
+            if premium_ledger is not None:
+                script_dict["premium"]["cost"] = {k: v for k, v in premium_ledger.to_dict().items()}
+                for e in script_dict["premium"]["cost"]["entries"]:
+                    e.pop("token", None)
+                from src.services import quality_gate as _qg
+                script_dict["quality_gate"] = _qg.evaluate(script_dict, quiz_issues=(script_dict.get("quiz_check") or {}).get("issues"), tier_limits=get_tier(job.generation_tier).get("limits"))
+                job.script_data = json.dumps(script_dict); db.commit()
             cls._update_stage(db, job_id, "VOICE_SYNTHESIS", "COMPLETED", 100, f"Extracted {len(word_timestamps)} word boundary timestamps.")
 
             # Align scene cuts to exact spoken audio chronometry
@@ -493,7 +519,7 @@ class PipelineOrchestrator:
             final_mp4_path = os.path.join(job_output_dir, f"reel_{job_id}.mp4")
 
             # Enforce External Video Tool Requirement: strictly NO fallbacks
-            if tier in (ReelGenerationTier.PREMIUM, ReelGenerationTier.ULTRA):
+            if tier == ReelGenerationTier.ULTRA or (tier == ReelGenerationTier.PREMIUM and get_tier(job.generation_tier)["renderer"] != "studio3d"):
                 if not (settings.FAL_KEY or settings.KLING_API_KEY or settings.RUNWAY_API_KEY or settings.LUMA_API_KEY):
                     raise RuntimeError(
                         f"Missing External Video AI Tool: Tier '{tier.value}' requires an external video diffusion model. "
