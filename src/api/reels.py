@@ -595,6 +595,28 @@ def regenerate_scene_visual(
     img_path = os.path.join(frames_dir, f"scene_{scene.scene_number:02d}.png")
     
     from src.services.tiers import get_tier
+    if script_dict.get("premium") and get_tier(job.generation_tier).get("scene_mode") in ("generated_stills", "generated_clips"):
+        # Premium: only this beat's still is made again (one paid image, spend-capped); every other scene, the script and the plan stay as they are
+        from src.engines.render.tier_free.studio3d_engine import Studio3DEngine
+        from src.models.schemas import Storyboard
+        from src.services.premium.director import regenerate_beat_still
+        assets_dir = os.path.join(job_output_dir, "assets")
+        try:
+            changed = regenerate_beat_still(storyboard, script_dict["premium"], scene_number, assets_dir, new_prompt=payload.visual_prompt)
+        except ValueError as e:
+            raise HTTPException(status_code=422, detail=str(e))
+        for n in changed:   # new preview frame for just the scenes that changed
+            sc = SceneBeat.parse_obj(next(s for s in storyboard["scenes"] if s["scene_number"] == n))
+            spec = Studio3DEngine.build_spec(Storyboard(topic_title=storyboard.get("topic_title", ""), total_scenes=1, layout=storyboard.get("layout"), header=storyboard.get("header"), scenes=[sc]), look=storyboard.get("style_bible") or "")
+            still = Studio3DEngine.render_stills(spec, [sc.start_sec + 0.55 * (sc.end_sec - sc.start_sec)], frames_dir, assets_dir=assets_dir)[0]
+            os.replace(still, os.path.join(frames_dir, f"scene_{n:02d}.png"))
+        scene = SceneBeat.parse_obj(next(s for s in storyboard["scenes"] if s["scene_number"] == scene_number))
+        scene.image_path = img_path
+        scene.image_url = f"/media/jobs/{job_id}/storyboard_frames/scene_{scene.scene_number:02d}.png"
+        storyboard["scenes"][target_idx] = scene.dict()
+        job.script_data = json.dumps(script_dict)
+        db.commit()
+        return scene
     if get_tier(job.generation_tier)["renderer"] == "studio3d":
         # Free tier: the creator's note re-directs this beat's 3D scene; narration and timing stay fixed
         from src.agents.scene3d_director import Scene3DDirector
@@ -625,6 +647,35 @@ def regenerate_scene_visual(
     job.script_data = json.dumps(script_dict)
     db.commit()
     return scene
+
+@router.post("/{job_id}/retry", response_model=ReelJobRead)
+def retry_failed_job(
+    job_id: str,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Resumes a failed job at the stage that failed. Work saved by the failed run (script, shot plan, finished stills,
+    narration audio) is reused, so only what is missing is produced again."""
+    job = db.query(ReelJob).filter(ReelJob.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if job.status != JobStatus.FAILED.value:
+        raise HTTPException(status_code=400, detail="Only a failed job can be retried")
+    job.error_message = None
+    if not job.script_data:
+        job.status = JobStatus.PENDING.value
+        task = PipelineOrchestrator.run_stage1_blueprint
+    elif not job.quiz_data:
+        job.status = JobStatus.GATE_1_APPROVED.value
+        task = PipelineOrchestrator.run_stage2_quiz
+    else:
+        job.status = JobStatus.GATE_2_APPROVED.value
+        task = PipelineOrchestrator.run_stage3_video_synthesis
+    db.commit()
+    db.refresh(job)
+    background_tasks.add_task(task, job.id)
+    return format_job_response(job)
 
 @router.post("/{job_id}/gate1/approve", response_model=ReelJobRead)
 def approve_gate1_script(

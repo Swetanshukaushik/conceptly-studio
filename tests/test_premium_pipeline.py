@@ -109,7 +109,7 @@ def test_low_judge_score_regenerates_once_and_fallback_is_used(tmp_path):
     gw = _gw()
     res, _ = _run(tmp_path, gw, judge=judge, resolver=lambda q, d, n: {"src": "arch.jpg", "aspect": 1.5, "title": "photo"})
     n = res["premium"]["shots"] - 1   # one shot is a real subject and never generated
-    assert len(calls) == 2 * n and res["premium"]["images"]["archive_fallback"] == n and res["premium"]["images"]["archive"] == 1
+    assert len(calls) == min(2 * n, style.cfg()["max_images_per_reel"]) and res["premium"]["images"]["archive_fallback"] == n and res["premium"]["images"]["archive"] == 1
     assert "extra fingers" in json.dumps(gw.image_provider.calls[1].prompt)
 
 
@@ -254,7 +254,7 @@ def test_hero_model_only_on_the_first_generated_shot(tmp_path):
 def test_cache_makes_the_second_run_free(tmp_path):
     gw1 = _gw(); r1, _ = _run(tmp_path, gw1)
     spent1 = r1["premium"]["cost"]["spent_usd"]
-    gw2 = _gw(); r2, _ = _run(tmp_path, gw2)
+    gw2 = _gw(); r2, _ = _run(tmp_path, gw2, assets_dir=str(tmp_path / "other_job" / "assets"))   # a new job, so only the shared cache can help
     assert spent1 > 0 and r2["premium"]["cost"]["spent_usd"] == 0 and len(gw2.image_provider.calls) == 0
     assert r2["premium"]["cost"]["cache_hits"] == r2["premium"]["images"]["generated"] > 0
 
@@ -263,3 +263,62 @@ def test_a_rejected_image_is_not_cached(tmp_path):
     gw1 = _gw(); _run(tmp_path, gw1, judge=lambda p, s, n: {"score": 2, "issues": ["bad"]}, resolver=lambda q, d, n: {"src": "a.jpg", "aspect": 1.5})
     gw2 = _gw(); _run(tmp_path, gw2)
     assert len(gw2.image_provider.calls) > 0
+
+
+def test_landscape_photo_gets_a_blurred_backdrop_and_titles_do_not_collide(tmp_path):
+    from PIL import Image
+    assets = tmp_path / "assets"; assets.mkdir()
+    Image.new("RGB", (1200, 800), (200, 180, 160)).save(assets / "photo.jpg")
+    name = composer.make_backdrop(str(assets), "photo.jpg")
+    assert name and (assets / name).exists() and Image.open(assets / name).size == (360, 640)
+    shot = Shot(beat=1, prompt="x", title="Dandi, 1930", pop_word="salt")
+    sc = composer.compose_scene(shot, {"src": "photo.jpg", "aspect": 1.5}, {"beat": 1, "seconds": 6}, backdrop=name)
+    assert sc["objects"][0]["id"] == "backdrop" and sc["objects"][1]["id"] == "still"
+    anchors = {o["kind"]: o["anchor"] for o in sc["overlays"]}
+    assert anchors["title"] == "top" and anchors["pop"] == "center"
+
+
+def test_fact_sources_search_the_topic_title_first():
+    queries = []
+    def fetch(p):
+        if p.get("list") == "search":
+            queries.append(p["srsearch"]); return {"query": {"search": [{"title": "Salt March"}] if p["srsearch"] == "The Salt March" else []}}
+        return {"query": {"pages": {"1": {"title": "Salt March", "extract": "Began 12 March 1930."}}}}
+    out = facts.retrieve_sources("The Salt March", "History", fetch)
+    assert queries[0] == "The Salt March" and out[0]["title"] == "Salt March"
+
+
+def test_exact_titled_article_is_used_before_search_hits():
+    def fetch(p):
+        if p.get("list") == "search":
+            return {"query": {"search": [{"title": "Padandi Munduku"}]}}
+        if "extracts" not in p.get("prop", ""):
+            return {"query": {"pages": {"7": {"title": "Salt March"}, "-1": {"title": "The Salt March", "missing": ""}}}}
+        pages = {"Padandi Munduku": {"title": "Padandi Munduku", "extract": "A film."}, "Salt March": {"title": "Salt March", "extract": "Began 12 March 1930."}}
+        return {"query": {"pages": {"1": pages[p["titles"]]}}}   # one full-text extract per request, as the real API does
+    out = facts.retrieve_sources("The Salt March", "History", fetch)
+    assert [o["title"] for o in out] == ["Salt March", "Padandi Munduku"]
+
+
+def test_gate_warns_when_facts_are_not_backed_by_sources(tmp_path):
+    from src.services import quality_gate
+    res, _ = _run(tmp_path, _gw())
+    s = _premium_script(res)
+    s["premium"]["facts"] = {"status": "unverified", "claims": [{"claim": "a", "verdict": "unverified"}], "supported": 0, "sources": [{"title": "Padandi Munduku"}]}
+    out = quality_gate.evaluate(s)
+    c = {x["id"]: x for x in out["checks"]}
+    assert not c["facts_coverage"]["ok"] and not c["facts_coverage"]["blocking"] and c["facts"]["ok"]
+
+
+def test_premium_beats_use_the_measured_voice_pace_and_writer_range():
+    script = _script()
+    default = Scene3DDirectorBeats(script, None); slow = Scene3DDirectorBeats(script, 2.0)
+    assert sum(b["seconds"] for b in slow) > sum(b["seconds"] for b in default)
+    from src.services.config_loader import load_json
+    p = load_json("pacing.json")["tiers"]["premium"]
+    assert p["min_wps"] < p["words_per_second"] <= p["max_wps"]
+
+
+def Scene3DDirectorBeats(script, wps):
+    from src.agents.scene3d_director import Scene3DDirector
+    return Scene3DDirector.split_beats(script, wps=wps)

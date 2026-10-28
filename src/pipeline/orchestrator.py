@@ -1,3 +1,4 @@
+import hashlib
 import os
 import json
 from datetime import datetime
@@ -7,7 +8,7 @@ from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.database.session import SessionLocal
 from src.models.entities import ReelJob, JobStage, ReelArtifact
-from src.models.schemas import JobStatus, ReelGenerationTier, ReelScript, QuizPayload
+from src.models.schemas import JobStatus, ReelGenerationTier, ReelScript, QuizPayload, DomainPedagogyDossier, PREMIUM_FAMILY
 from src.services.curriculum_resolver import curriculum_resolver
 from src.agents.curriculum_agent import CurriculumAgent
 from src.agents.script_agent import ScriptAgent
@@ -87,7 +88,67 @@ class PipelineOrchestrator:
         return hashlib.sha1("\n".join(a.spoken_text.strip() for a in script.acts).encode("utf-8")).hexdigest()
 
     @classmethod
+    def _costed(cls, job_id: str, fn):
+        """Runs a pipeline stage with the job's spend ledger active, so every paid call (text, vision, image, voice) is priced and
+        added to it. Nested stage calls (auto-advance) share the outer ledger. The total is saved with the job when the outermost stage ends."""
+        from src.services.media import usage
+        from src.services.media.ledger import SpendLedger
+        if usage.current_job_id() == job_id:
+            return fn()
+        db = SessionLocal()
+        try:
+            job = db.query(ReelJob).filter(ReelJob.id == job_id).first()
+            tier_cfg = get_tier(job.generation_tier) if job else get_tier(None)
+            prior = (json.loads(job.script_data).get("cost") if job and job.script_data else None)
+            tier_key = tier_cfg["key"]
+        finally:
+            db.close()
+        ledger = SpendLedger.from_dict(prior, tier_cfg["cost_cap_usd"]) if prior else SpendLedger(tier_cfg["cost_cap_usd"])
+        with usage.job_scope(job_id, ledger, tier_key):
+            try:
+                return fn()
+            finally:
+                cls._save_cost(job_id, ledger)
+
+    @classmethod
+    def _save_cost(cls, job_id: str, ledger) -> None:
+        from src.services import quality_gate
+        db = SessionLocal()
+        try:
+            job = db.query(ReelJob).filter(ReelJob.id == job_id).first()
+            if not job or not job.script_data:
+                return
+            script_dict = json.loads(job.script_data)
+            cost = ledger.to_dict()
+            for e in cost["entries"]:
+                e.pop("token", None)
+            script_dict["cost"] = cost
+            if script_dict.get("premium"):
+                script_dict["premium"]["cost"] = cost
+            if script_dict.get("quality_gate"):
+                script_dict["quality_gate"] = quality_gate.evaluate(script_dict, quiz_issues=(script_dict.get("quiz_check") or {}).get("issues"),
+                                                                    tier_limits=get_tier(job.generation_tier).get("limits"))
+            job.script_data = json.dumps(script_dict)
+            db.commit()
+        except Exception as e:
+            print(f"⚠️ Could not save the cost report for job {job_id}: {e}")
+        finally:
+            db.close()
+
+    @classmethod
     def run_stage1_blueprint(cls, job_id: str, avatar_id: Optional[str] = "AUTO", auto_advance: bool = False):
+        return cls._costed(job_id, lambda: cls._stage1_blueprint(job_id, avatar_id, auto_advance))
+
+    @classmethod
+    def run_stage2_quiz(cls, job_id: str, auto_advance: bool = False):
+        return cls._costed(job_id, lambda: cls._stage2_quiz(job_id, auto_advance))
+
+    @classmethod
+    def run_stage3_video_synthesis(cls, job_id: str):
+        return cls._costed(job_id, lambda: cls._stage3_video_synthesis(job_id))
+
+    @classmethod
+    def _stage1_blueprint(cls, job_id: str, avatar_id: Optional[str] = "AUTO", auto_advance: bool = False):
         """
         Step 1: Curriculum Discovery -> Concept Extraction -> Scriptwriting -> Fact Check -> Scene Directing.
         If auto_advance is True, immediately advances through Gate 1 to Stage 2 and Stage 3 (Direct End-to-End).
@@ -107,7 +168,7 @@ class PipelineOrchestrator:
                 raise RuntimeError("Missing GEMINI_API_KEY: Please configure your Google Gemini API key in .env to dynamically generate blueprints and screenplays without hardcoding.")
 
             # Tier-aware Visual Requirement: strictly NO silent fallbacks
-            if tier in (ReelGenerationTier.TIER_4_CINEMA, ReelGenerationTier.PREMIUM):
+            if tier == ReelGenerationTier.TIER_4_CINEMA or (tier in PREMIUM_FAMILY and get_tier(job.generation_tier)["renderer"] != "studio3d"):
                 if not (settings.FAL_KEY or settings.KLING_API_KEY or settings.RUNWAY_API_KEY or settings.LUMA_API_KEY):
                     raise RuntimeError(
                         f"Credits Finished: Tier '{tier.value}' requires an external video model with active credits. "
@@ -146,10 +207,21 @@ class PipelineOrchestrator:
             pending_quiz = None
             if use_writer:
                 from src.agents.writer_agent import WriterAgent
-                dossier, script, pending_quiz = WriterAgent.write(
-                    topic_title=job.topic_title, exam_type=job.exam_type, class_level=job.class_level, subject=job.subject,
-                    tier=tier, avatar_name=f"{avatar.name} ({avatar.title})", provider=script_gen, topic_id=job.topic_id
-                )
+                # A retry after a later failure keeps the script already written, so the shots and stills made for it stay valid
+                writer_ckpt = os.path.join(settings.LOCAL_STORAGE_DIR, "jobs", job_id, "writer_checkpoint.json")
+                try:
+                    with open(writer_ckpt, encoding="utf-8") as f:
+                        saved = json.load(f)
+                    dossier, script, pending_quiz = DomainPedagogyDossier.parse_obj(saved["dossier"]), ReelScript.parse_obj(saved["script"]), (QuizPayload.parse_obj(saved["quiz"]) if saved.get("quiz") else None)
+                    cls._update_stage(db, job_id, "CONCEPT_EXTRACTION", "IN_PROGRESS", 50, "Reusing the script written before the failure...")
+                except (OSError, ValueError, KeyError):
+                    dossier, script, pending_quiz = WriterAgent.write(
+                        topic_title=job.topic_title, exam_type=job.exam_type, class_level=job.class_level, subject=job.subject,
+                        tier=tier, avatar_name=f"{avatar.name} ({avatar.title})", provider=script_gen, topic_id=job.topic_id
+                    )
+                    os.makedirs(os.path.dirname(writer_ckpt), exist_ok=True)
+                    with open(writer_ckpt, "w", encoding="utf-8") as f:
+                        json.dump({"dossier": dossier.dict(), "script": script.dict(), "quiz": pending_quiz.dict() if pending_quiz is not None else None}, f)
             else:
                 dossier = DomainIntelligenceAgent.analyze_topic_domain(
                     topic_title=job.topic_title,
@@ -207,7 +279,7 @@ class PipelineOrchestrator:
                 cls._update_stage(db, job_id, "SCRIPTWRITING", "IN_PROGRESS", 80, f"Routed to the {route['label']} pack ({route['method']}). Designing 3D scenes...")
                 from src.services.config_loader import load_json as _cfg
                 premium_record = None
-                if tier_cfg.get("scene_mode") == "generated_stills" and route["pack"] in _cfg("premium.json")["supported_packs"]:
+                if tier_cfg.get("scene_mode") in ("generated_stills", "generated_clips") and route["pack"] in _cfg("premium.json")["supported_packs"]:
                     from src.services.premium.director import direct_premium_storyboard
                     cls._update_stage(db, job_id, "SCRIPTWRITING", "IN_PROGRESS", 82, "Planning shots and generating stills under the spend cap...")
                     result = direct_premium_storyboard(script=script, subject=job.subject, class_level=job.class_level, exam_type=job.exam_type,
@@ -218,7 +290,7 @@ class PipelineOrchestrator:
                         route=route, script=script, subject=job.subject, class_level=job.class_level, exam_type=job.exam_type,
                         assets_dir=assets_dir, tier=tier, provider=script_gen
                     )
-                    if tier_cfg.get("scene_mode") == "generated_stills":
+                    if tier_cfg.get("scene_mode") in ("generated_stills", "generated_clips"):
                         storyboard.qa = (storyboard.qa or []) + [f"{route['label']} renders on the in-house 3D engine inside Premium; the premium voice still applies."]
                 # Gate 1 previews come from the same 3D scenes the final video plays, one frame per scene.
                 # Vision QA scores each frame and re-designs low-scoring beats once before the creator sees them.
@@ -310,7 +382,7 @@ class PipelineOrchestrator:
                 pass
 
     @classmethod
-    def run_stage2_quiz(cls, job_id: str, auto_advance: bool = False):
+    def _stage2_quiz(cls, job_id: str, auto_advance: bool = False):
         """
         Step 2: Triggered after Gate 1 approval.
         Produces Quiz MCQs based on approved script.
@@ -429,7 +501,7 @@ class PipelineOrchestrator:
         last_scene.end_sec = max(last_scene.start_sec + 2.5, total_audio_end + 0.6)
 
     @classmethod
-    def run_stage3_video_synthesis(cls, job_id: str):
+    def _stage3_video_synthesis(cls, job_id: str):
         """
         Step 3: Triggered after Gate 2 approval.
         Executes Voice Synthesis + Word Chronometry + Kinetic Subtitles + Movie Compositing.
@@ -453,13 +525,8 @@ class PipelineOrchestrator:
 
             # 1. Voice Synthesis & Word Chronometry directly from scene lines for 1-to-1 sync
             cls._update_stage(db, job_id, "VOICE_SYNTHESIS", "IN_PROGRESS", 20, f"Synthesizing neural speech ({tier.value} tier)...")
-            premium_ledger = None
-            if tier == ReelGenerationTier.PREMIUM and script_dict.get("premium"):
-                from src.services.media.ledger import SpendLedger
-                carried = script_dict["premium"].get("cost") or {}
-                premium_ledger = SpendLedger(carried.get("cap_usd") or get_tier(job.generation_tier)["cost_cap_usd"])
-                premium_ledger.carry(carried.get("spent_usd", 0.0), "image generation")
-            tts_engine = TTSFactory.get_engine(tier, ledger=premium_ledger)
+            from src.services.media import usage as _usage_mod
+            tts_engine = TTSFactory.get_engine(tier, ledger=_usage_mod.current_ledger())
             
             # Crucial: Synthesize from richly punctuated acts to preserve natural breathing, suspense pauses, and curious questions
             if script.acts:
@@ -481,26 +548,37 @@ class PipelineOrchestrator:
             if nar_voice:
                 avatar_voice, avatar_rate, avatar_pitch = nar_voice["id"], nar_voice.get("rate", avatar_rate), nar_voice.get("pitch", avatar_pitch)
             
-            # Pass persona prosody (rate, pitch) if supported by TTS engine
-            if isinstance(tts_engine, EdgeTTSEngine):
-                word_timestamps = tts_engine.synthesize(
-                    full_speech_text, raw_audio_path, voice=avatar_voice, rate=avatar_rate, pitch=avatar_pitch
-                )
-            else:
-                word_timestamps = tts_engine.synthesize(full_speech_text, raw_audio_path, voice=avatar_voice)
-            if premium_ledger is not None:
-                script_dict["premium"]["cost"] = {k: v for k, v in premium_ledger.to_dict().items()}
-                for e in script_dict["premium"]["cost"]["entries"]:
-                    e.pop("token", None)
-                from src.services import quality_gate as _qg
-                script_dict["quality_gate"] = _qg.evaluate(script_dict, quiz_issues=(script_dict.get("quiz_check") or {}).get("issues"), tier_limits=get_tier(job.generation_tier).get("limits"))
-                job.script_data = json.dumps(script_dict); db.commit()
+            # A retry after a render failure reuses the narration already paid for (same text, voice and tier)
+            speech_meta = os.path.join(job_output_dir, "speech_meta.json")
+            speech_key = hashlib.sha1(f"{tier.value}|{avatar_voice}|{avatar_rate}|{avatar_pitch}|{full_speech_text}".encode()).hexdigest()
+            word_timestamps = None
+            try:
+                with open(speech_meta, encoding="utf-8") as f:
+                    saved_speech = json.load(f)
+                if saved_speech.get("key") == speech_key and os.path.exists(raw_audio_path):
+                    from src.engines.tts.tts_engine import WordTimestamp
+                    word_timestamps = [WordTimestamp(**w) for w in saved_speech["words"]]
+            except (OSError, ValueError, KeyError, TypeError):
+                pass
+            if word_timestamps is None:
+                # Pass persona prosody (rate, pitch) if supported by TTS engine
+                if isinstance(tts_engine, EdgeTTSEngine):
+                    word_timestamps = tts_engine.synthesize(
+                        full_speech_text, raw_audio_path, voice=avatar_voice, rate=avatar_rate, pitch=avatar_pitch
+                    )
+                else:
+                    word_timestamps = tts_engine.synthesize(full_speech_text, raw_audio_path, voice=avatar_voice)
+                with open(speech_meta, "w", encoding="utf-8") as f:
+                    json.dump({"key": speech_key, "words": [w.dict() for w in word_timestamps]}, f)
             cls._update_stage(db, job_id, "VOICE_SYNTHESIS", "COMPLETED", 100, f"Extracted {len(word_timestamps)} word boundary timestamps.")
 
             # Align scene cuts to exact spoken audio chronometry
             if script.storyboard and script.storyboard.scenes:
                 cls._align_storyboard_to_word_timestamps(script.storyboard, word_timestamps)
                 script_dict["storyboard"] = script.storyboard.dict()
+                if script_dict.get("quality_gate") and tier in PREMIUM_FAMILY:   # real narration length, not the estimate
+                    from src.services import quality_gate as _qg2
+                    script_dict["quality_gate"] = _qg2.evaluate(script_dict, quiz_issues=(script_dict.get("quiz_check") or {}).get("issues"), tier_limits=get_tier(job.generation_tier).get("limits"))
                 job.script_data = json.dumps(script_dict)
                 db.commit()
 
@@ -519,7 +597,7 @@ class PipelineOrchestrator:
             final_mp4_path = os.path.join(job_output_dir, f"reel_{job_id}.mp4")
 
             # Enforce External Video Tool Requirement: strictly NO fallbacks
-            if tier == ReelGenerationTier.ULTRA or (tier == ReelGenerationTier.PREMIUM and get_tier(job.generation_tier)["renderer"] != "studio3d"):
+            if tier == ReelGenerationTier.ULTRA or (tier in PREMIUM_FAMILY and get_tier(job.generation_tier)["renderer"] != "studio3d"):
                 if not (settings.FAL_KEY or settings.KLING_API_KEY or settings.RUNWAY_API_KEY or settings.LUMA_API_KEY):
                     raise RuntimeError(
                         f"Missing External Video AI Tool: Tier '{tier.value}' requires an external video diffusion model. "

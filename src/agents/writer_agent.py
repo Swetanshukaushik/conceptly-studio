@@ -73,7 +73,11 @@ class WriterAgent:
         topic_id: Optional[str] = None,
     ) -> Tuple[DomainPedagogyDossier, ReelScript, QuizPayload]:
         duration = max(30, min(90, target_duration_sec))
-        min_words, max_words = max(90, int(duration * 2.1)), min(190, int(duration * 2.7))
+        tier_pace = load_json("pacing.json").get("tiers", {}).get(getattr(tier, "value", str(tier)).lower())
+        if tier_pace:   # a tier whose voice speaks at a different speed gets a word range that fits its measured pace
+            min_words, max_words = max(70, int(duration * tier_pace["min_wps"])), min(190, int(duration * tier_pace["max_wps"]))
+        else:
+            min_words, max_words = max(90, int(duration * 2.1)), min(190, int(duration * 2.7))
         user = (
             f"Target Curriculum Ingestion (for JOB 1):\n- Topic Title: {topic_title}\n- Exam Track: {exam_type}\n"
             f"- Class Level: {class_level or 'General'}\n- Subject: {subject}\n"

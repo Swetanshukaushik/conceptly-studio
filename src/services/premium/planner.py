@@ -26,6 +26,7 @@ class Shot(BaseModel):
     pop_word: Optional[str] = None
     pins: List[Pin] = Field(default_factory=list)
     reuse_previous: bool = False
+    clip_motion: Optional[str] = None   # Premium Video only: what moves in the picture, in one sentence; empty keeps the still
 
 
 class ShotPlan(BaseModel):
@@ -33,13 +34,16 @@ class ShotPlan(BaseModel):
     shots: List[Shot]
 
 
-def system_prompt(pack_name: Optional[str]) -> str:
+def system_prompt(pack_name: Optional[str], clips: bool = False) -> str:
     from src.services.concept_router import get_pack, pack_prompt
     pack = get_pack(pack_name)
     pack_text = f"Domain: {pack['label']}. " + pack.get("summary", "")
     extra = style.style_for(pack_name)
     pack_text += f"\nHouse style: {extra['medium']}; palette {extra['palette']}; {extra['lighting']}; {extra['era_note']}"
-    return load_text("prompts", "premium_planner.md").replace("{{PACK}}", pack_text)
+    text = load_text("prompts", "premium_planner.md").replace("{{PACK}}", pack_text)
+    if clips:
+        text += "\n\n" + load_text("prompts", "premium_clips.md").replace("{{MAX}}", str(style.cfg()["clips"]["max_clips_per_reel"]))
+    return text
 
 
 def user_prompt(topic: str, subject: str, beats: List[Dict[str, Any]]) -> str:
@@ -51,7 +55,25 @@ def _word_in(text: str, word: str) -> bool:
     return bool(word) and re.search(r"(?<!\w)" + re.escape(word.strip(" .,!?").lower()) + r"(?!\w)", text.lower()) is not None
 
 
-def clean_plan(plan: ShotPlan, beats: List[Dict[str, Any]], pack_name: Optional[str]) -> Dict[str, Any]:
+def enforce_clips(shots: List[Shot], beats: List[Dict[str, Any]], enabled: bool) -> List[str]:
+    """Only plain, long-enough beats become clips, and no more than the per-reel limit (cost stays predictable). The rest keep their still."""
+    cfg = style.cfg()["clips"]; secs = {b["beat"]: b["seconds"] for b in beats}; notes: List[str] = []; kept = 0
+    for s in shots:
+        if not s.clip_motion:
+            continue
+        why = ("clips are off for this tier" if not enabled else "beat too short for a clip" if secs.get(s.beat, 0) < cfg["min_beat_seconds"]
+               else "a shared, pinned or archive-photo beat stays a still" if (s.reuse_previous or s.pins or s.real_photo_query or s.shot_type == "diagram")
+               else "clip limit reached" if kept >= cfg["max_clips_per_reel"] else "")
+        if why:
+            s.clip_motion = None
+            if enabled:
+                notes.append(f"beat {s.beat}: no clip ({why})")
+        else:
+            kept += 1
+    return notes
+
+
+def clean_plan(plan: ShotPlan, beats: List[Dict[str, Any]], pack_name: Optional[str], clips: bool = False) -> Dict[str, Any]:
     """Enforces the people/text policy and drops anything the narration does not support. Returns {shots, notes}."""
     by_beat = {s.beat: s for s in plan.shots}; notes: List[str] = []; shots: List[Shot] = []
     for b in beats:
@@ -65,6 +87,7 @@ def clean_plan(plan: ShotPlan, beats: List[Dict[str, Any]], pack_name: Optional[
             shot.pop_word = None
         shots.append(shot)
     notes += enforce_sharing(shots)
+    notes += enforce_clips(shots, beats, clips)
     return {"shots": shots, "notes": notes}
 
 
@@ -90,7 +113,9 @@ def enforce_sharing(shots: List[Shot]) -> List[str]:
 
 def plan_shots(topic: str, subject: str, beats: List[Dict[str, Any]], pack_name: Optional[str], tier: Any, provider: str = "AUTO") -> Dict[str, Any]:
     from src.services.llm_factory import LLMFactory
-    plan = LLMFactory.generate_json(system_prompt=system_prompt(pack_name), user_prompt=user_prompt(topic, subject, beats),
+    from src.services.tiers import get_tier
+    clips = get_tier(getattr(tier, "value", tier)).get("scene_mode") == "generated_clips" and bool(style.cfg()["clips"]["enabled"])
+    plan = LLMFactory.generate_json(system_prompt=system_prompt(pack_name, clips), user_prompt=user_prompt(topic, subject, beats),
                                     response_model=ShotPlan, tier=tier, provider=provider, profile="director")
-    out = clean_plan(plan, beats, pack_name); out["style_note"] = plan.style_note
+    out = clean_plan(plan, beats, pack_name, clips); out["style_note"] = plan.style_note
     return out

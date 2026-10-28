@@ -32,5 +32,89 @@
       "price_per_10s_usd": 0.00225,
       "price_note": "Google pricing page, 2026-10-27"
     }
+  },
+  "text": {
+    "note": "USD per 1M tokens, Google pricing page 2026-10-28. Thinking tokens bill as output. Image and audio input bill at the text rate for these models.",
+    "default": {
+      "input_per_m": 0.75,
+      "output_per_m": 3.75,
+      "estimated": true,
+      "note": "used for models not listed: priced like the dearer Flash models"
+    },
+    "models": {
+      "gemini-3.8-flash": {
+        "input_per_m": 0.75,
+        "output_per_m": 3.75,
+        "after": {
+          "date": "2027-01-01",
+          "input_per_m": 1.5,
+          "output_per_m": 7.5
+        }
+      },
+      "gemini-3.6-flash": {
+        "input_per_m": 0.75,
+        "output_per_m": 3.75,
+        "after": {
+          "date": "2027-01-01",
+          "input_per_m": 1.5,
+          "output_per_m": 7.5
+        }
+      },
+      "gemini-3.5-flash": {
+        "input_per_m": 0.75,
+        "output_per_m": 3.75,
+        "estimated": true,
+        "note": "not on the pricing page; priced like 3.6 flash"
+      },
+      "gemini-3.5-flash-lite": {
+        "input_per_m": 0.3,
+        "output_per_m": 2.5
+      },
+      "gemini-3.1-flash-lite": {
+        "input_per_m": 0.25,
+        "output_per_m": 1.5
+      },
+      "gemini-2.5-flash": {
+        "input_per_m": 0.3,
+        "output_per_m": 2.5
+      },
+      "gemini-2.5-flash-lite": {
+        "input_per_m": 0.1,
+        "output_per_m": 0.4
+      },
+      "gpt-4o": {
+        "input_per_m": 2.5,
+        "output_per_m": 10.0,
+        "estimated": true
+      },
+      "gpt-4o-mini": {
+        "input_per_m": 0.15,
+        "output_per_m": 0.6,
+        "estimated": true
+      },
+      "claude-3-5-sonnet-20241022": {
+        "input_per_m": 3.0,
+        "output_per_m": 15.0,
+        "estimated": true
+      }
+    }
+  },
+  "usage": {
+    "log_file": "usage_log.jsonl",
+    "inr_per_usd": 88,
+    "inr_note": "approximate; use your billing page for the real figure"
+  },
+  "video": {
+    "default_model": "gemini-omni-1.1-flash",
+    "resolution": "720p",
+    "aspect_ratio": "9:16",
+    "timeout_seconds": 420,
+    "models": {
+      "gemini-omni-1.1-flash": {
+        "provider": "gemini",
+        "price_per_second_usd": 0.1,
+        "price_note": "Google pricing page 2026-10-28: about $0.10 per second of 720p video (5,792 output tokens per second at $17.50 per 1M). Clip length is chosen by the model, so cost is measured from the returned video"
+      }
+    }
   }
 }

@@ -2,6 +2,7 @@
 judge's objections, and fall back to an archival photo when the cap, the provider or the judge says no."""
 import hashlib
 import os
+import time
 from typing import Any, Callable, Dict, List, Optional
 
 from src.services.config_loader import load_json
@@ -33,11 +34,28 @@ def _save(assets_dir: str, data: bytes, mime: str, tag: str) -> str:
     return name
 
 
+def shot_key(shot: Any) -> str:
+    """Identity of what a shot asks for. A finished still is only reused while this is unchanged."""
+    return hashlib.sha1(f"{shot.prompt}|{shot.real_photo_query or ''}|{int(bool(getattr(shot, 'reuse_previous', False)))}".encode()).hexdigest()[:12]
+
+
+def reusable(prior: Optional[Dict[str, Any]], shot: Any, assets_dir: str) -> bool:
+    """A still from an earlier run counts as done when it answers the same shot and its file is still there.
+    Fallbacks and failures are not done: they are retried, so a rerun redoes only what went wrong."""
+    return bool(prior and prior.get("src") and prior.get("shot_key") == shot_key(shot) and prior.get("source") in ("generated", "archive")
+                and os.path.exists(os.path.join(assets_dir, prior["src"])))
+
+
 def produce_stills(shots: List[Any], beats: List[Dict[str, Any]], pack: Optional[str], gateway: MediaGateway, assets_dir: str,
-                   judge: Optional[Callable] = None, resolver: Optional[Callable] = None, topic: str = "", cache: Any = "default") -> Dict[int, Dict[str, Any]]:
+                   judge: Optional[Callable] = None, resolver: Optional[Callable] = None, topic: str = "", cache: Any = "default",
+                   prior: Optional[Dict[int, Dict[str, Any]]] = None, on_result: Optional[Callable] = None,
+                   sleep: Callable[[float], None] = time.sleep, allow_hero: bool = True) -> Dict[int, Dict[str, Any]]:
     """Returns beat -> {src, source, aspect, score, issues, attempts, cost_usd, note, shared_with?}.
-    source is generated | archive | archive_fallback | none. A shot marked reuse_previous shares the previous beat's still at no cost."""
+    source is generated | archive | archive_fallback | none. A shot marked reuse_previous shares the previous beat's still at no cost.
+    `prior` holds the results of an earlier run: finished shots are kept as they are and only the rest is produced.
+    `on_result(beat, result)` is called after each shot so progress can be saved while the reel is still being made."""
     cfg = style.cfg(); judge = judge or default_judge; resolver = resolver or default_resolver
+    prior = prior or {}
     if cache == "default":
         from src.services.media.cache import default_cache
         cache = default_cache()
@@ -62,14 +80,27 @@ def produce_stills(shots: List[Any], beats: List[Dict[str, Any]], pack: Optional
     prev_beat: Optional[int] = None
     for shot in shots:
         cost_before = gateway.ledger.spent
-        if getattr(shot, "reuse_previous", False) and prev_beat is not None and results.get(prev_beat, {}).get("src"):
-            results[shot.beat] = {**results[prev_beat], "attempts": 0, "cost_usd": 0.0, "shared_with": results[prev_beat].get("shared_with", prev_beat), "note": f"shares beat {prev_beat}'s still"}
+        if reusable(prior.get(shot.beat), shot, assets_dir) and not getattr(shot, "reuse_previous", False):
+            results[shot.beat] = {**prior[shot.beat], "attempts": 0, "cost_usd": 0.0, "note": "kept from an earlier run"}
+            if prior[shot.beat].get("source") == "generated":
+                first_hero_used = True
             prev_beat = shot.beat
+            if on_result:
+                on_result(shot.beat, results[shot.beat])
+            continue
+        if getattr(shot, "reuse_previous", False) and prev_beat is not None and results.get(prev_beat, {}).get("src"):
+            results[shot.beat] = {**results[prev_beat], "attempts": 0, "cost_usd": 0.0, "shared_with": results[prev_beat].get("shared_with", prev_beat), "note": f"shares beat {prev_beat}'s still", "shot_key": shot_key(shot)}
+            prev_beat = shot.beat
+            if on_result:
+                on_result(shot.beat, results[shot.beat])
             continue
         if shot.real_photo_query:   # a specific real person/place/object: archival photo only, never a generated likeness
             hit = archive(shot, "archive", "real subject: archival photo")
             if hit:
-                hit["cost_usd"] = 0.0; results[shot.beat] = hit; prev_beat = shot.beat; continue
+                hit["cost_usd"] = 0.0; hit["shot_key"] = shot_key(shot); results[shot.beat] = hit; prev_beat = shot.beat
+                if on_result:
+                    on_result(shot.beat, hit)
+                continue
         best: Optional[Dict[str, Any]] = None; avoid: List[str] = []; note = ""
         attempts = 0; max_attempts = 1 + int(cfg["regenerations_per_shot"])
         can_generate = not stop_generating and generated < int(cfg["max_images_per_reel"])
@@ -77,7 +108,7 @@ def produce_stills(shots: List[Any], beats: List[Dict[str, Any]], pack: Optional
             note = f"image limit of {cfg['max_images_per_reel']} per reel reached"
         while can_generate and attempts < max_attempts:
             attempts += 1
-            hero = cfg["hero"]["enabled"] and (not cfg["hero"]["first_shot_only"] or (not first_hero_used and attempts == 1))
+            hero = allow_hero and cfg["hero"]["enabled"] and (not cfg["hero"]["first_shot_only"] or (not first_hero_used and attempts == 1))
             model = gateway.hero_model() if hero else None
             req = ImageRequest(style.full_prompt(pack, shot.prompt, avoid), model=model, label=f"beat {shot.beat}")
             eff_model = req.model or gateway.default_model()
@@ -89,15 +120,23 @@ def produce_stills(shots: List[Any], beats: List[Dict[str, Any]], pack: Optional
                     first_hero_used = True
                 best = {"src": name, "source": "generated", "aspect": 0.5625, "score": hit.get("score"), "issues": [], "attempts": attempts, "cached": True}
                 break
-            try:
-                res = gateway.generate_image(req)
-            except BudgetExceeded as e:
-                note = f"spend cap reached: {e}"; break
-            except ProviderError as e:
-                note = f"provider error: {e}"
-                if e.status in cfg["stop_generating_on_status"]:
-                    stop_generating = True
-                    note += " (generation stopped for the rest of the reel)"
+            res = None; tries = 0
+            while res is None:   # a timeout or a 5xx retries this one image; nothing else is redone
+                try:
+                    res = gateway.generate_image(req)
+                except BudgetExceeded as e:
+                    note = f"spend cap reached: {e}"; break
+                except ProviderError as e:
+                    tries += 1
+                    if e.retryable and tries <= int(cfg.get("transient_retries", 0)) and e.status not in cfg["stop_generating_on_status"]:
+                        sleep(float(cfg.get("transient_backoff_seconds", 0)) * tries)
+                        continue
+                    note = f"provider error: {e}" + (f" (after {tries} tries)" if tries > 1 else "")
+                    if e.status in cfg["stop_generating_on_status"]:
+                        stop_generating = True
+                        note += " (generation stopped for the rest of the reel)"
+                    break
+            if res is None:
                 break
             generated += 1
             if hero:
@@ -126,7 +165,10 @@ def produce_stills(shots: List[Any], beats: List[Dict[str, Any]], pack: Optional
             else:
                 results[shot.beat] = {"src": None, "source": "none", "aspect": None, "score": None, "issues": [], "attempts": attempts, "note": note or "no image"}
         results[shot.beat]["cost_usd"] = round(gateway.ledger.spent - cost_before, 6)
+        results[shot.beat]["shot_key"] = shot_key(shot)
         prev_beat = shot.beat
+        if on_result:
+            on_result(shot.beat, results[shot.beat])
     return results
 
 

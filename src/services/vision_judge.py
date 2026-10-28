@@ -4,15 +4,18 @@ import re
 from typing import Any, Dict
 
 from src.core.config import settings
+from src.services.media.usage import check_budget
 from src.services.config_loader import load_json
 
 
 def judge_image(image_path: str, narration: str, query: str) -> Dict[str, Any]:
     """Returns {"match": bool, "reason": str}. Raises on provider errors so callers can decide."""
+    check_budget('judge_image')   # refused when the reel's budget is used up
     cfg = load_json("images.json")
     if not settings.GEMINI_API_KEY:
         raise RuntimeError("Image verification needs GEMINI_API_KEY (or set images.json verify_with_vision=false).")
-    import google.generativeai as genai
+    from src.services.media.usage import genai_module
+    genai = genai_module()
     from PIL import Image
     genai.configure(api_key=settings.GEMINI_API_KEY)
     profile = load_json("llm_models.json")["gemini"][cfg["vision_profile"]]
@@ -34,9 +37,11 @@ def judge_image(image_path: str, narration: str, query: str) -> Dict[str, Any]:
 
 def ask_image(image_path: str, prompt: str) -> Dict[str, Any]:
     """Sends one image and a prompt that asks for JSON; returns the parsed object. Raises on provider errors."""
+    check_budget('ask_image')   # refused when the reel's budget is used up
     if not settings.GEMINI_API_KEY:
         raise RuntimeError("Image review needs GEMINI_API_KEY.")
-    import google.generativeai as genai
+    from src.services.media.usage import genai_module
+    genai = genai_module()
     from PIL import Image
     genai.configure(api_key=settings.GEMINI_API_KEY)
     cfg = load_json("images.json")

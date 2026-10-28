@@ -279,6 +279,7 @@
             <option value="ALL">All Tiers</option>
             <option value="free">⚡ Free</option>
             <option value="premium">🎬 Premium</option>
+            <option value="premium_video">🎞️ Premium Video</option>
             <option value="ultra">👑 Ultra</option>
           </select>
         </div>
@@ -2253,7 +2254,7 @@
         actionBtn = `<button disabled class="w-full py-2 px-3 text-xs font-medium bg-slate-800 text-slate-400 rounded-xl cursor-not-allowed">Rendering Engine Busy...</button>`;
       } else if (j.status === "FAILED") {
         statusBadge = `<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30">Failed</span>`;
-        actionBtn = `<div class="text-[11px] text-rose-400 font-mono bg-rose-950/40 p-2 rounded-lg border border-rose-900/40 truncate" title="${j.error_message || ''}">${j.error_message || 'Pipeline halted'}</div>`;
+        actionBtn = `<div class="space-y-2"><div class="text-[11px] text-rose-400 font-mono bg-rose-950/40 p-2 rounded-lg border border-rose-900/40 truncate" title="${j.error_message || ''}">${j.error_message || 'Pipeline halted'}</div><button onclick="retryJob('${j.id}')" class="w-full py-2 px-3 text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white rounded-xl transition" title="Resumes at the failed stage and keeps the work already done">Retry failed step only</button></div>`;
       } else {
         statusBadge = `<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-slate-500/20 text-slate-400 border border-slate-500/30">${j.status}</span>`;
         actionBtn = `<button disabled class="w-full py-2 px-3 text-xs font-medium bg-slate-800 text-slate-400 rounded-xl cursor-not-allowed">Status: ${j.status}</button>`;
@@ -2460,7 +2461,7 @@
       document.getElementById("g1_hook").innerText = s.hook || "No hook paradox found";
       document.getElementById("g1_takeaway").innerText = s.key_takeaway || "No takeaway defined";
       document.getElementById("g1_word_count").innerText = `${s.total_word_count || 0}w (Target: 100-180w | 30-90s)`;
-      document.getElementById("g1_subtitle").innerText = `${activeJob.topic_title} • ${activeJob.exam_type} Class ${activeJob.class_level || 'All'} • ${resolveTierKey(activeJob.generation_tier)} tier • ${(s.quality_gate) ? 'Quality ' + s.quality_gate.score + (s.quality_gate.passed ? '' : ' ⚠ ' + s.quality_gate.checks.filter(c => !c.ok && c.blocking).map(c => c.label).join(', ')) + ' • ' : ''}${(s.premium && s.premium.cost) ? 'Spend $' + s.premium.cost.spent_usd.toFixed(3) + ' of $' + s.premium.cost.cap_usd.toFixed(2) + ' • ' + (s.premium.images ? s.premium.images.generated + ' generated stills • ' : '') : ''}${(s.math_verification && s.math_verification.status === 'verified') ? '✓ ' + s.math_verification.claims + ' narrated numbers verified • ' : ''}${(s.storyboard && s.storyboard.route) ? 'Pack: ' + s.storyboard.route.label + ' (' + s.storyboard.route.method + ', ' + s.storyboard.route.status + ') • ' : ''}[Script Engine: ${activeJob.script_generator || 'AUTO'}]`;
+      document.getElementById("g1_subtitle").innerText = `${activeJob.topic_title} • ${activeJob.exam_type} Class ${activeJob.class_level || 'All'} • ${resolveTierKey(activeJob.generation_tier)} tier • ${(s.quality_gate) ? 'Quality ' + s.quality_gate.score + (s.quality_gate.passed ? '' : ' ⚠ ' + s.quality_gate.checks.filter(c => !c.ok && c.blocking).map(c => c.label).join(', ')) + ' • ' : ''}${(s.cost || (s.premium && s.premium.cost)) ? 'Spend $' + (s.cost || s.premium.cost).spent_usd.toFixed(3) + ' of $' + (s.cost || s.premium.cost).cap_usd.toFixed(2) + ' • ' + ((s.premium && s.premium.images) ? s.premium.images.generated + ' generated stills • ' + (s.premium.clips ? s.premium.clips.made + ' of ' + s.premium.clips.planned + ' video clips • ' : '') : '') : ''}${(s.math_verification && s.math_verification.status === 'verified') ? '✓ ' + s.math_verification.claims + ' narrated numbers verified • ' : ''}${(s.storyboard && s.storyboard.route) ? 'Pack: ' + s.storyboard.route.label + ' (' + s.storyboard.route.method + ', ' + s.storyboard.route.status + ') • ' : ''}[Script Engine: ${activeJob.script_generator || 'AUTO'}]`;
 
       // Presenter Avatar Pill
       const avatarPill = document.getElementById("g1_avatar_pill");
@@ -2767,6 +2768,15 @@
         const err = await res.json();
         alert("Gate 1 approval failed: " + (err.detail || "Server error"));
       }
+    }
+
+    async function retryJob(jobId) {
+      const res = await fetch(`/api/reels/${jobId}/retry`, { method: "POST", headers: { "Authorization": `Bearer ${currentToken}` } });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert("Retry failed: " + (err.detail || "Server error"));
+      }
+      fetchJobs();
     }
 
     async function openGate2Modal(jobId) {

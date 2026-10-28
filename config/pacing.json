@@ -1,5 +1,23 @@
 {
   "words_per_second": 2.6,
-  "beat_seconds": { "min": 3.0, "target": 5.5, "max": 8.5 },
-  "lint_repair_attempts": 1
+  "beat_seconds": {
+    "min": 3.0,
+    "target": 5.5,
+    "max": 8.5
+  },
+  "lint_repair_attempts": 1,
+  "tiers": {
+    "premium": {
+      "words_per_second": 2.0,
+      "min_wps": 1.65,
+      "max_wps": 2.05,
+      "note": "Measured on the Gemini TTS voice: about 2.0 words per second (the free voice is about 2.6)"
+    },
+    "premium_video": {
+      "words_per_second": 2.0,
+      "min_wps": 1.65,
+      "max_wps": 2.05,
+      "note": "Measured on the Gemini TTS voice: about 2.0 words per second (the free voice is about 2.6)"
+    }
+  }
 }

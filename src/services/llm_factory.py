@@ -116,7 +116,9 @@ class LLMFactory:
             try:
                 from openai import OpenAI
                 client = OpenAI(api_key=settings.OPENAI_API_KEY)
-                model_name = "gpt-4o" if tier in (ReelGenerationTier.ULTRA, ReelGenerationTier.PREMIUM) else "gpt-4o-mini"
+                model_name = "gpt-4o" if tier in (ReelGenerationTier.ULTRA, ReelGenerationTier.PREMIUM, ReelGenerationTier.PREMIUM_VIDEO) else "gpt-4o-mini"
+                from src.services.media import usage as _usage
+                _usage.check_live("OpenAI")
                 completion = client.beta.chat.completions.parse(
                     model=model_name,
                     messages=[
@@ -125,6 +127,7 @@ class LLMFactory:
                     ],
                     response_format=response_model
                 )
+                _usage.record_openai(completion, model_name)
                 return completion.choices[0].message.parsed
             except Exception as e:
                 err_str = str(e).lower()
@@ -146,7 +149,8 @@ class LLMFactory:
                     "Please configure a valid key or select OpenAI as your Script Generator."
                 )
             try:
-                import google.generativeai as genai
+                from src.services.media.usage import genai_module
+                genai = genai_module()
                 genai.configure(api_key=settings.GEMINI_API_KEY)
                 candidate_models = cls._gemini_profile(profile)["models"]
                 last_gemini_err = None
@@ -175,12 +179,15 @@ class LLMFactory:
                 try:
                     import anthropic
                     client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+                    from src.services.media import usage as _usage
+                    _usage.check_live("Anthropic")
                     message = client.messages.create(
                         model="claude-3-5-sonnet-20241022",
                         max_tokens=2048,
                         system=enriched_system_prompt,
                         messages=[{"role": "user", "content": user_prompt}]
                     )
+                    _usage.record_anthropic(message, "claude-3-5-sonnet-20241022")
                     content = message.content[0].text
                     parsed = json.loads(content)
                     return response_model.model_validate(cls._coerce_payload(parsed, response_model))
@@ -190,7 +197,8 @@ class LLMFactory:
             # 2. Prioritize Gemini (Fastest, active quota)
             if settings.GEMINI_API_KEY:
                 try:
-                    import google.generativeai as genai
+                    from src.services.media.usage import genai_module
+                    genai = genai_module()
                     genai.configure(api_key=settings.GEMINI_API_KEY)
                     candidate_models = cls._gemini_profile(profile)["models"]
                     last_gemini_err = None
@@ -211,7 +219,9 @@ class LLMFactory:
                 try:
                     from openai import OpenAI
                     client = OpenAI(api_key=settings.OPENAI_API_KEY)
-                    model_name = "gpt-4o" if tier in (ReelGenerationTier.ULTRA, ReelGenerationTier.PREMIUM) else "gpt-4o-mini"
+                    model_name = "gpt-4o" if tier in (ReelGenerationTier.ULTRA, ReelGenerationTier.PREMIUM, ReelGenerationTier.PREMIUM_VIDEO) else "gpt-4o-mini"
+                    from src.services.media import usage as _usage
+                    _usage.check_live("OpenAI")
                     completion = client.beta.chat.completions.parse(
                         model=model_name,
                         messages=[
@@ -220,6 +230,7 @@ class LLMFactory:
                         ],
                         response_format=response_model
                     )
+                    _usage.record_openai(completion, model_name)
                     return completion.choices[0].message.parsed
                 except Exception as e:
                     err_str = str(e).lower()

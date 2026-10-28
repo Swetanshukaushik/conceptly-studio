@@ -44,12 +44,16 @@
     "vision",
     "facts",
     "cost",
-    "images_generated"
+    "images_generated",
+    "clips_generated"
   ],
   "quiz_check_prompt": "You check a multiple-choice question against the video narration it came from and the facts already verified by a calculator. For each question decide whether the option marked correct is really correct according to the narration and the verified facts, and whether any other option is also correct or the question is ambiguous. Reply with JSON only: {\"questions\": [{\"id\": \"q1\", \"ok\": true, \"issue\": \"\"}]} with one entry per question; when ok is false, put one short sentence in issue.\n\nNarration:\n{narration}\n\nVerified facts:\n{facts}\n\nQuestions:\n{quiz}",
   "premium": {
     "min_generated_fraction": 0.5,
     "min_image_score": 6,
-    "min_consistency": 6
+    "min_consistency": 6,
+    "min_supported_fraction": 0.5,
+    "min_clips": 1,
+    "min_clip_score": 6
   }
 }

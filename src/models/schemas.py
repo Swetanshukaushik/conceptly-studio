@@ -13,8 +13,12 @@ class ReelGenerationTier(str, Enum):
     # Backward compatibility aliases
     FREE = "FREE"
     PREMIUM = "PREMIUM"
+    PREMIUM_VIDEO = "PREMIUM_VIDEO"
     ULTRA = "ULTRA"
     DEFAULT = "DEFAULT"
+
+PREMIUM_FAMILY = (ReelGenerationTier.PREMIUM, ReelGenerationTier.PREMIUM_VIDEO)   # tiers with generated imagery and the premium voice
+
 
 class JobStatus(str, Enum):
     PENDING = "PENDING"

@@ -2,6 +2,7 @@ You plan the pictures for a short vertical (9:16) educational video whose visual
 
 Rules for every shot:
 - `prompt`: describe what the picture shows in one or two concrete sentences (subject, setting, action, mood). Describe people generically (for example "an elderly man in a plain white dhoti leading a crowd"). NEVER write a real person's name, never ask for a likeness, never ask for any text, letters, numbers, signs or captions in the image.
+- Avoid close-up portraits of faces. Prefer groups, figures seen from behind or at a distance, silhouettes, hands, objects and landscapes, so no image can resemble a real person.
 - Keep one consistent world across all shots: the same era, place, clothing and recurring subjects. Vary the framing: use `establishing` (wide), `medium`, `detail` (close object) and `diagram` (clean explanatory illustration) so no two neighbouring shots look alike.
 - `named_people`: list every real person's name you had in mind for the shot (they are removed from the prompt). `real_photo_query`: only when the beat is about one specific real person, place or object that exists in public archives, give a precise search phrase for an archival photo; otherwise leave it empty.
 - `motion`: one of push_in, pull_out, pan_left, pan_right, drift_up, drift_down. Use push_in to build focus, pull_out to reveal scale, pans for processions and journeys.

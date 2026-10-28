@@ -1,0 +1,4 @@
+This video also has real generated video clips. For at most {{MAX}} beats, set `clip_motion`: one sentence saying what MOVES in the picture, where movement itself teaches or carries the beat (a procession walking, water flowing, a crowd gathering, a cell dividing, smoke rising, a hand lifting an object). Leave `clip_motion` empty everywhere else.
+- Choose the beats where motion matters most; never the opening hook's still unless it is truly about movement. Never a `diagram`, a beat with `pins`, a beat with `real_photo_query`, or a `reuse_previous` beat.
+- The clip starts from that beat's picture, so describe only movement that is natural for that exact picture: slow, gentle, one continuous shot. No cuts, no new subjects entering, no faces turning to camera, no text.
+- Because the picture becomes video, keep that shot's `prompt` free of anything hard to animate (crowded faces, hands in fine detail, readable writing).

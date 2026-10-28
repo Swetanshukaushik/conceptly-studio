@@ -1,6 +1,8 @@
 {
   "max_images_per_reel": 16,
   "regenerations_per_shot": 1,
+  "transient_retries": 2,
+  "transient_backoff_seconds": 3,
   "judge": {
     "min_score": 6,
     "profile": "vision"
@@ -42,7 +44,7 @@
     }
   },
   "style_template": "Style for the whole video (keep identical in every image): {medium}. Palette: {palette}. Lighting: {lighting}. Camera: {lens}. {era_note} Vertical 9:16 composition with the main subject large and centred in the middle 60 percent of the frame, the top fifth and bottom fifth calm and uncluttered.",
-  "negative": "Absolutely no text, letters, numbers, captions, signs with writing, watermarks or logos anywhere in the image. No real-person likeness or celebrity faces. No extra fingers or limbs, no distorted faces, no modern objects in historical scenes.",
+  "negative": "Absolutely no text, letters, numbers, captions, signs with writing, watermarks or logos anywhere in the image. No real-person likeness or celebrity faces. No extra fingers or limbs, no distorted faces, no modern objects in historical scenes. Do not depict any recognisable real person; faces must be generic and not resemble any public figure.",
   "policy": {
     "banned_prompt_phrases": [
       "text saying",
@@ -142,6 +144,20 @@
         0.9,
         -0.9
       ]
+    },
+    "hold": {
+      "x": [
+        0,
+        0
+      ],
+      "y": [
+        0,
+        0
+      ],
+      "d": [
+        0.9,
+        0.9
+      ]
     }
   },
   "plane": {
@@ -152,14 +168,14 @@
     "enabled": true,
     "count": 45
   },
-  "judge_prompt": "You review one generated still for a short educational video. Narration for this moment: \"{narration}\". The picture was requested as: \"{prompt}\". Score 0-10 how well it shows what the narration needs, as a clean, correct, usable image. Deduct heavily for: any visible text, letters or numbers; garbled or extra hands, fingers, limbs or faces; anachronisms (modern objects in a historical scene); wrong anatomy for biology; a subject that does not match the request; a cluttered or off-centre composition. Reply with JSON only: {\"score\": 0-10, \"issues\": [\"short issue\"]}",
-  "consistency_prompt": "This image is a contact sheet of the stills of ONE short video, in order. Score 0-10 how consistent they look as a single video: same medium, palette, lighting and level of detail, and recurring subjects drawn the same way. Reply with JSON only: {\"score\": 0-10, \"issues\": [\"short issue\"]}",
+  "judge_prompt": "You review one generated still for a short educational video. Narration for this moment: \"{narration}\". The picture was requested as: \"{prompt}\". Score 0-10 how well it shows what the narration needs, as a clean, correct, usable image. Deduct heavily for: any visible text, letters or numbers; garbled or extra hands, fingers, limbs or faces; anachronisms (modern objects in a historical scene); wrong anatomy for biology; a subject that does not match the request; any face that looks like a specific real, recognisable person (a politician, celebrity or historical figure), which must score 3 or lower; a cluttered or off-centre composition. Reply with JSON only: {\"score\": 0-10, \"issues\": [\"short issue\"]}",
+  "consistency_prompt": "This image is a contact sheet of the stills of ONE short video, in order. Judge ONLY the visual style: same medium (painting or illustration versus photo-real), palette, lighting and level of detail. Ignore differences in subject, place, time of day or indoor versus outdoor, because the story moves between scenes. Score 0-10 how consistent the style is. Reply with JSON only: {\"score\": 0-10, \"issues\": [\"short issue\"]}",
   "facts": {
-    "max_sources": 3,
-    "max_source_chars": 3500,
+    "max_sources": 4,
+    "max_source_chars": 6000,
     "max_claims": 12,
     "min_supported_fraction": 0.5,
-    "prompt": "You fact-check a short educational narration against source extracts. First list the checkable claims the narration states (dates, years, names, places, titles, quantities, causal statements about events). Then judge each against the sources only: \"supported\" (a source says the same), \"contradicted\" (a source says something different), or \"unverified\" (the sources do not cover it; do not use your own memory). Reply with JSON only: {\"claims\": [{\"claim\": \"short claim\", \"verdict\": \"supported|contradicted|unverified\", \"source\": \"source title or empty\", \"note\": \"one short sentence\"}]}.\n\nNarration:\n{narration}\n\nSources:\n{sources}"
+    "prompt": "You fact-check a short educational narration against source extracts. First list the checkable claims the narration states (dates, years, names, places, titles, quantities, causal statements about events). Then judge each against the sources only. A claim is \\\"supported\\\" when the sources state the same core fact, even if the wording, detail or colour adjectives differ. Ignore metaphors and purely descriptive wording; they are not claims. Arithmetic that follows correctly from numbers stated in the narration is supported. Verdicts: \"supported\" (a source says the same), \"contradicted\" (a source says something different), or \"unverified\" (the sources do not cover it; do not use your own memory). Reply with JSON only: {\"claims\": [{\"claim\": \"short claim\", \"verdict\": \"supported|contradicted|unverified\", \"source\": \"source title or empty\", \"note\": \"one short sentence\"}]}.\n\nNarration:\n{narration}\n\nSources:\n{sources}"
   },
   "voice": {
     "provider": "gemini_tts",
@@ -191,5 +207,25 @@
   "cache": {
     "enabled": true,
     "dir": "cache/premium_images"
+  },
+  "clips": {
+    "enabled": true,
+    "max_clips_per_reel": 3,
+    "reserve_seconds": 6,
+    "max_clip_seconds": 7,
+    "fps": 24,
+    "frame_width": 720,
+    "frame_quality": 4,
+    "min_beat_seconds": 3.5,
+    "min_still_score": 7,
+    "min_score": 6,
+    "stop_on_status": [
+      401,
+      402,
+      403,
+      429
+    ],
+    "prompt": "Animate this exact image as realistic footage. Camera: {camera}. Motion: {motion}. Keep every subject, the setting, the lighting and the style exactly as in the image. No text, captions, letters or logos appear. No faces become close-ups. Natural, slow, gentle movement. No cuts.",
+    "judge_prompt": "You are checking a short generated video clip, shown as a contact sheet of frames in time order (left to right, top to bottom), against the narration it illustrates.\nNarration: {narration}\nIntended motion: {motion}\nScore 1-10 for how well it works as footage in an educational video. Score 3 or less when: the subject morphs, melts or changes identity between frames; limbs or objects distort; the scene jumps or cuts; text or watermarks appear; a recognisable real person's likeness appears; or the motion contradicts the narration. Score 6 or more when the frames form one stable, continuous shot with the intended motion.\nReply with JSON only: {\"score\": 7, \"issues\": [\"short issue\"]}"
   }
 }

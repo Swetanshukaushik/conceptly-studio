@@ -72,6 +72,8 @@ def quiz_problems(quiz: Dict[str, Any], script: Dict[str, Any], tier: Any = None
         for q in quiz["questions"])
     prompt = cfg["quiz_check_prompt"].replace("{narration}", _narration(script)).replace("{facts}", facts).replace("{quiz}", rendered)
     try:
+        from src.services.media.usage import check_budget
+        check_budget("quiz check")
         from src.services.llm_factory import LLMFactory
         if tier is None:
             from src.models.schemas import ReelGenerationTier
@@ -138,8 +140,19 @@ def evaluate(script: Dict[str, Any], quiz_issues: Optional[List[str]] = None, ti
         add("facts", "No claim contradicts its sources", fr.get("status") != "flagged",
             ("; ".join(f"{c['claim']} ({c.get('note', '')})" for c in fr.get("claims", []) if c.get("verdict") == "contradicted")[:200]) if fr.get("status") == "flagged"
             else f"{fr.get('status', 'not run')}: {fr.get('supported', 0)} supported, {fr.get('unverified', 0)} unverified")
-        cost = prem.get("cost") or {}
-        add("cost", "Spend within the per-reel cap", cost.get("spent_usd", 0) <= cost.get("cap_usd", 0) + 1e-9, f"${cost.get('spent_usd', 0):.3f} of ${cost.get('cap_usd', 0):.2f}")
+        claims = fr.get("claims") or []
+        add("facts_coverage", "Claims are backed by retrieved sources", bool(claims) and fr.get("supported", 0) / len(claims) >= pc["min_supported_fraction"],
+            f"{fr.get('supported', 0)} of {len(claims)} claims supported by {', '.join(s['title'] for s in fr.get('sources', [])[:2]) or 'no sources'}")
+    if prem and prem.get("clips") is not None:   # Premium Video promises real video: a reel that fell back to stills everywhere is flagged
+        ck = prem["clips"]; scored = [v["clip"]["score"] for v in prem.get("per_beat", {}).values() if (v.get("clip") or {}).get("score") is not None]
+        add("clips_generated", f"At least {pc['min_clips']} video clip made", ck.get("made", 0) >= pc["min_clips"],
+            f"{ck.get('made', 0)} of {ck.get('planned', 0)} planned clips" + ("; " + "; ".join(ck.get("notes", [])[:2])[:160] if ck.get("notes") else ""))
+        add("clip_quality", f"Clips score {pc['min_clip_score']}+/10 on drift review", all(sc >= pc["min_clip_score"] for sc in scored), f"lowest {min(scored):g}" if scored else "no reviewed clips")
+    cost = script.get("cost") or (prem or {}).get("cost")
+    if cost:   # every paid call: script, scenes, reviews, images, voice. Blocking for Premium (hard cap), informational for the others.
+        by = cost.get("by_kind") or {}
+        add("cost" if prem else "cost_info", "Total spend within the per-reel cap", cost.get("spent_usd", 0) <= cost.get("cap_usd", 0) + 1e-9,
+            f"${cost.get('spent_usd', 0):.3f} of ${cost.get('cap_usd', 0):.2f} (" + ", ".join(f"{k} ${v:.3f}" for k, v in sorted(by.items())) + ")")
 
     ok = sum(1 for c in checks if c["ok"])
     return {"passed": all(c["ok"] for c in checks if c["blocking"]), "score": f"{ok}/{len(checks)}", "checks": checks}

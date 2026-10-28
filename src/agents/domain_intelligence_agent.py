@@ -89,6 +89,8 @@ Analyze this domain deeply. Extract the misconception, paradox hook, 45s scope b
                 client = OpenAI(api_key=settings.OPENAI_API_KEY)
                 model_name = "gpt-4o" if tier in (ReelGenerationTier.TIER_4_CINEMA, ReelGenerationTier.TIER_5_KURZGESAGT, ReelGenerationTier.ULTRA) else "gpt-4o-mini"
                 print(f"🧠 [Stage 0 ChatGPT] Initiating Domain Assessment for '{topic_title}' via OpenAI {model_name}...")
+                from src.services.media import usage as _usage
+                _usage.check_live("OpenAI")
                 completion = client.beta.chat.completions.parse(
                     model=model_name,
                     messages=[
@@ -97,6 +99,7 @@ Analyze this domain deeply. Extract the misconception, paradox hook, 45s scope b
                     ],
                     response_format=DomainPedagogyDossier
                 )
+                _usage.record_openai(completion, model_name)
                 dossier = completion.choices[0].message.parsed
                 dossier.provider_used = f"OpenAI ChatGPT ({model_name})"
                 return dossier

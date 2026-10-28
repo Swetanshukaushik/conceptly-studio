@@ -19,19 +19,45 @@ def _get_json(params: Dict[str, Any]) -> Dict[str, Any]:
         return json.loads(r.read())
 
 
+def _clean_topic(topic: str) -> str:
+    t = topic.strip()
+    for lead in ("the ", "a ", "an ", "how ", "why "):
+        if t.lower().startswith(lead):
+            t = t[len(lead):]
+    return t
+
+
 def retrieve_sources(topic: str, subject: str = "", fetch: Optional[Callable] = None) -> List[Dict[str, Any]]:
-    """Top encyclopedia articles for the topic, as plain-text extracts. Returns [] when nothing could be fetched."""
+    """Encyclopedia articles for the topic as plain-text extracts: the topic title alone first (best match for the event or
+    structure itself), then topic plus subject. Returns [] when nothing could be fetched."""
     cfg = style.cfg()["facts"]; fetch = fetch or _get_json
+    titles: List[str] = []
     try:
-        hits = fetch({"action": "query", "list": "search", "srsearch": f"{topic} {subject}".strip(), "srlimit": cfg["max_sources"], "format": "json"})["query"]["search"]
-        titles = [h["title"] for h in hits][: cfg["max_sources"]]
+        exact = [topic.strip(), _clean_topic(topic), _clean_topic(topic).title()]
+        probe = fetch({"action": "query", "titles": "|".join(dict.fromkeys(exact)), "redirects": 1, "format": "json"})
+        for page in probe.get("query", {}).get("pages", {}).values():   # an article whose title IS the topic beats any search hit
+            if "missing" not in page and page.get("title") and page["title"] not in titles:
+                titles.append(page["title"])
+        for q in dict.fromkeys([topic.strip(), _clean_topic(topic), f"{topic} {subject}".strip()]):
+            if len(titles) >= cfg["max_sources"]:
+                break
+            hits = fetch({"action": "query", "list": "search", "srsearch": q, "srlimit": cfg["max_sources"], "format": "json"})["query"]["search"]
+            for h in hits:
+                if h["title"] not in titles:
+                    titles.append(h["title"])
+        titles = titles[: cfg["max_sources"]]
         if not titles:
             return []
-        data = fetch({"action": "query", "prop": "extracts", "explaintext": 1, "exsectionformat": "plain", "titles": "|".join(titles), "format": "json", "redirects": 1})
+        pages = []
+        for title in titles:   # the API returns a full-text extract for one page per request
+            data = fetch({"action": "query", "prop": "extracts", "explaintext": 1, "exsectionformat": "plain", "titles": title, "format": "json", "redirects": 1})
+            pages += list(data.get("query", {}).get("pages", {}).values())
     except Exception:
         return []
+    order = {t: i for i, t in enumerate(titles)}
+    pages = sorted(pages, key=lambda p: order.get(p.get("title", ""), 99))
     out = []
-    for page in data.get("query", {}).get("pages", {}).values():
+    for page in pages:
         text = (page.get("extract") or "").strip()
         if text:
             out.append({"title": page.get("title", ""), "url": "https://en.wikipedia.org/wiki/" + urllib.parse.quote(page.get("title", "").replace(" ", "_")), "text": text[: cfg["max_source_chars"]]})
@@ -58,6 +84,8 @@ def verify_narration(narration: str, topic: str, subject: str = "", tier: Any = 
         return {"status": "skipped", "claims": [], "sources": [], "supported": 0, "contradicted": 0, "unverified": 0, "note": "no sources could be retrieved"}
     prompt = cfg["prompt"].replace("{narration}", narration).replace("{sources}", "\n\n".join(f"[{s['title']}]\n{s['text']}" for s in sources))
     try:
+        from src.services.media.usage import check_budget
+        check_budget("fact check")
         if ask:
             verdicts = ask(prompt)
         else:

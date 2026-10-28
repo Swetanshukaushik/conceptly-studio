@@ -15,6 +15,8 @@ class BudgetExceeded(RuntimeError):
 
 
 class SpendLedger:
+    sink = None   # optional callable(entry) the usage module sets so every settled entry also reaches the persistent log
+
     def __init__(self, cap_usd: float, margin: float = 1.0):
         if cap_usd < 0:
             raise ValueError("cap_usd must be >= 0")
@@ -44,11 +46,37 @@ class SpendLedger:
                 self.entries.append({"token": self._next, "kind": "carried", "model": "", "label": label, "estimate_usd": spent_usd, "cost_usd": float(spent_usd), "status": "ok", "at": round(time.time(), 1)})
                 self._next += 1
 
+    def record(self, kind: str, model: str, cost_usd: float, label: str = "", **meta: Any) -> None:
+        """A paid call that was not reserved first (text and vision calls are priced after the fact from their token counts)."""
+        with self._lock:
+            self.entries.append({"token": self._next, "kind": kind, "model": model, "label": label, "estimate_usd": 0.0, "cost_usd": float(cost_usd),
+                                 "status": "ok", **meta, "at": round(time.time(), 1)})
+            self._next += 1
+            e = self.entries[-1]
+        self._emit(e)
+
+    def _emit(self, entry: Dict[str, Any]) -> None:
+        if SpendLedger.sink:
+            try:
+                SpendLedger.sink(entry)
+            except Exception:
+                pass
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any], cap_usd: Optional[float] = None, margin: float = 1.0) -> "SpendLedger":
+        """Rebuild the ledger a previous pipeline stage stored, so spend keeps adding up across stages."""
+        led = cls(cap_usd if cap_usd is not None else data.get("cap_usd", 0.0), margin)
+        for e in data.get("entries", []):
+            led.entries.append({**e, "token": led._next}); led._next += 1
+        return led
+
     def note_free(self, kind: str, model: str, label: str = "", **meta: Any) -> None:
         """Record a call that cost nothing (a cache hit), so the report shows what was saved."""
         with self._lock:
             self.entries.append({"token": self._next, "kind": kind, "model": model, "label": label, "estimate_usd": 0.0, "cost_usd": 0.0, "status": "cached", **meta, "at": round(time.time(), 1)})
             self._next += 1
+            e = self.entries[-1]
+        self._emit(e)
 
     def can_afford(self, estimate: float) -> bool:
         return estimate * self.margin <= self.remaining + 1e-9
@@ -68,13 +96,15 @@ class SpendLedger:
     def commit(self, token: int, cost_usd: float, **meta: Any) -> None:
         with self._lock:
             self._reserved.pop(token, None)
-            self._entry(token).update({"cost_usd": float(cost_usd), "status": "ok", **meta})
+            e = self._entry(token); e.update({"cost_usd": float(cost_usd), "status": "ok", **meta})
+        self._emit(e)
 
     def release(self, token: int, reason: str, charged_usd: float = 0.0) -> None:
         """The call failed. Providers normally do not bill failures, so the hold is dropped; pass charged_usd if one did."""
         with self._lock:
             self._reserved.pop(token, None)
-            self._entry(token).update({"cost_usd": float(charged_usd), "status": "ok" if charged_usd else "failed", "error": reason[:200]})
+            e = self._entry(token); e.update({"cost_usd": float(charged_usd), "status": "ok" if charged_usd else "failed", "error": reason[:200]})
+        self._emit(e)
 
     def _entry(self, token: int) -> Dict[str, Any]:
         for e in self.entries:

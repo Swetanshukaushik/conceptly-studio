@@ -4,15 +4,18 @@ import re
 from typing import Any, Dict
 
 from src.core.config import settings
+from src.services.media.usage import check_budget
 from src.services.config_loader import load_json
 
 
 def judge_frame(image_path: str, beat: int, narration: str, intent: str, layout_note: str) -> Dict[str, Any]:
     """Returns {"score": int, "issues": [str]}. Raises on provider errors so callers decide what to do."""
+    check_budget('judge_frame')   # refused when the reel's budget is used up
     cfg = load_json("qa.json")
     if not settings.GEMINI_API_KEY:
         raise RuntimeError("Vision QA needs GEMINI_API_KEY (or set qa.json enabled=false).")
-    import google.generativeai as genai
+    from src.services.media.usage import genai_module
+    genai = genai_module()
     from PIL import Image
     genai.configure(api_key=settings.GEMINI_API_KEY)
     profile = load_json("llm_models.json")["gemini"][cfg["vision_profile"]]
@@ -34,10 +37,12 @@ def judge_frame(image_path: str, beat: int, narration: str, intent: str, layout_
 
 def judge_frames(items: list, layout_note: str) -> Dict[int, Dict[str, Any]]:
     """One request for many frames. items: [{beat, path, narration, intent}]. Returns {beat: {"score", "issues"}}."""
+    check_budget('judge_frames')   # refused when the reel's budget is used up
     cfg = load_json("qa.json")
     if not settings.GEMINI_API_KEY:
         raise RuntimeError("Vision QA needs GEMINI_API_KEY (or set qa.json enabled=false).")
-    import google.generativeai as genai
+    from src.services.media.usage import genai_module
+    genai = genai_module()
     from PIL import Image
     genai.configure(api_key=settings.GEMINI_API_KEY)
     profile = load_json("llm_models.json")["gemini"][cfg["vision_profile"]]

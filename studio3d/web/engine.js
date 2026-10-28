@@ -408,6 +408,20 @@ export class Engine {
             node.userData.baseScale = fit;
           }).catch(() => warn(`Image failed to load: ${o.src}`)));
         } else { node.userData.noImage = true; if (!o.query) warn(`Image object "${o.id}" has neither src nor query`); }
+        if (o.frames) { // frame-exact playback of a generated clip: a numbered JPEG sequence, one texture swap per rendered frame
+          const count = Math.max(1, o.frame_count | 0), ffps = o.frame_fps || 24, base = `${this.assetBase}${o.frames}/f_`;
+          let shown = -1;
+          node.userData.prepareFrame = async (c) => {
+            const k = Math.max(0, Math.min(count - 1, Math.floor(c.t * ffps))); // holds the last frame if the beat outlasts the clip
+            if (k === shown) return; shown = k;
+            try {
+              const tex = await new THREE.TextureLoader().loadAsync(`${base}${String(k + 1).padStart(4, '0')}.jpg`);
+              tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+              const old = m.map; m.map = tex; m.needsUpdate = true; if (old) old.dispose();
+              const asp = tex.image.width / tex.image.height; node.userData.baseScale = asp > w / h ? [1, (w / asp) / h, 1] : [(h * asp) / w, 1, 1];
+            } catch { warn(`Clip frame failed to load: ${o.frames} #${k + 1}`); }
+          };
+        }
         break;
       }
       case 'glow': {
@@ -746,6 +760,8 @@ export class Engine {
     const ctx = { ...S.ctxScope.ctxExtra, t, p: Math.min(1, t / dur), T, dur, ts };
     this.applyPost(S.look);
 
+    const frameJobs = S.ctxScope.dyn.map((r) => r.node.userData.prepareFrame && r.node.userData.prepareFrame(ctx)).filter(Boolean);
+    if (frameJobs.length) await Promise.all(frameJobs);
     for (const r of S.ctxScope.dyn) r.update(ctx);
     // fade child materials for appear/vanish and apply dynamic material expressions
     for (const r of S.ctxScope.dyn) {

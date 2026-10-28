@@ -59,6 +59,36 @@ Four open decisions and two unknowns (real image-model quality and real cost per
 
 Without image credits every still falls back to an archive photo and the gate blocks the reel (`images_generated`), so a Premium reel cannot ship looking like a Free one by accident.
 
+## Pilot result (2026-10-28, real images, Gemini flash-lite-image plus flash-image for the first shot)
+
+Six reels, stage 1 each; Salt March also rendered end to end with the Gemini voice (720x1280, 54 s).
+
+| Reel | Gate | Spend (config prices) | Consistency | Facts |
+| --- | --- | --- | --- | --- |
+| The Salt March | 16/16 passed | $0.215 | 7 | 8 supported |
+| The Revolt of 1857 | 16/16 passed | $0.237 | 7 | 3 supported |
+| How the Indian Constitution was drafted | 16/16 passed | $0.237 | 7 | 2 supported, 1 unverified |
+| How the human heart pumps blood | 16/16 passed | $0.237 | 6 | 5 supported, 1 unverified |
+| How a neuron fires | 15/16 passed | $0.305 | 6 | 0 of 2 supported (warning) |
+| How DNA is copied | 14/16 **blocked** | $0.305 | 7 | 6 supported; the reviewer found letters drawn on the base structures in two images |
+
+Average $0.26 per reel against the $0.75 cap. Spend is the configured flat price per image, not billing data: compare with AI Studio usage before trusting it.
+
+Found and fixed during the pilot: a legacy guard still demanded a video-model key for Premium; the fact check retrieved one unrelated article (the API gives a full-text extract for only one page per request); archive photos left black bars (blurred backdrop added); title and pop word collided; the consistency reviewer penalised scene changes instead of style; one generated face resembled a real person (prompt, planner and reviewer tightened); the Gemini voice speaks at about 2.0 words per second against 2.6 assumed, so Premium now has its own pacing and writer word range; the gate now re-checks duration after narration timing exists.
+
+Still open: text in biology diagrams slips through generation and can only be blocked or retried (no archive photo exists for a concept); fact coverage is weak for neuroscience-style topics where the retrieved article is long and the claims are specific; the reviewer's scores cluster at 7, so its sensitivity is unproven; only one reel has been listened to and watched in full; one stylised figure of a real historical person still appears in the Salt March reel (stylised, not a likeness, but the policy needs an owner decision).
+
+## Cost tracking (2026-10-28)
+
+The first pilot used about twice the credits the ledger reported, because only images and the voice were counted. Now every paid call is recorded:
+
+- `src/services/media/usage.py` wraps `generate_content` of the Gemini SDK once, so every text, vision, planner, fact-check and review call is priced from its token counts (thinking tokens bill as output; the Gemini 3.8 and 3.6 Flash prices double on 2027-01-01 and the config switches by date). OpenAI and Anthropic calls are recorded the same way. Image and voice calls were already on the ledger.
+- Each pipeline stage runs inside a per-job ledger (`orchestrator._costed`); stages that auto-advance share one ledger, and the total is saved with the job as `script_data.cost` for every tier. The Gate 1 header shows it; the quality gate has a `cost` check (blocking for Premium, informational for Free). The Premium image gateway uses the same ledger, so one cap covers everything.
+- Optional calls (image review, frame QA, fact check, quiz check) are refused once the reel's cap is used up; required calls (script, scenes) are never blocked but always recorded.
+- Every entry is appended to `output/usage_log.jsonl`. `scripts/spend_report.py --since 2026-10-28 --by model|job|kind|day` sums it in USD and approximate rupees. Compare its total with the AI Studio billing page: a gap means a call that is not instrumented or a changed price.
+- Tests never spend money: `tests/conftest.py` sets `CONCEPTLY_BLOCK_LIVE=1`, every paid-call site refuses to run, and tests that need a real model are marked `@pytest.mark.live` and skipped unless `pytest --live`.
+- Not verified against a real call: the credits were exhausted when I tried, so the token fields were checked against the installed SDK's definitions and a fake response, not a live one. Calls made before today are not in the log.
+
 ## Decisions needed from the owner (blocking)
 
 0. **Enable billing on the Gemini project** (owner action). Without it Premium image generation cannot be tested at all.
@@ -96,3 +126,16 @@ Without image credits every still falls back to an archive photo and the gate bl
 ## Recommendation
 
 Make decisions 1 and 4 now, run Phase 0, then build Phases 1 to 3 in order. Decision 2 (clips) can wait until Phase 3 is judged.
+
+## Premium Video tier (built offline, not yet run on real credits)
+
+A fourth tier, `premium_video` (`scene_mode: generated_clips`), reuses the whole Premium pipeline and adds real video on a few beats.
+
+- **Planner** marks up to 3 beats with `clip_motion` (what moves). Code keeps only plain beats of 3.5 s or more: no diagrams, pinned labels, archive photos or shared stills.
+- **Clips** (`src/services/premium/clips.py`): image-to-video from the beat's accepted still (score 7+), through `MediaGateway.generate_clip` (reserve, call, commit measured cost). Model `gemini-omni-1.1-flash`, 720p, 9:16, about $0.10 per second (Google pricing page, 2026-10-28). Clip length is chosen by the model, so cost is `measured seconds x price`; 6 s is reserved before each call.
+- **Drift check:** six frames on a contact sheet go to the vision judge; a score under 6 discards the clip.
+- **Fallbacks:** cap, provider error, drift, ffmpeg failure all leave the beat as its still with a camera move. Auth, balance and rate-limit errors stop further clips. One retry for transient errors.
+- **Saved work:** clips are in the job checkpoint and the shared cache (keyed by still bytes + motion), so retries and repeat topics do not pay twice.
+- **Renderer:** `image` objects accept `frames`, `frame_count`, `frame_fps`; `studio3d/web/engine.js` swaps in the numbered JPEG for each rendered frame (frame-exact, holds the last frame).
+- **Gate:** `clips_generated` (blocking, at least 1 clip) and `clip_quality`; spend appears in the Gate 1 header.
+- **Open:** the request format follows Google's Omni docs but has never run against the real API; real cost per clip and clip length are unmeasured; veo models were retired 2026-10-22.

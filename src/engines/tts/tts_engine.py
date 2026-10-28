@@ -295,6 +295,8 @@ class GeminiTTSEngine(BaseTTSEngine):
                     status, payload = self.transport(url, body)
                 else:
                     import httpx
+                    from src.services.media.usage import check_live
+                    check_live("Gemini TTS")
                     r = httpx.post(url, json=body, headers={"x-goog-api-key": key}, timeout=180)
                     status, payload = r.status_code, (r.json() if r.content else {})
                 if status != 200:
@@ -380,10 +382,10 @@ class MockTTSEngine(BaseTTSEngine):
 class TTSFactory:
     @staticmethod
     def get_engine(tier: ReelGenerationTier = ReelGenerationTier.FREE, ledger=None) -> BaseTTSEngine:
-        if tier == ReelGenerationTier.PREMIUM and settings.GEMINI_API_KEY:
+        if tier in (ReelGenerationTier.PREMIUM, ReelGenerationTier.PREMIUM_VIDEO) and settings.GEMINI_API_KEY:
             from src.services.config_loader import load_json
             if load_json("premium.json")["voice"]["provider"] == "gemini_tts":
                 return GeminiTTSEngine(ledger=ledger)
-        if tier in (ReelGenerationTier.ULTRA, ReelGenerationTier.PREMIUM) and settings.ELEVENLABS_API_KEY:
+        if tier in (ReelGenerationTier.ULTRA, ReelGenerationTier.PREMIUM, ReelGenerationTier.PREMIUM_VIDEO) and settings.ELEVENLABS_API_KEY:
             return ElevenLabsEngine()
         return EdgeTTSEngine()

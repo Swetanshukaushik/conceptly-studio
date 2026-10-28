@@ -23,10 +23,11 @@ class Scene3DPlanError(RuntimeError):
 
 class Scene3DDirector:
     @staticmethod
-    def split_beats(script: ReelScript) -> List[Dict[str, Any]]:
-        """Group sentences into beats sized by config/pacing.json. Never rewrites the narration."""
+    def split_beats(script: ReelScript, wps: Optional[float] = None) -> List[Dict[str, Any]]:
+        """Group sentences into beats sized by config/pacing.json. Never rewrites the narration.
+        `wps` overrides the speaking speed for a tier whose voice is slower or faster than the default."""
         pace = load_json("pacing.json")
-        wps = pace["words_per_second"]
+        wps = wps or pace["words_per_second"]
         lo, target, hi = (pace["beat_seconds"][k] * wps for k in ("min", "target", "max"))
         beats: List[Dict[str, Any]] = []
         cur: List[str] = []; cur_act = 1; cur_title = ""

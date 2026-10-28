@@ -49,7 +49,7 @@
     },
     "premium": {
       "label": "Premium",
-      "subtitle": "Generated imagery + selective video",
+      "subtitle": "Generated imagery with camera moves",
       "icon": "🎬",
       "accent": "blue",
       "status": "available",
@@ -92,6 +92,53 @@
         "max_seconds": 70
       },
       "scene_mode": "generated_stills"
+    },
+    "premium_video": {
+      "label": "Premium Video",
+      "subtitle": "Generated stills + real video clips",
+      "icon": "🎞️",
+      "accent": "violet",
+      "status": "available",
+      "status_note": "",
+      "aliases": [
+        "PREMIUM_VIDEO"
+      ],
+      "renderer": "studio3d",
+      "est_cost_usd": 1.9,
+      "cost_cap_usd": 3.0,
+      "price_label": "~$1–$3",
+      "tagline": "Everything in Premium, with real generated video on the beats that need motion.",
+      "summary": "Premium's stills, voice and fact checks, plus a few short generated video clips on the beats where motion teaches. Each clip starts from an image the reviewer already accepted, is checked for drift, and falls back to the still with a camera move if anything goes wrong. A hard spend cap is enforced before every paid call.",
+      "highlights": [
+        "Real generated video clips on the key beats",
+        "Every clip starts from a reviewed still and is checked for drift",
+        "Falls back to a still with a camera move, never fails the reel",
+        "Premium voice, source-checked facts, archival photos",
+        "Hard spend cap enforced before every call"
+      ],
+      "required_keys": [
+        "GEMINI_API_KEY"
+      ],
+      "providers": {
+        "llm": [
+          "gemini",
+          "anthropic"
+        ],
+        "images": [
+          "gemini_image"
+        ],
+        "tts": [
+          "gemini_tts"
+        ],
+        "video": [
+          "gemini_omni_video"
+        ]
+      },
+      "limits": {
+        "min_seconds": 30,
+        "max_seconds": 70
+      },
+      "scene_mode": "generated_clips"
     },
     "ultra": {
       "label": "Ultra",

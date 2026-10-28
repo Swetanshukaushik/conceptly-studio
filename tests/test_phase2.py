@@ -1,9 +1,11 @@
 import os
 import sys
+import pytest
 import json
 
 sys.path.insert(0, os.path.abspath("."))
 
+@pytest.mark.live
 def test_phase2_intelligence():
     print("🧠 Running Phase 2 Multi-Agent Intelligence & HITL Gating Tests...")
     from src.core.config import settings
